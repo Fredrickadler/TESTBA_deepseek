@@ -1,46 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>NFT Minter</title>
-  <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      padding: 20px;
-      background: #f0f2f5;
-    }
-    .container {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      max-width: 400px;
-      margin: 0 auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    button {
-      background: #0066FF;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Mint</title>
+    <style>
+        :root {
+            --primary: #6C4DF6;
+            --secondary: #FF7E5F;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+            color: white;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+        
+        .nft-image {
+            width: 100%;
+            border-radius: 15px;
+            margin: 1rem 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 77, 246, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(108, 77, 246, 0.6);
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 1rem;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎉 NFT Minter</h1>
-    <p>Click below to mint your NFT</p>
-    <button id="mintButton">Mint Now</button>
-  </div>
+    <div class="container">
+        <h1>Exclusive NFT Drop</h1>
+        <img class="nft-image" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview">
+        <button class="btn" id="mintBtn">MINT NOW</button>
+        <div class="loading" id="loading">Processing...</div>
+    </div>
 
-  <script>
-    // ساده‌ترین نسخه بدون تصویر
-    document.getElementById('mintButton').addEventListener('click', () => {
-      alert('Minting functionality will be added next!');
-    });
-  </script>
+    <script>
+        document.getElementById('mintBtn').addEventListener('click', async function() {
+            const btn = this;
+            const loading = document.getElementById('loading');
+            
+            btn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                // Simulate minting process
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                alert('NFT Minted Successfully!');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
