@@ -3,24 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Mint App</title>
-    
-    <!-- متا تگ‌های اشتراک‌گذاری -->
-    <meta name="fc:frame" content='{
-        "version": "next",
-        "imageUrl": "https://i.imgur.com/muoYEIu.jpeg",
-        "button": {
-            "title": "Mint NFT Now",
-            "action": {
-                "type": "launch_frame",
-                "url": "https://testba-deepseek.vercel.app",
-                "name": "NFT Minter",
-                "splashImageUrl": "https://i.imgur.com/muoYEIu.jpeg",
-                "splashBackgroundColor": "#1A1A2E"
-            }
-        }
-    }'>
-    
+    <title>NFT Mint with Wallet</title>
     <style>
         :root {
             --primary: #6C4DF6;
@@ -51,19 +34,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        h1 {
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            font-size: 2rem;
-        }
-        
-        .nft-image {
-            width: 100%;
-            border-radius: 15px;
-            margin: 1rem 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
         .btn {
             background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
@@ -72,24 +42,82 @@
             border-radius: 50px;
             font-size: 1rem;
             cursor: pointer;
-            margin-top: 1rem;
+            margin: 10px;
             font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(108, 77, 246, 0.4);
+        }
+        
+        #walletInfo {
+            margin: 20px 0;
+            word-break: break-all;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Exclusive NFT Drop</h1>
-        <img class="nft-image" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview">
-        <button class="btn" id="mintBtn">MINT NOW</button>
+        <h1>NFT Mint with Wallet</h1>
+        <div id="walletInfo">Wallet not connected</div>
+        <button class="btn" id="connectBtn">Connect Wallet</button>
+        <button class="btn" id="mintBtn" disabled>Mint NFT</button>
     </div>
 
-    <script>
-        // کدهای مربوط به مینت NFT
-        document.getElementById('mintBtn').addEventListener('click', function() {
-            alert('NFT Minting functionality will be added here!');
+    <!-- استفاده از CDN برای ethers.js -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    
+    <script type="module">
+        // ایمپورت SDK فارکستر از CDN
+        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+        
+        // عناصر DOM
+        const connectBtn = document.getElementById('connectBtn');
+        const mintBtn = document.getElementById('mintBtn');
+        const walletInfo = document.getElementById('walletInfo');
+        
+        // تنظیمات قرارداد (جایگزین کنید)
+        const CONTRACT_ADDRESS = "0xe2ba182898141f19b4a7d739c715cd162d31766c";
+        const CONTRACT_ABI = ["function mint(uint256 count) public payable"];
+        
+        // اتصال به کیف پول
+        connectBtn.addEventListener('click', async () => {
+            try {
+                // بررسی وجود Ethereum Provider
+                if (!sdk.wallet.ethProvider) {
+                    throw new Error("Wallet provider not available");
+                }
+                
+                // اتصال به کیف پول
+                const accounts = await sdk.wallet.ethProvider.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                
+                const address = accounts[0];
+                walletInfo.textContent = `Connected: ${address}`;
+                connectBtn.disabled = true;
+                mintBtn.disabled = false;
+                
+            } catch (error) {
+                walletInfo.textContent = `Error: ${error.message}`;
+            }
+        });
+        
+        // مینت NFT
+        mintBtn.addEventListener('click', async () => {
+            try {
+                const provider = new ethers.providers.Web3Provider(sdk.wallet.ethProvider);
+                const signer = provider.getSigner();
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                
+                // اجرای تراکنش
+                const tx = await contract.mint(1, {
+                    value: ethers.utils.parseEther("0.01") // مثال: 0.01 ETH
+                });
+                
+                walletInfo.textContent = `Transaction sent: ${tx.hash}`;
+                await tx.wait();
+                walletInfo.textContent = `Transaction confirmed!`;
+                
+            } catch (error) {
+                walletInfo.textContent = `Error: ${error.message}`;
+            }
         });
     </script>
 </body>
