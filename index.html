@@ -1,157 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Minter</title>
-    <style>
-        :root {
-            --primary: #6C4DF6;
-            --secondary: #FF7E5F;
-        }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
-            color: white;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .btn {
-            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin: 10px;
-            font-weight: bold;
-        }
-        
-        #walletInfo, #status {
-            margin: 20px 0;
-            word-break: break-all;
-            color: #aaa;
-        }
-        
-        #nftImage {
-            width: 100%;
-            border-radius: 15px;
-            margin: 1rem 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFT Minter</title>
+  <style>
+    :root {
+      --primary: #6C4DF6;
+      --secondary: #FF7E5F;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+      color: white;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    h1 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+    
+    .btn {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 10px 0;
+      font-weight: bold;
+      width: 100%;
+      max-width: 200px;
+    }
+    
+    #walletInfo, #status {
+      margin: 15px 0;
+      word-break: break-all;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+    
+    #nftImage {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 15px;
+      margin: 1rem auto;
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>NFT Minter</h1>
-        <img id="nftImage" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview">
-        <div id="walletInfo">Connect your wallet to start</div>
-        <div id="status"></div>
-        <button class="btn" id="connectBtn">Connect Wallet</button>
-        <button class="btn" id="mintBtn" disabled>Mint NFT</button>
-    </div>
+  <div class="container">
+    <h1>NFT Minter</h1>
+    <img id="nftImage" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview">
+    <div id="walletInfo">Connect your wallet to start</div>
+    <div id="status"></div>
+    <button class="btn" id="connectBtn">Connect Wallet</button>
+    <button class="btn" id="mintBtn" disabled>Mint NFT</button>
+  </div>
 
-    <!-- استفاده از CDN برای ethers.js -->
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+  
+  <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
     
-    <script type="module">
-        // ایمپورت SDK فارکستر از CDN
-        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+    // UI Elements
+    const connectBtn = document.getElementById('connectBtn');
+    const mintBtn = document.getElementById('mintBtn');
+    const walletInfo = document.getElementById('walletInfo');
+    const status = document.getElementById('status');
+    
+    // Contract Settings
+    const CONTRACT_ADDRESS = "0xe2ba182898141f19b4a7d739c715cd162d31766c";
+    const CONTRACT_ABI = [
+      {
+        "inputs": [],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      }
+    ];
+    
+    // Connect Wallet
+    connectBtn.addEventListener('click', async () => {
+      try {
+        status.textContent = "Connecting...";
         
-        // عناصر DOM
-        const connectBtn = document.getElementById('connectBtn');
-        const mintBtn = document.getElementById('mintBtn');
-        const walletInfo = document.getElementById('walletInfo');
-        const status = document.getElementById('status');
-        const nftImage = document.getElementById('nftImage');
-
-        // تنظیمات قرارداد
-        const CONTRACT_ADDRESS = "0xe2ba182898141f19b4a7d739c715cd162d31766c";
-        const CONTRACT_ABI = [
-            {
-                "inputs": [],
-                "name": "mint",
-                "outputs": [],
-                "stateMutability": "payable",
-                "type": "function"
-            }
-        ];
-
-        // اتصال به کیف پول
-        connectBtn.addEventListener('click', async () => {
-            try {
-                status.textContent = "Connecting...";
-                
-                if (!sdk.wallet?.ethProvider) {
-                    throw new Error("Wallet provider not available");
-                }
-                
-                const accounts = await sdk.wallet.ethProvider.request({ 
-                    method: 'eth_requestAccounts' 
-                });
-                
-                const address = accounts[0];
-                const shortAddress = `${address.substring(0, 6)}...${address.substring(38)}`;
-                
-                walletInfo.innerHTML = `Connected: <strong>${shortAddress}</strong>`;
-                connectBtn.disabled = true;
-                mintBtn.disabled = false;
-                status.textContent = "Wallet connected successfully!";
-                
-            } catch (error) {
-                status.textContent = `Error: ${error.message}`;
-                console.error(error);
-            }
+        if (!sdk.wallet?.ethProvider) {
+          throw new Error("Please open in Warpcast/Farcaster");
+        }
+        
+        const accounts = await sdk.wallet.ethProvider.request({ 
+          method: 'eth_requestAccounts' 
         });
         
-        // مینت NFT
-        mintBtn.addEventListener('click', async () => {
-            try {
-                status.textContent = "Preparing transaction...";
-                mintBtn.disabled = true;
-                
-                const provider = new ethers.providers.Web3Provider(sdk.wallet.ethProvider);
-                const signer = provider.getSigner();
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                
-                // اجرای تراکنش
-                status.textContent = "Please confirm in your wallet...";
-                const tx = await contract.mint({
-                    value: ethers.utils.parseEther("0.01") // مقدار ETH برای مینت
-                });
-                
-                walletInfo.innerHTML += `<br>TX: <strong>${tx.hash}</strong>`;
-                status.textContent = "Transaction sent! Waiting for confirmation...";
-                
-                await tx.wait();
-                status.textContent = "🎉 NFT Minted Successfully!";
-                nftImage.style.border = "3px solid #6C4DF6";
-                
-            } catch (error) {
-                status.textContent = `Error: ${error.message}`;
-                mintBtn.disabled = false;
-                console.error(error);
-            }
+        const address = accounts[0];
+        const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
+        
+        walletInfo.innerHTML = `Connected: <strong>${shortAddress}</strong>`;
+        connectBtn.disabled = true;
+        mintBtn.disabled = false;
+        status.textContent = "Ready to mint!";
+        
+      } catch (error) {
+        status.textContent = error.message;
+        console.error(error);
+      }
+    });
+    
+    // Mint NFT
+    mintBtn.addEventListener('click', async () => {
+      try {
+        status.textContent = "Preparing transaction...";
+        mintBtn.disabled = true;
+        
+        const provider = new ethers.providers.Web3Provider(sdk.wallet.ethProvider);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        
+        status.textContent = "Confirm in your wallet...";
+        const tx = await contract.mint({
+          value: ethers.utils.parseEther("0.01")
         });
-    </script>
+        
+        walletInfo.innerHTML += `<br>TX Hash: <strong>${tx.hash}</strong>`;
+        status.textContent = "Processing transaction...";
+        
+        await tx.wait();
+        status.textContent = "🎉 Mint successful!";
+        document.getElementById('nftImage').style.border = "3px solid #6C4DF6";
+        
+      } catch (error) {
+        status.textContent = error.message;
+        mintBtn.disabled = false;
+        console.error(error);
+      }
+    });
+  </script>
 </body>
 </html>
