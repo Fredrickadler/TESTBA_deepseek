@@ -1,17 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My Mini App</title>
-  <script type="module">
-    import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
-    // مخفی کردن اسپلش اسکرین و غیرفعال کردن ژست‌ها
-    await sdk.actions.ready({ disableNativeGestures: true });
-    
-    // کدهای دیگر شما...
-    console.log("App loaded!");
-  </script>
+  <title>NFT Minter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    #loading {
+      display: block;
+      margin: 50px auto;
+      width: 100px;
+    }
+    #nftImage {
+      width: 300px;
+      border-radius: 10px;
+      margin: 20px auto;
+      display: none; /* ابتدا مخفی می‌شود */
+    }
+    button {
+      background: linear-gradient(90deg, #0066FF, #00CCFF);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hello Mini App!</h1>
+  <!-- تصویر لودینگ -->
+  <img id="loading" src="https://i.imgur.com/muoYEIu.jpeg" alt="Loading...">
+  
+  <!-- محتوای اصلی (ابتدا مخفی است) -->
+  <div id="appContent" style="display: none;">
+    <h1>Exclusive NFT Drop!</h1>
+    <img id="nftImage" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Image">
+    <button onclick="mintNFT()">Mint NFT</button>
+  </div>
+
+  <!-- اسکریپت‌ها -->
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+  <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+    
+    // تنظیمات قرارداد NFT (جایگزین کنید)
+    const CONTRACT_ADDRESS = "0xe2ba182898141f19b4a7d739c715cd162d31766c";
+    const NETWORK = "base";
+
+    // مخفی کردن اسپلش اسکرین و نمایش محتوا
+    async function initApp() {
+      try {
+        // احراز هویت کاربر
+        const { fid } = await sdk.auth();
+        console.log("User FID:", fid);
+        
+        // آماده‌سازی رابط کاربری
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('appContent').style.display = 'block';
+        await sdk.actions.ready();
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+
+    // تابع مینت NFT
+    async function mintNFT() {
+      if (!window.ethereum) {
+        alert("Please install MetaMask!");
+        return;
+      }
+      try {
+        const tx = await window.ethereum.request({
+          method: "eth_sendTransaction",
+          params: [{
+            to: CONTRACT_ADDRESS,
+            value: "0x0",
+            data: "0x..."
+          }]
+        });
+        alert("NFT Minted! TX: " + tx);
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // راه‌اندازی اولیه
+    initApp();
+  </script>
 </body>
 </html>
