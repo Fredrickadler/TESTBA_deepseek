@@ -3,7 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Mint</title>
+    <title>NFT Mint App</title>
+    
+    <!-- متا تگ‌های اشتراک‌گذاری -->
+    <meta name="fc:frame" content='{
+        "version": "next",
+        "imageUrl": "https://i.imgur.com/muoYEIu.jpeg",
+        "button": {
+            "title": "Mint NFT Now",
+            "action": {
+                "type": "launch_frame",
+                "url": "https://your-app-url.vercel.app",
+                "name": "NFT Minter",
+                "splashImageUrl": "https://i.imgur.com/muoYEIu.jpeg",
+                "splashBackgroundColor": "#1A1A2E"
+            }
+        }
+    }'>
+    
     <style>
         :root {
             --primary: #6C4DF6;
@@ -60,16 +77,6 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(108, 77, 246, 0.4);
         }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 20px rgba(108, 77, 246, 0.6);
-        }
-        
-        .loading {
-            display: none;
-            margin-top: 1rem;
-        }
     </style>
 </head>
 <body>
@@ -77,27 +84,12 @@
         <h1>Exclusive NFT Drop</h1>
         <img class="nft-image" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview">
         <button class="btn" id="mintBtn">MINT NOW</button>
-        <div class="loading" id="loading">Processing...</div>
     </div>
 
     <script>
-        document.getElementById('mintBtn').addEventListener('click', async function() {
-            const btn = this;
-            const loading = document.getElementById('loading');
-            
-            btn.disabled = true;
-            loading.style.display = 'block';
-            
-            try {
-                // Simulate minting process
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                alert('NFT Minted Successfully!');
-            } catch (error) {
-                alert('Error: ' + error.message);
-            } finally {
-                btn.disabled = false;
-                loading.style.display = 'none';
-            }
+        // کدهای مربوط به مینت NFT
+        document.getElementById('mintBtn').addEventListener('click', function() {
+            alert('NFT Minting functionality will be added here!');
         });
     </script>
 </body>
