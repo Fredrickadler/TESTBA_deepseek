@@ -4,51 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NFT Minter</title>
-  
-  <!-- متا تگ اشتراک‌گذاری -->
-  <meta name="fc:frame" content='{
-    "version": "next",
-    "imageUrl": "https://i.imgur.com/muoYEIu.jpeg",
-    "button": {
-      "title": "Mint NFT Now",
-      "action": {
-        "type": "launch_frame",
-        "url": "https://testba-deepseek.vercel.app",
-        "name": "NFT Minter"
-      }
-    }
-  }'>
-  
   <style>
     :root {
       --primary: #6C4DF6;
       --secondary: #FF7E5F;
+      --bg-dark: #1A1A2E;
+      --bg-light: #16213E;
+      --text-light: #F0F0F0;
+      --text-gray: #AAAAAA;
     }
     
     body {
       font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
-      color: white;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
+      color: var(--text-light);
       margin: 0;
       padding: 0;
       min-height: 100vh;
-    }
-    
-    .profile-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--primary);
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border: none;
-      color: white;
-      font-weight: bold;
     }
     
     .container {
@@ -58,24 +33,98 @@
       padding: 2rem;
       width: 90%;
       max-width: 500px;
-      margin: 60px auto 20px;
+      margin: 2rem auto;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* بقیه استایل‌ها مانند قبل */
+    h1 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+    }
+    
+    #userInfo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
+    
+    #userAvatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    #walletInfo {
+      color: var(--text-gray);
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    
+    .btn {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 0.5rem 0;
+      font-weight: bold;
+      width: 100%;
+      max-width: 200px;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    #nftImage {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 15px;
+      margin: 1rem auto;
+      display: block;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    #status {
+      color: var(--text-gray);
+      margin: 1rem 0;
+      min-height: 20px;
+    }
   </style>
 </head>
 <body>
-  <!-- دکمه پروفایل -->
-  <button class="profile-btn" id="profileBtn">P</button>
-  
   <div class="container">
     <h1>NFT Minter</h1>
+    
+    <div id="userInfo">
+      <div id="userAvatar">R</div>
+      <span>@reces.water</span>
+    </div>
+    
     <img id="nftImage" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview">
+    
     <div id="walletInfo">Connect your wallet to start</div>
     <div id="status"></div>
+    
     <button class="btn" id="connectBtn">Connect Wallet</button>
     <button class="btn" id="mintBtn" disabled>Mint NFT</button>
   </div>
@@ -85,34 +134,94 @@
   <script type="module">
     import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
     
-    // عناصر جدید
-    const profileBtn = document.getElementById('profileBtn');
+    // عناصر DOM
+    const connectBtn = document.getElementById('connectBtn');
+    const mintBtn = document.getElementById('mintBtn');
+    const walletInfo = document.getElementById('walletInfo');
+    const status = document.getElementById('status');
+    const userAvatar = document.getElementById('userAvatar');
     
-    // مشاهده پروفایل کاربر
-    profileBtn.addEventListener('click', async () => {
+    // اطلاعات قرارداد
+    const CONTRACT_ADDRESS = "0xe2ba182898141f19b4a7d739c715cd162d31766c";
+    const CONTRACT_ABI = [{
+      "inputs": [],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }];
+    
+    // اتصال به کیف پول
+    connectBtn.addEventListener('click', async () => {
       try {
-        // ابتدا اطلاعات کاربر را بگیرید
-        const { fid } = await sdk.auth();
+        status.textContent = "Connecting...";
         
-        // نمایش پروفایل
-        await sdk.actions.viewProfile({ fid });
+        if (!sdk.wallet?.ethProvider) {
+          throw new Error("Please open in Warpcast/Farcaster");
+        }
+        
+        const accounts = await sdk.wallet.ethProvider.request({ 
+          method: 'eth_requestAccounts' 
+        });
+        
+        const address = accounts[0];
+        const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
+        
+        walletInfo.innerHTML = `Connected: <strong>${shortAddress}</strong>`;
+        connectBtn.disabled = true;
+        mintBtn.disabled = false;
+        status.textContent = "Ready to mint!";
         
       } catch (error) {
-        console.error('Error viewing profile:', error);
+        status.textContent = error.message;
+        console.error(error);
       }
     });
     
-    // مدیریت رویدادهای کلاینت
-    sdk.on('frameAdded', () => {
-      console.log('User added this app to their profile');
+    // مینت NFT
+    mintBtn.addEventListener('click', async () => {
+      try {
+        status.textContent = "Preparing transaction...";
+        mintBtn.disabled = true;
+        
+        const provider = new ethers.providers.Web3Provider(sdk.wallet.ethProvider);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        
+        status.textContent = "Confirm in your wallet...";
+        const tx = await contract.mint({
+          value: ethers.utils.parseEther("0.01")
+        });
+        
+        walletInfo.innerHTML += `<br>TX Hash: <strong>${tx.hash}</strong>`;
+        status.textContent = "Processing transaction...";
+        
+        await tx.wait();
+        status.textContent = "🎉 Mint successful!";
+        document.getElementById('nftImage').style.border = "3px solid #6C4DF6";
+        
+      } catch (error) {
+        status.textContent = error.message;
+        mintBtn.disabled = false;
+        console.error(error);
+      }
     });
     
-    sdk.on('frameRemoved', () => {
-      console.log('User removed this app from their profile');
-    });
+    // نمایش اطلاعات کاربر واقعی
+    async function loadUserProfile() {
+      try {
+        const { fid, username } = await sdk.auth();
+        if (username) {
+          document.querySelector('#userInfo span').textContent = `@${username}`;
+          userAvatar.textContent = username.charAt(0).toUpperCase();
+        }
+      } catch (error) {
+        console.log("Using default user info");
+      }
+    }
     
-    // بقیه کدهای قبلی (اتصال کیف پول و مینت)...
-    
+    // بارگذاری اولیه
+    loadUserProfile();
   </script>
 </body>
 </html>
