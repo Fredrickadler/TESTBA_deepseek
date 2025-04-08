@@ -7,11 +7,15 @@
       font-family: Arial;
       text-align: center;
       padding: 20px;
+      background: #f0f2f5;
     }
-    img {
-      width: 300px;
-      border-radius: 10px;
-      margin: 20px 0;
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     button {
       background: #0066FF;
@@ -21,18 +25,21 @@
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>My NFT Minter</h1>
-  <img src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview">
-  <button id="mintButton">Mint NFT</button>
+  <div class="container">
+    <h1>🎉 NFT Minter</h1>
+    <p>Click below to mint your NFT</p>
+    <button id="mintButton">Mint Now</button>
+  </div>
 
   <script>
-    // ساده‌ترین راه برای شروع
+    // ساده‌ترین نسخه بدون تصویر
     document.getElementById('mintButton').addEventListener('click', () => {
-      alert('Minting will start soon!');
+      alert('Minting functionality will be added next!');
     });
   </script>
 </body>
