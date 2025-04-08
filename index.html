@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Mint with Wallet</title>
+    <title>NFT Minter</title>
     <style>
         :root {
             --primary: #6C4DF6;
@@ -46,16 +46,26 @@
             font-weight: bold;
         }
         
-        #walletInfo {
+        #walletInfo, #status {
             margin: 20px 0;
             word-break: break-all;
+            color: #aaa;
+        }
+        
+        #nftImage {
+            width: 100%;
+            border-radius: 15px;
+            margin: 1rem 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>NFT Mint with Wallet</h1>
-        <div id="walletInfo">Wallet not connected</div>
+        <h1>NFT Minter</h1>
+        <img id="nftImage" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview">
+        <div id="walletInfo">Connect your wallet to start</div>
+        <div id="status"></div>
         <button class="btn" id="connectBtn">Connect Wallet</button>
         <button class="btn" id="mintBtn" disabled>Mint NFT</button>
     </div>
@@ -71,52 +81,75 @@
         const connectBtn = document.getElementById('connectBtn');
         const mintBtn = document.getElementById('mintBtn');
         const walletInfo = document.getElementById('walletInfo');
-        
-        // تنظیمات قرارداد (جایگزین کنید)
+        const status = document.getElementById('status');
+        const nftImage = document.getElementById('nftImage');
+
+        // تنظیمات قرارداد
         const CONTRACT_ADDRESS = "0xe2ba182898141f19b4a7d739c715cd162d31766c";
-        const CONTRACT_ABI = ["function mint(uint256 count) public payable"];
-        
+        const CONTRACT_ABI = [
+            {
+                "inputs": [],
+                "name": "mint",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            }
+        ];
+
         // اتصال به کیف پول
         connectBtn.addEventListener('click', async () => {
             try {
-                // بررسی وجود Ethereum Provider
-                if (!sdk.wallet.ethProvider) {
+                status.textContent = "Connecting...";
+                
+                if (!sdk.wallet?.ethProvider) {
                     throw new Error("Wallet provider not available");
                 }
                 
-                // اتصال به کیف پول
                 const accounts = await sdk.wallet.ethProvider.request({ 
                     method: 'eth_requestAccounts' 
                 });
                 
                 const address = accounts[0];
-                walletInfo.textContent = `Connected: ${address}`;
+                const shortAddress = `${address.substring(0, 6)}...${address.substring(38)}`;
+                
+                walletInfo.innerHTML = `Connected: <strong>${shortAddress}</strong>`;
                 connectBtn.disabled = true;
                 mintBtn.disabled = false;
+                status.textContent = "Wallet connected successfully!";
                 
             } catch (error) {
-                walletInfo.textContent = `Error: ${error.message}`;
+                status.textContent = `Error: ${error.message}`;
+                console.error(error);
             }
         });
         
         // مینت NFT
         mintBtn.addEventListener('click', async () => {
             try {
+                status.textContent = "Preparing transaction...";
+                mintBtn.disabled = true;
+                
                 const provider = new ethers.providers.Web3Provider(sdk.wallet.ethProvider);
                 const signer = provider.getSigner();
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
                 
                 // اجرای تراکنش
-                const tx = await contract.mint(1, {
-                    value: ethers.utils.parseEther("0.01") // مثال: 0.01 ETH
+                status.textContent = "Please confirm in your wallet...";
+                const tx = await contract.mint({
+                    value: ethers.utils.parseEther("0.01") // مقدار ETH برای مینت
                 });
                 
-                walletInfo.textContent = `Transaction sent: ${tx.hash}`;
+                walletInfo.innerHTML += `<br>TX: <strong>${tx.hash}</strong>`;
+                status.textContent = "Transaction sent! Waiting for confirmation...";
+                
                 await tx.wait();
-                walletInfo.textContent = `Transaction confirmed!`;
+                status.textContent = "🎉 NFT Minted Successfully!";
+                nftImage.style.border = "3px solid #6C4DF6";
                 
             } catch (error) {
-                walletInfo.textContent = `Error: ${error.message}`;
+                status.textContent = `Error: ${error.message}`;
+                mintBtn.disabled = false;
+                console.error(error);
             }
         });
     </script>
