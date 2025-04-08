@@ -1,36 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NFT Minter</title>
-  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <title>My Mini App</title>
+  <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+    // مخفی کردن اسپلش اسکرین و غیرفعال کردن ژست‌ها
+    await sdk.actions.ready({ disableNativeGestures: true });
+    
+    // کدهای دیگر شما...
+    console.log("App loaded!");
+  </script>
 </head>
 <body>
-  <h1>🌟 Exclusive NFT Drop!</h1>
-  <img src="https://example.com/nft-image.png" width="200">
-  <button onclick="mintNFT()">Mint Free NFT!</button>
-
-  <script>
-    const CONTRACT_ADDRESS = "0xe2ba182898141f19b4a7d739c715cd162d31766c"; // جایگزین کن
-    const NETWORK = "base"; // جایگزین کن
-
-    async function mintNFT() {
-      if (!window.ethereum) {
-        alert("Install MetaMask!");
-        return;
-      }
-      await window.ethereum.request({ method: "eth_requestAccounts" });
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        ["function mint(uint256 count) public payable"],
-        signer
-      );
-      const tx = await contract.mint(1);
-      await tx.wait();
-      alert("🎉 Minted! Check your wallet.");
-    }
-  </script>
+  <h1>Hello Mini App!</h1>
 </body>
 </html>
