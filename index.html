@@ -1,41 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cosmic Fragment NFT</title>
+<style>
+  :root {
+    --primary: #6C4DF6;
+    --secondary: #FF7E5F;
+    --bg-dark: #0F0F1A;
+    --text-light: #F0F0F0;
+    --text-gray: #AAAAAA;
+  }
   
-  <!-- متا تگ‌ها -->
-  <meta property="og:title" content="Cosmic Fragment NFT">
-  <meta property="og:description" content="A unique piece of digital art, crafted with cosmic energy and rare stardust. Own a fragment of the universe!">
-  <meta property="og:image" content="https://i.imgur.com/5lAUjyc.webp">
-  <meta property="og:url" content="https://testba-deepseek.vercel.app">
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
   
-  <!-- فونت‌ها -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto+Slab:wght@300&display=swap" rel="stylesheet">
+  .stars-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    z-index: -1;
+    overflow: hidden;
+  }
   
-  <!-- استایل‌ها -->
-  <link rel="stylesheet" href="./css/styles.css">
-  <link rel="stylesheet" href="./css/loading.css">
-</head>
-<body>
-  <div class="stars-background"></div>
-  <div class="container">
-    <!-- محتوای اصلی -->
-  </div>
-
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="loader"></div>
-    <p id="loadingText">Processing...</p>
-  </div>
-
-  <!-- اسکریپت‌ها -->
-  <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
-  <script src="https://unpkg.com/@farcaster/miniapps-sdk@0.0.5/dist/index.umd.js"></script>
+  .stars-background::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: 
+      radial-gradient(2px 2px at 20px 30px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 160px 120px, #fff, rgba(0,0,0,0));
+    background-size: 200px 200px;
+    animation: stars 50s linear infinite;
+  }
   
-  <script type="module" src="./js/farcaster.js"></script>
-  <script type="module" src="./js/wallet.js"></script>
-  <script type="module" src="./js/mint.js"></script>
-  <script type="module" src="./js/app.js"></script>
-</body>
-</html>
+  @keyframes stars {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  /* بقیه استایل‌ها بدون تغییر */
+</style>
