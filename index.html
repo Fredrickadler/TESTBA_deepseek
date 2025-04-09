@@ -16,13 +16,19 @@
                 "url": "https://testba-deepseek.vercel.app",
                 "name": "Cosmic NFT",
                 "splashImageUrl": "https://i.imgur.com/muoYEIu.jpeg",
-                "splashBackgroundColor": "#4a6cf7"
+                "splashBackgroundColor": "#6A3CB5"
             }
         }
     }'>
     
+    <!-- اضافه کردن Wagmi از CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/wagmi@1.4.8/dist/wagmi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-wagmi-connector@0.0.5/dist/index.min.js"></script>
+    
+    <!-- SDK Farcaster -->
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.34/dist/index.min.js"></script>
+    
     <style>
-        /* ریست استایل‌ها */
         * {
             margin: 0;
             padding: 0;
@@ -31,7 +37,7 @@
         }
         
         body {
-            background-color: #f5f5f5;
+            background-color: #f0f0f0; /* رنگ خاکستری */
             padding: 20px;
             min-height: 100vh;
             display: flex;
@@ -49,6 +55,23 @@
             text-align: center;
         }
         
+        .nft-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 300px;
+            margin: 0 auto 25px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border: 3px solid #6A3CB5; /* بنفش فارکستر */
+        }
+        
+        .nft-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
         .wallet-section {
             display: flex;
             justify-content: space-between;
@@ -57,7 +80,7 @@
         }
         
         .wallet-btn {
-            background-color: #4a6cf7;
+            background-color: #6A3CB5; /* بنفش فارکستر */
             color: white;
             border: none;
             padding: 12px 24px;
@@ -65,11 +88,12 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
         
         .wallet-btn:hover {
-            background-color: #3a5ce9;
+            background-color: #5A2CA5;
+            transform: translateY(-2px);
         }
         
         .profile-circle {
@@ -77,7 +101,7 @@
             height: 50px;
             border-radius: 50%;
             background-color: #e0e0e0;
-            border: 2px solid #4a6cf7;
+            border: 2px solid #6A3CB5; /* بنفش فارکستر */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -85,7 +109,7 @@
         }
         
         .content {
-            margin: 40px 0;
+            margin: 20px 0;
         }
         
         h1 {
@@ -97,11 +121,11 @@
         p {
             color: #666;
             font-size: 16px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         .mint-btn {
-            background-color: #4a6cf7;
+            background-color: #6A3CB5; /* بنفش فارکستر */
             color: white;
             border: none;
             padding: 15px 30px;
@@ -113,22 +137,27 @@
             max-width: 300px;
             margin: 20px auto;
             display: block;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.3s;
         }
         
         .mint-btn:hover {
+            background-color: #5A2CA5;
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(74, 108, 247, 0.25);
+            box-shadow: 0 6px 12px rgba(106, 60, 181, 0.3);
         }
         
         #shareBtn {
             background-color: #2ecc71;
             margin-top: 10px;
         }
+        
+        .wallet-info {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+            word-break: break-all;
+        }
     </style>
-    
-    <!-- SDK Farcaster -->
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.34/dist/index.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -138,18 +167,23 @@
                 Connect Wallet
             </button>
             <div id="userProfile" class="profile-circle">
-                <!-- آیコン کاربر -->
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="#4a6cf7"/>
-                    <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="#4a6cf7"/>
+                    <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="#6A3CB5"/>
+                    <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="#6A3CB5"/>
                 </svg>
             </div>
+        </div>
+        
+        <!-- پیش‌نمایش NFT -->
+        <div class="nft-preview">
+            <img src="https://i.imgur.com/muoYEIu.jpeg" alt="Cosmic NFT Preview" id="nftImage">
         </div>
         
         <!-- محتوای اصلی -->
         <div class="content">
             <h1>Cosmic NFT</h1>
             <p>Mint your exclusive NFT on Warpcast</p>
+            <div id="walletInfo" class="wallet-info" style="display: none;"></div>
         </div>
         
         <!-- دکمه Mint -->
@@ -164,30 +198,76 @@
     </div>
 
     <script>
+        // تنظیمات Wagmi
+        const config = {
+            chains: [{ id: 8453, name: 'Base' }], // استفاده از شبکه Base
+            connectors: [
+                new FarcasterFrameWagmiConnector.miniAppConnector()
+            ]
+        };
+        
+        // مقداردهی اولیه Wagmi
+        const { connect, getAccount, watchAccount } = wagmi.setup(config);
+        
         // مدیریت لودینگ و نمایش صفحه
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // مخفی کردن اسپلش اسکرین Warpcast
             if (typeof frame !== 'undefined' && frame.sdk) {
-                frame.sdk.actions.ready({
+                await frame.sdk.actions.ready({
                     disableNativeGestures: true
                 }).catch(error => {
                     console.warn("Error hiding splash screen:", error);
                 });
             }
             
-            // اضافه کردن ایونت‌ها برای دکمه‌ها
-            document.getElementById('connectWalletBtn').addEventListener('click', function() {
-                alert("Wallet connection will be implemented soon!");
+            // بررسی وضعیت کیف پول
+            const account = getAccount();
+            updateWalletUI(account);
+            
+            // مشاهده تغییرات حساب
+            watchAccount(updateWalletUI);
+            
+            // اتصال کیف پول
+            document.getElementById('connectWalletBtn').addEventListener('click', async function() {
+                try {
+                    await connect();
+                } catch (error) {
+                    console.error("Connection error:", error);
+                    alert("Error connecting wallet");
+                }
             });
             
+            // دکمه Mint
             document.getElementById('mintBtn').addEventListener('click', function() {
-                alert("NFT Minting functionality coming soon!");
+                if (!getAccount().isConnected) {
+                    alert("Please connect your wallet first!");
+                    return;
+                }
+                alert("NFT Minting functionality will be implemented next!");
             });
             
+            // دکمه Share
             document.getElementById('shareBtn').addEventListener('click', function() {
-                alert("Sharing feature will be added soon!");
+                alert("Sharing feature coming soon!");
             });
         });
+        
+        // به‌روزرسانی UI بر اساس وضعیت کیف پول
+        function updateWalletUI(account) {
+            const walletBtn = document.getElementById('connectWalletBtn');
+            const walletInfo = document.getElementById('walletInfo');
+            
+            if (account.isConnected) {
+                walletBtn.textContent = "Wallet Connected";
+                walletBtn.style.backgroundColor = "#2ecc71";
+                walletInfo.style.display = "block";
+                walletInfo.textContent = `Connected: ${account.address.substring(0, 6)}...${account.address.substring(38)}`;
+            } else {
+                walletBtn.textContent = "Connect Wallet";
+                walletBtn.style.backgroundColor = "#6A3CB5";
+                walletInfo.style.display = "none";
+            }
+        }
     </script>
 </body>
 </html>
