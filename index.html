@@ -1,49 +1,181 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farcaster NFT Mint</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>مینت NFT اختصاصی</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tanha&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tanha', sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #4a4a4a;
+        }
+        
+        .wallet-btn {
+            background: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(110, 69, 226, 0.4);
+        }
+        
+        .wallet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(110, 69, 226, 0.6);
+        }
+        
+        .profile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        
+        .nft-image {
+            width: 350px;
+            height: 350px;
+            border-radius: 15px;
+            object-fit: cover;
+            border: 3px solid #6e45e2;
+            box-shadow: 0 10px 30px rgba(110, 69, 226, 0.3);
+            margin-bottom: 30px;
+        }
+        
+        .nft-title {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+            text-align: center;
+        }
+        
+        .nft-description {
+            font-size: 16px;
+            color: #b0b0b0;
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .mint-btn {
+            background: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(110, 69, 226, 0.4);
+            margin-top: 20px;
+        }
+        
+        .mint-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(110, 69, 226, 0.6);
+        }
+        
+        .info-box {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 40px;
+            width: 100%;
+            max-width: 800px;
+            border-left: 4px solid #6e45e2;
+        }
+        
+        .info-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+        
+        .info-text {
+            font-size: 14px;
+            color: #b0b0b0;
+            line-height: 1.7;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <button id="connect-wallet" class="connect-btn">
-                <span class="icon">🦊</span>
-                Connect Wallet
-            </button>
-            <div class="profile">
-                <div class="avatar">U</div>
+        <header>
+            <button class="wallet-btn">اتصال کیف پول</button>
+            <div class="profile">PN</div>
+        </header>
+        
+        <main class="main-content">
+            <img src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT" class="nft-image">
+            <h1 class="nft-title">NFT اختصاصی شما</h1>
+            <p class="nft-description">
+                این یک NFT منحصر به فرد است که می‌توانید آن را مینت کنید و در مجموعه دیجیتال خود داشته باشید. هر NFT دارای ویژگی‌های منحصر به فرد و ارزش خاص خود است.
+            </p>
+            <button class="mint-btn">مینت NFT</button>
+            
+            <div class="info-box">
+                <h2 class="info-title">راهنمای مینت</h2>
+                <p class="info-text">
+                    1. ابتدا با کلیک روی دکمه "اتصال کیف پول" کیف پول دیجیتال خود را متصل کنید.<br>
+                    2. پس از اتصال کیف پول، می‌توانید با کلیک روی دکمه "مینت NFT" فرآیند مینت را آغاز کنید.<br>
+                    3. هزینه گس فی و مینت از کیف پول شما کسر خواهد شد.<br>
+                    4. پس از تایید تراکنش، NFT به کیف پول شما اضافه می‌شود.
+                </p>
             </div>
-        </div>
-
-        <!-- NFT Card -->
-        <div class="nft-card">
-            <!-- NFT Image with Glow -->
-            <div class="nft-image-container">
-                <img src="https://i.imgur.com/muoYEIu.jpeg" alt="Farcaster NFT" class="nft-image">
-                <div class="glow"></div>
-                <div class="stars"></div>
-            </div>
-
-            <!-- NFT Info -->
-            <div class="nft-info">
-                <div class="counter">44/44 <span>Minted</span></div>
-                <h1>Farcaster Exclusive</h1>
-                <p>All NFTs have been claimed. Stay tuned for future drops!</p>
-                <button id="mint-button" class="mint-btn" disabled>
-                    <span class="sparkle">✧</span>
-                    Sold Out
-                </button>
-            </div>
-        </div>
+        </main>
     </div>
-
-    <script src="js/farcaster.js"></script>
-    <script src="js/wallet.js"></script>
-    <script src="js/mint.js"></script>
-    <script src="js/app.js"></script>
+    
+    <script>
+        // اسکریپت اتصال کیف پول
+        document.querySelector('.wallet-btn').addEventListener('click', function() {
+            alert('اتصال کیف پول در حال پیاده‌سازی است...');
+        });
+        
+        // اسکریپت مینت NFT
+        document.querySelector('.mint-btn').addEventListener('click', function() {
+            alert('فرآیند مینت NFT آغاز خواهد شد...');
+        });
+    </script>
 </body>
 </html>
