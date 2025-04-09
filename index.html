@@ -29,6 +29,20 @@
         </button>
     </div>
 
+    <!-- Farcaster SDK via CDN -->
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+        
+        // وقتی صفحه کاملاً بارگذاری شد
+        window.addEventListener('DOMContentLoaded', async () => {
+            // مخفی کردن اسپلش اسکرین
+            await sdk.actions.ready();
+            
+            // اینجا می‌توانید کدهای دیگر را اضافه کنید
+            console.log("App is ready!");
+        });
+    </script>
+
     <!-- JavaScript files -->
     <script src="js/app.js"></script>
     <script src="js/wallet.js"></script>
