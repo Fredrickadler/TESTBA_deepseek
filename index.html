@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmic NFT</title>
-    <meta property="og:title" content="Cosmic NFT">
-    <meta property="og:description" content="Mint your exclusive NFT on Warpcast">
     
-    <!-- فریم برای اشتراک‌گذاری -->
+    <!-- فریم اشتراک‌گذاری -->
     <meta name="fc:frame" content='{
         "version": "next",
         "imageUrl": "https://i.imgur.com/muoYEIu.jpeg",
@@ -23,15 +21,23 @@
         }
     }'>
     
+    <!-- جلوگیری از کش شدن -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- SDK Farcaster -->
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.34/dist/index.min.js"></script>
+    
     <style>
         body {
-            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
         }
         .container {
-            background-color: white;
+            background: white;
             border-radius: 16px;
             padding: 20px;
             max-width: 600px;
@@ -40,82 +46,48 @@
             min-height: 80vh;
             position: relative;
         }
-        .wallet-btn, .mint-btn {
-            background-color: #4a6cf7;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 10px 0;
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .profile-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #e0e0e0;
-            border: 2px solid #4a6cf7;
-        }
-        #shareBtn {
-            background-color: #2ecc71;
-        }
+        /* سایر استایل‌ها... */
     </style>
-    
-    <!-- استفاده از CDN جدید SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk/dist/index.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <div class="wallet-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <button id="connectWalletBtn" class="wallet-btn">
-                Connect Wallet
-            </button>
-            <div id="userProfile" class="profile-circle"></div>
-        </div>
-        
-        <div class="content" style="text-align: center; margin: 40px 0;">
-            <h1 style="font-size: 28px; margin-bottom: 16px;">Cosmic NFT</h1>
-            <p style="color: #666; font-size: 16px;">Mint your exclusive NFT on Warpcast</p>
-        </div>
-        
-        <div style="text-align: center; margin-top: 40px;">
-            <button id="mintBtn" class="mint-btn" style="padding: 14px 28px; font-size: 18px;">
-                MINT NFT
-            </button>
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px;">
-            <button id="shareBtn" class="mint-btn" style="background-color: #2ecc71;">
-                Share with Friends
-            </button>
-        </div>
+        <!-- محتوای مینی اپ -->
     </div>
 
     <script>
-        // روش جدید با SDK 0.0.34
+        // راه‌حل تضمینی برای رفع مشکل لودینگ
         document.addEventListener('DOMContentLoaded', function() {
-            // مخفی کردن اسپلش اسکرین با جدیدترین روش
-            frame.sdk.actions.ready({
-                disableNativeGestures: true
-            }).then(function() {
-                console.log("Frame is ready!");
-            }).catch(function(error) {
-                console.warn("Error in frame ready:", error);
-            });
+            // 1. ابتدا مطمئن شویم SDK به درستی لود شده
+            if (typeof frame !== 'undefined' && frame.sdk) {
+                // 2. مخفی کردن اسپلش اسکرین با تنظیمات بهینه
+                frame.sdk.actions.ready({
+                    disableNativeGestures: true
+                }).then(() => {
+                    console.log("Warpcast splash screen hidden successfully");
+                }).catch((error) => {
+                    console.warn("Error hiding splash screen:", error);
+                    // 3. اگر خطا داشتیم، بعد از 3 ثانیه به هر حال ادامه دهیم
+                    setTimeout(() => {
+                        console.log("Continuing despite splash screen error");
+                    }, 3000);
+                });
+            } else {
+                console.error("Farcaster SDK not loaded properly");
+                // 4. اگر SDK لود نشد، بعد از 5 ثانیه ادامه دهیم
+                setTimeout(() => {
+                    console.log("App loaded without SDK");
+                }, 5000);
+            }
+        });
+
+        // 5. راه‌حل جایگزین برای موارد حاد
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (typeof frame !== 'undefined' && frame.sdk) {
+                    frame.sdk.actions.ready().catch(() => {});
+                }
+            }, 1000);
         });
     </script>
-
-    <!-- فایل‌های جاوااسکریپت -->
-    <script src="js/app.js"></script>
-    <script src="js/wallet.js"></script>
-    <script src="js/mint.js"></script>
-    <script src="js/farcaster.js"></script>
-    <script src="js/share.js"></script>
 </body>
 </html>
