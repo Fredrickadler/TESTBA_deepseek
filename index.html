@@ -1,98 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Mint Mini App</title>
-    <!-- Farcaster Frame Metadata -->
-    <meta property="fc:frame" content='{"version":"vNext","image":"https://yourdomain.com/preview-image.png","buttons":[{"action":"mint","label":"Mint NFT"}]}' />
-    <meta property="og:image" content="https://yourdomain.com/preview-image.png" />
-    <style>
-        /* تمام استایل‌های قبلی را اینجا حفظ کنید */
-        /* ... */
-    </style>
+    <!-- ... (keep existing head content) ... -->
 </head>
 <body>
-    <!-- تمام HTML قبلی را اینجا حفظ کنید -->
-    <!-- ... -->
-
-    <script type="module">
-        // Load Farcaster SDK
-        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+    <!-- ... (keep existing HTML structure) ... -->
+    
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <script>
+        // Improved Wallet Connection
+        let currentAccount = null;
         
-        // Initialize when SDK is ready
-        async function initializeApp() {
-            try {
-                // Hide splash screen
-                await sdk.actions.ready();
-                
-                // Setup wallet connection
-                const connectWallet = document.getElementById('connectWallet');
-                const walletAddress = document.getElementById('walletAddress');
-                
-                connectWallet.addEventListener('click', async () => {
-                    try {
-                        // Request accounts from Farcaster wallet
-                        const accounts = await sdk.wallet.ethProvider.request({ 
-                            method: 'eth_requestAccounts' 
-                        });
-                        
-                        if (accounts.length > 0) {
-                            const address = accounts[0];
-                            walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
-                            connectWallet.style.display = 'none';
-                            walletAddress.style.display = 'block';
-                        }
-                    } catch (error) {
-                        console.error('Wallet connection error:', error);
-                    }
-                });
-
-                // Setup mint function
-                const mintButton = document.getElementById('mintButton');
-                mintButton.addEventListener('click', async () => {
-                    if (!walletAddress.textContent) {
-                        alert('Please connect your wallet first!');
-                        return;
-                    }
-
-                    mintButton.disabled = true;
-                    mintButton.textContent = "Minting...";
-
-                    try {
-                        // Mint transaction
-                        const txHash = await sdk.wallet.ethProvider.request({
-                            method: 'eth_sendTransaction',
-                            params: [{
-                                to: '0xYOUR_NFT_CONTRACT_ADDRESS',
-                                value: '0x' + (0.00044 * 1e18).toString(16), // 0.00044 ETH in wei
-                                data: '0xYOUR_MINT_FUNCTION_DATA'
-                            }]
-                        });
-
-                        // Success - share to feed
-                        await sdk.actions.composeCast({
-                            text: "Just minted my NFT! #NFT #Farcaster",
-                            embeds: [`https://yourdomain.com/nft/44`]
-                        });
-                        
-                        alert(`NFT minted! TX: ${txHash}`);
-                    } catch (error) {
-                        console.error('Minting error:', error);
-                        alert('Minting failed: ' + error.message);
-                    } finally {
-                        mintButton.disabled = false;
-                        mintButton.textContent = "MINT NOW";
-                    }
-                });
-
-            } catch (error) {
-                console.error('Initialization error:', error);
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    handleAccountsChanged(accounts);
+                    
+                    // Set up event listener for account changes
+                    ethereum.on('accountsChanged', handleAccountsChanged);
+                    
+                    return accounts[0];
+                } catch (error) {
+                    console.error("Error connecting wallet:", error);
+                    alert("Error connecting wallet: " + error.message);
+                }
+            } else {
+                alert('Please install MetaMask or another Ethereum wallet!');
             }
         }
-
-        // Start the app
-        initializeApp();
+        
+        function handleAccountsChanged(accounts) {
+            if (accounts.length === 0) {
+                console.log("Please connect to MetaMask.");
+                document.getElementById('connectWallet').style.display = 'block';
+                document.getElementById('walletAddress').style.display = 'none';
+            } else if (accounts[0] !== currentAccount) {
+                currentAccount = accounts[0];
+                const shortenedAddress = `${currentAccount.substring(0, 4)}...${currentAccount.substring(38)}`;
+                document.getElementById('connectWallet').style.display = 'none';
+                document.getElementById('walletAddress').textContent = shortenedAddress;
+                document.getElementById('walletAddress').style.display = 'block';
+                
+                // Update mint button state
+                document.getElementById('mintButton').disabled = false;
+            }
+        }
+        
+        // Real Minting Function
+        async function mintNFT() {
+            const mintButton = document.getElementById('mintButton');
+            mintButton.disabled = true;
+            mintButton.innerHTML = '<span class="loading-spinner"></span> Minting...';
+            
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+                
+                // Replace with your actual contract details
+                const contractABI = [
+                    "function mint(uint256 quantity) external payable",
+                    "function totalSupply() external view returns (uint256)",
+                    "function MAX_SUPPLY() external view returns (uint256)"
+                ];
+                const contractAddress = "0x123..."; // Your contract address
+                const contract = new ethers.Contract(contractAddress, contractABI, signer);
+                
+                // Get current supply
+                const totalSupply = await contract.totalSupply();
+                const maxSupply = await contract.MAX_SUPPLY();
+                updateMintProgress(totalSupply, maxSupply);
+                
+                // Execute mint
+                const tx = await contract.mint(1, {
+                    value: ethers.utils.parseEther("0.00044")
+                });
+                
+                // Wait for transaction confirmation
+                await tx.wait();
+                
+                // Success feedback
+                mintButton.textContent = "Minted!";
+                mintButton.classList.add('mint-success');
+                setTimeout(() => {
+                    mintButton.classList.remove('mint-success');
+                    mintButton.textContent = "MINT NOW";
+                    mintButton.disabled = false;
+                }, 3000);
+                
+                // Update supply after mint
+                const newSupply = await contract.totalSupply();
+                updateMintProgress(newSupply, maxSupply);
+                
+            } catch (error) {
+                console.error("Minting error:", error);
+                alert("Minting failed: " + (error.message || error));
+                mintButton.innerHTML = "MINT NOW";
+                mintButton.disabled = false;
+            }
+        }
+        
+        function updateMintProgress(supply, maxSupply) {
+            const percentage = (supply / maxSupply) * 100;
+            document.querySelector('.progress-bar').style.width = `${percentage}%`;
+            document.querySelector('.mint-stats span:first-child').textContent = `${Math.round(percentage)}% Minted`;
+            document.querySelector('.mint-stats span:last-child').textContent = `${supply}/${maxSupply}`;
+        }
+        
+        // Initialize
+        document.getElementById('connectWallet').addEventListener('click', connectWallet);
+        document.getElementById('mintButton').addEventListener('click', mintNFT);
+        document.getElementById('mintButton').disabled = true;
+        
+        // Check if wallet is already connected
+        if (typeof window.ethereum !== 'undefined') {
+            ethereum.request({ method: 'eth_accounts' })
+                .then(handleAccountsChanged)
+                .catch(console.error);
+        }
+        
+        // Particles animation (keep existing)
+        // ...
     </script>
 </body>
 </html>
