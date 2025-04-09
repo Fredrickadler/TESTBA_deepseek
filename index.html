@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFT Minter</title>
   
   <!-- متا تگ‌های اشتراک‌گذاری -->
   <meta property="og:title" content="NFT Minter">
@@ -10,22 +11,22 @@
   <meta property="og:image" content="https://i.imgur.com/muoYEIu.jpeg">
   <meta property="og:url" content="https://testba-deepseek.vercel.app">
   
-  <!-- متا تگ فارکستر -->
+  <!-- متا تگ فارکستر با ساختار صحیح -->
   <meta name="fc:frame" content='{
-    "version": "vNext",
-    "image": "https://i.imgur.com/muoYEIu.jpeg",
-    "buttons": [
-      {
-        "label": "Mint NFT",
-        "action": "post_redirect",
-        "target": "https://testba-deepseek.vercel.app"
+    "version": "next",
+    "imageUrl": "https://i.imgur.com/muoYEIu.jpeg",
+    "button": {
+      "title": "Mint NFT Now",
+      "action": {
+        "type": "launch_frame",
+        "url": "https://testba-deepseek.vercel.app",
+        "name": "NFT Minter",
+        "splashImageUrl": "https://i.imgur.com/muoYEIu.jpeg",
+        "splashBackgroundColor": "#1A1A2E"
       }
-    ],
-    "post_url": "https://testba-deepseek.vercel.app/api/frame",
-    "refresh_period": 10
+    }
   }'>
   
-  <title>NFT Minter</title>
   <style>
     :root {
       --primary: #6C4DF6;
@@ -154,7 +155,7 @@
     
     <div id="userInfo">
       <div id="userAvatar">R</div>
-      <span>@reces.water</span>
+      <span id="username">@reces.water</span>
     </div>
     
     <img id="nftImage" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview" loading="eager">
@@ -167,13 +168,17 @@
   </div>
 
   <script type="module">
-    // کدهای اصلی اپلیکیشن
+    import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+    
+    // عناصر DOM
     const connectBtn = document.getElementById('connectBtn');
     const mintBtn = document.getElementById('mintBtn');
     const walletInfo = document.getElementById('walletInfo');
     const status = document.getElementById('status');
     const userAvatar = document.getElementById('userAvatar');
+    const usernameElement = document.getElementById('username');
     
+    // اطلاعات قرارداد
     const CONTRACT_ADDRESS = "0xe2ba182898141f19b4a7d739c715cd162d31766c";
     const CONTRACT_ABI = [{
       "inputs": [],
@@ -183,7 +188,21 @@
       "type": "function"
     }];
     
-    connectBtn.addEventListener('click', async () => {
+    // بارگذاری اطلاعات کاربر
+    async function loadUserProfile() {
+      try {
+        const { username } = await sdk.auth();
+        if (username) {
+          usernameElement.textContent = `@${username}`;
+          userAvatar.textContent = username.charAt(0).toUpperCase();
+        }
+      } catch (error) {
+        console.log("Using default user info");
+      }
+    }
+    
+    // اتصال به کیف پول
+    async function connectWallet() {
       try {
         status.textContent = "Connecting...";
         connectBtn.disabled = true;
@@ -207,9 +226,10 @@
         status.textContent = error.message;
         connectBtn.disabled = false;
       }
-    });
+    }
     
-    mintBtn.addEventListener('click', async () => {
+    // مینت NFT
+    async function mintNFT() {
       try {
         status.textContent = "Preparing transaction...";
         mintBtn.disabled = true;
@@ -234,21 +254,13 @@
         status.textContent = error.message;
         mintBtn.disabled = false;
       }
-    });
-    
-    // بارگذاری اطلاعات کاربر
-    async function loadUserProfile() {
-      try {
-        const { username } = await sdk.auth();
-        if (username) {
-          document.querySelector('#userInfo span').textContent = `@${username}`;
-          userAvatar.textContent = username.charAt(0).toUpperCase();
-        }
-      } catch (error) {
-        console.log("Using default user info");
-      }
     }
     
+    // رویدادهای کلیک
+    connectBtn.addEventListener('click', connectWallet);
+    mintBtn.addEventListener('click', mintNFT);
+    
+    // بارگذاری اولیه
     loadUserProfile();
   </script>
 </body>
