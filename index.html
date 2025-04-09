@@ -21,72 +21,172 @@
         }
     }'>
     
-    <!-- جلوگیری از کش شدن -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <style>
+        /* ریست استایل‌ها */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .wallet-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .wallet-btn {
+            background-color: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .wallet-btn:hover {
+            background-color: #3a5ce9;
+        }
+        
+        .profile-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            border: 2px solid #4a6cf7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .content {
+            margin: 40px 0;
+        }
+        
+        h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+        
+        p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .mint-btn {
+            background-color: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            display: block;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .mint-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(74, 108, 247, 0.25);
+        }
+        
+        #shareBtn {
+            background-color: #2ecc71;
+            margin-top: 10px;
+        }
+    </style>
     
     <!-- SDK Farcaster -->
     <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.34/dist/index.min.js"></script>
-    
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            min-height: 80vh;
-            position: relative;
-        }
-        /* سایر استایل‌ها... */
-    </style>
 </head>
 <body>
     <div class="container">
-        <!-- محتوای مینی اپ -->
+        <!-- بخش اتصال کیف پول -->
+        <div class="wallet-section">
+            <button id="connectWalletBtn" class="wallet-btn">
+                Connect Wallet
+            </button>
+            <div id="userProfile" class="profile-circle">
+                <!-- آیコン کاربر -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="#4a6cf7"/>
+                    <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="#4a6cf7"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- محتوای اصلی -->
+        <div class="content">
+            <h1>Cosmic NFT</h1>
+            <p>Mint your exclusive NFT on Warpcast</p>
+        </div>
+        
+        <!-- دکمه Mint -->
+        <button id="mintBtn" class="mint-btn">
+            MINT NFT 🪄
+        </button>
+        
+        <!-- دکمه Share -->
+        <button id="shareBtn" class="mint-btn">
+            Share with Friends
+        </button>
     </div>
 
     <script>
-        // راه‌حل تضمینی برای رفع مشکل لودینگ
+        // مدیریت لودینگ و نمایش صفحه
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. ابتدا مطمئن شویم SDK به درستی لود شده
+            // مخفی کردن اسپلش اسکرین Warpcast
             if (typeof frame !== 'undefined' && frame.sdk) {
-                // 2. مخفی کردن اسپلش اسکرین با تنظیمات بهینه
                 frame.sdk.actions.ready({
                     disableNativeGestures: true
-                }).then(() => {
-                    console.log("Warpcast splash screen hidden successfully");
-                }).catch((error) => {
+                }).catch(error => {
                     console.warn("Error hiding splash screen:", error);
-                    // 3. اگر خطا داشتیم، بعد از 3 ثانیه به هر حال ادامه دهیم
-                    setTimeout(() => {
-                        console.log("Continuing despite splash screen error");
-                    }, 3000);
                 });
-            } else {
-                console.error("Farcaster SDK not loaded properly");
-                // 4. اگر SDK لود نشد، بعد از 5 ثانیه ادامه دهیم
-                setTimeout(() => {
-                    console.log("App loaded without SDK");
-                }, 5000);
             }
-        });
-
-        // 5. راه‌حل جایگزین برای موارد حاد
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                if (typeof frame !== 'undefined' && frame.sdk) {
-                    frame.sdk.actions.ready().catch(() => {});
-                }
-            }, 1000);
+            
+            // اضافه کردن ایونت‌ها برای دکمه‌ها
+            document.getElementById('connectWalletBtn').addEventListener('click', function() {
+                alert("Wallet connection will be implemented soon!");
+            });
+            
+            document.getElementById('mintBtn').addEventListener('click', function() {
+                alert("NFT Minting functionality coming soon!");
+            });
+            
+            document.getElementById('shareBtn').addEventListener('click', function() {
+                alert("Sharing feature will be added soon!");
+            });
         });
     </script>
 </body>
