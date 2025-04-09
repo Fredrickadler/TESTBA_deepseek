@@ -7,48 +7,38 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="app-wrapper">
+    <div class="container">
         <!-- Header -->
-        <header class="app-header">
-            <button id="connect-wallet" class="wallet-btn">
-                <span class="wallet-icon">🦊</span>
+        <div class="header">
+            <button id="connect-wallet" class="connect-btn">
+                <span class="icon">🦊</span>
                 Connect Wallet
             </button>
-            <div class="profile-avatar">
-                <span class="user-char">U</span>
+            <div class="profile">
+                <div class="avatar">U</div>
             </div>
-        </header>
+        </div>
 
-        <!-- Main Content -->
-        <main class="app-main">
-            <!-- NFT Display -->
-            <div class="nft-showcase">
-                <div class="nft-image-wrapper">
-                    <img src="https://i.imgur.com/muoYEIu.jpeg" alt="Farcaster NFT" class="nft-preview">
-                    <div class="nft-glow-effect"></div>
-                    <div class="floating-stars"></div>
-                </div>
-
-                <!-- NFT Info -->
-                <div class="nft-details">
-                    <div class="nft-stock">
-                        <span class="remaining">44</span>/44 Minted
-                    </div>
-                    <h1 class="nft-title">Farcaster Exclusive</h1>
-                    <p class="nft-desc">
-                        Limited edition NFT for Farcaster users. 
-                        All NFTs have been minted!
-                    </p>
-
-                    <!-- Mint Button -->
-                    <button id="mint-btn" class="mint-cta" disabled>
-                        <span class="mint-icon">✨</span>
-                        Sold Out
-                        <div class="mint-pulse"></div>
-                    </button>
-                </div>
+        <!-- NFT Card -->
+        <div class="nft-card">
+            <!-- NFT Image with Glow -->
+            <div class="nft-image-container">
+                <img src="https://i.imgur.com/muoYEIu.jpeg" alt="Farcaster NFT" class="nft-image">
+                <div class="glow"></div>
+                <div class="stars"></div>
             </div>
-        </main>
+
+            <!-- NFT Info -->
+            <div class="nft-info">
+                <div class="counter">44/44 <span>Minted</span></div>
+                <h1>Farcaster Exclusive</h1>
+                <p>All NFTs have been claimed. Stay tuned for future drops!</p>
+                <button id="mint-button" class="mint-btn" disabled>
+                    <span class="sparkle">✧</span>
+                    Sold Out
+                </button>
+            </div>
+        </div>
     </div>
 
     <script src="js/farcaster.js"></script>
