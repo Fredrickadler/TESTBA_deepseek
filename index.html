@@ -1,34 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>NFT Mint Mini App</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farcaster NFT Mint</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <!-- صفحه اصلی اپ -->
-  <div class="app-container">
-    <!-- هدر با دکمه‌های ولت و پروفایل -->
-    <div class="header">
-      <button id="connect-wallet" class="wallet-button">Connect Wallet</button>
-      <div id="profile-circle" class="profile-circle"></div>
+    <div class="app-container">
+        <!-- هدر -->
+        <div class="header">
+            <button id="connect-wallet" class="wallet-button">
+                <span class="wallet-icon">🦊</span>
+                Connect Wallet
+            </button>
+            <div id="profile-circle" class="profile-circle">
+                <div class="profile-initial">U</div>
+            </div>
+        </div>
+
+        <!-- محتوای اصلی -->
+        <div class="main-content">
+            <!-- انیمیشن پس‌زمینه ستاره‌ها -->
+            <div class="stars-background"></div>
+            
+            <!-- کارت NFT -->
+            <div class="nft-card">
+                <div class="nft-image-container">
+                    <img src="https://i.imgur.com/muoYEIu.jpeg" alt="Farcaster NFT" class="nft-image">
+                    <div class="nft-glow"></div>
+                </div>
+                
+                <div class="nft-info">
+                    <div class="nft-counter">
+                        <span class="counter-number">44</span>/100 Remaining
+                    </div>
+                    <h2 class="nft-title">Farcaster Exclusive</h2>
+                    <p class="nft-description">
+                        Limited edition NFT for Farcaster community. 
+                        Mint yours before they're gone!
+                    </p>
+                    
+                    <button id="mint-button" class="mint-button">
+                        <span class="mint-icon">✨</span>
+                        Mint NFT
+                        <div class="button-pulse"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- محتوای اصلی -->
-    <div class="nft-container">
-      <img src="https://i.imgur.com/muoYEIu.jpeg" class="nft-image">
-      <div class="stars-animation"></div>
-      <div class="nft-counter">44/100 NFTs Left</div>
-      <p class="nft-description">Exclusive Farcaster NFT Collection</p>
-      <button id="mint-button" class="mint-button">Mint NFT</button>
-    </div>
-  </div>
-
-  <!-- اسکریپت‌ها -->
-  <script src="js/farcaster.js"></script>
-  <script src="js/wallet.js"></script>
-  <script src="js/mint.js"></script>
-  <script src="js/app.js"></script>
+    <script src="js/farcaster.js"></script>
+    <script src="js/wallet.js"></script>
+    <script src="js/mint.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
