@@ -1,170 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic NFT</title>
-    
-    <!-- Frame Metadata -->
-    <meta name="fc:frame" content='{
-        "version": "next",
-        "imageUrl": "https://i.imgur.com/muoYEIu.jpeg",
-        "button": {
-            "title": "🪄 Mint NFT",
-            "action": {
-                "type": "launch_frame",
-                "url": "https://testba-deepseek.vercel.app",
-                "name": "Cosmic NFT",
-                "splashImageUrl": "https://i.imgur.com/muoYEIu.jpeg",
-                "splashBackgroundColor": "#6A3CB5"
-            }
-        }
-    }'>
-    
-    <style>
-        /* Reset Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-        
-        /* Full-screen gray background */
-        body {
-            background-color: #f0f0f0 !important;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        /* Main container */
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        
-        /* NFT Image - full width, no borders */
-        .nft-image {
-            width: 100%;
-            height: 60vh;
-            object-fit: cover;
-        }
-        
-        /* Content area */
-        .content-area {
-            padding: 20px;
-            background: white;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            flex-grow: 1;
-            position: relative;
-        }
-        
-        /* Wallet button - top left */
-        .wallet-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background-color: #6A3CB5;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            z-index: 10;
-        }
-        
-        /* Mint button */
-        .mint-btn {
-            background-color: #6A3CB5;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            width: 90%;
-            max-width: 400px;
-            margin: 20px auto;
-            display: block;
-        }
-        
-        /* Title styles */
-        .title {
-            text-align: center;
-            margin-top: 40px;
-            margin-bottom: 10px;
-        }
-        
-        /* Loading overlay - initially hidden */
-        #loadingOverlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.9);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
+  <title>NFT Mint Mini App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/loading.css">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Loading overlay (hidden by default) -->
-    <div id="loadingOverlay">
-        <div>Loading...</div>
-    </div>
+  <!-- صفحه لودینگ -->
+  <div class="loading-screen" id="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading...</p>
+  </div>
 
-    <!-- Main app container -->
-    <div class="app-container">
-        <!-- NFT Image - full width -->
-        <img src="https://i.imgur.com/muoYEIu.jpeg" class="nft-image" alt="NFT Preview">
-        
-        <!-- Content area -->
-        <div class="content-area">
-            <!-- Wallet connect button - top left -->
-            <button id="connectWalletBtn" class="wallet-btn">
-                Connect Wallet
-            </button>
-            
-            <h1 class="title">Cosmic NFT</h1>
-            <p style="text-align: center;">Mint your exclusive NFT on Warpcast</p>
-            
-            <!-- Mint button -->
-            <button id="mintBtn" class="mint-btn">
-                MINT NFT 🪄
-            </button>
-        </div>
-    </div>
+  <!-- صفحه اصلی اپ -->
+  <div class="app-container" id="app" style="display:none;">
+    <img src="https://example.com/nft-image.png" class="nft-image">
+    <h1>My Awesome NFT</h1>
+    <p>Limited edition NFT minting on Farcaster!</p>
+    <button id="mint-button">Mint Now</button>
+  </div>
 
-    <!-- Simple Farcaster SDK implementation -->
-    <script>
-        // Immediately try to hide the splash screen
-        function hideSplash() {
-            if (window.frame?.sdk) {
-                frame.sdk.actions.ready().catch(e => console.log("Splash already hidden"));
-            } else {
-                setTimeout(hideSplash, 100);
-            }
-        }
-        
-        // First attempt to hide splash
-        hideSplash();
-        
-        // Fallback in case SDK loads later
-        document.addEventListener('DOMContentLoaded', hideSplash);
-        
-        // Final fallback after 3 seconds
-        setTimeout(hideSplash, 3000);
-        
-        // Wallet connection simulation
-        document.getElementById('connectWalletBtn').addEventListener('click', function() {
-            this.textContent = "Connected ✔";
-            this.style.backgroundColor = "#2ecc71";
-        });
-    </script>
+  <!-- اسکریپت‌ها -->
+  <script src="js/farcaster.js"></script>
+  <script src="js/wallet.js"></script>
+  <script src="js/mint.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
