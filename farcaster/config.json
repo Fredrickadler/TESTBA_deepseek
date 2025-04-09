@@ -1,7 +1,12 @@
 {
   "name": "Cosmic Fragment NFT Mint",
-  "description": "Mint exclusive cosmic NFT fragments on Farcaster",
+  "description": "Mint exclusive cosmic NFT fragments",
   "icon": "https://i.imgur.com/muoYEIu.jpeg",
-  "url": "https://your-deployed-url.com",
-  "requires": ["auth", "wallet"]
+  "url": "https://your-url.com",
+  "requires": ["auth", "wallet"],
+  "splash": {
+    "backgroundColor": "#0F0F0F",
+    "textColor": "#FFFFFF",
+    "iconSize": "large"
+  }
 }
