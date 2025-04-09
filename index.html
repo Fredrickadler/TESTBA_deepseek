@@ -5,27 +5,246 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium NFT Mint</title>
     
-    <!-- ======================== -->
-    <!-- اضافه‌های ضروری برای فارکستر -->
-    <!-- ======================== -->
-    <meta name="fc:frame" content='{"version":"next","imageUrl":"https://i.imgur.com/muoYEIu.jpeg","button":{"title":"🪐 Mint NFT","action":{"type":"launch_frame","url":"https://your-deployed-url.com","name":"Cosmic Fragment","splashImageUrl":"https://i.imgur.com/muoYEIu.jpeg","splashBackgroundColor":"#0F0F0F"}}}' />
+    <!-- ========== اضافه شده برای فارکستر ========== -->
+    <meta name="fc:frame" content='{"version":"vNext","image":"https://i.imgur.com/muoYEIu.jpeg","buttons":[{"label":"🪐 Mint Now","action":"post"}],"post_url":"https://your-deployed-url.com"}' />
+    <meta property="og:image" content="https://i.imgur.com/muoYEIu.jpeg">
+    <meta property="og:title" content="Cosmic Fragment NFT Mint">
     <script type="module" src="./farcaster/sdk.js"></script>
-    <!-- ======================== -->
-    
-    <!-- بقیه کدهای شما دقیقاً مثل قبل -->
+    <!-- ========================================== -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* تمام استایل‌های شما بدون تغییر */
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
-        :root { --primary: #8A5AFF; /* بقیه متغیرها... */ }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
-        body { background-color: var(--gray-900); color: white; min-height: 100vh; overflow-x: hidden; }
-        /* ... بقیه استایل‌ها عیناً مثل کد شما */
+        
+        :root {
+            --primary: #8A5AFF;
+            --primary-dark: #6E3AFF;
+            --gray-900: #0F0F0F;
+            --gray-800: #1A1A1A;
+            --gray-700: #2E2E2E;
+            --gray-400: #A0A0A0;
+            --gray-200: #E5E5E5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        body {
+            background-color: var(--gray-900);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: flex-end;
+            padding: 24px 0;
+        }
+        
+        .wallet-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
+        }
+        
+        .wallet-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(138, 90, 255, 0.4);
+        }
+        
+        .wallet-btn i {
+            font-size: 16px;
+        }
+        
+        .wallet-address {
+            background: var(--gray-800);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0 80px;
+        }
+        
+        .nft-card {
+            width: 100%;
+            max-width: 420px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nft-image {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        
+        .nft-card:hover .nft-image {
+            transform: scale(1.03);
+        }
+        
+        .nft-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 24px;
+            color: white;
+        }
+        
+        .nft-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .nft-description {
+            font-size: 15px;
+            color: var(--gray-200);
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .mint-section {
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        
+        .mint-stats {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray-400);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .progress-container {
+            height: 6px;
+            width: 100%;
+            background: var(--gray-700);
+            border-radius: 3px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 65%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .mint-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
+        }
+        
+        .mint-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(138, 90, 255, 0.5);
+        }
+        
+        .mint-price {
+            margin-top: 12px;
+            font-size: 14px;
+            color: var(--gray-400);
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(138, 90, 255, 0.5);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 0 60px;
+            }
+            
+            .nft-card, .mint-section {
+                max-width: 100%;
+            }
+            
+            .nft-title {
+                font-size: 20px;
+            }
+            
+            .nft-description {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- تمام کدهای HTML شما بدون تغییر -->
     <div class="particles" id="particles"></div>
+    
     <div class="container">
         <header>
             <button class="wallet-btn" id="connectWallet">
@@ -62,7 +281,7 @@
     </div>
     
     <script>
-        // تمام اسکریپت‌های شما بدون تغییر
+        // Wallet Connection Logic
         const connectWallet = document.getElementById('connectWallet');
         const walletAddress = document.getElementById('walletAddress');
         
@@ -71,10 +290,13 @@
             walletAddress.style.display = 'block';
         });
         
+        // Mint Button Logic
         const mintButton = document.getElementById('mintButton');
+        
         mintButton.addEventListener('click', () => {
             mintButton.textContent = "Minting...";
             mintButton.disabled = true;
+            
             setTimeout(() => {
                 alert("NFT minted successfully! Check your wallet.");
                 mintButton.textContent = "MINT NOW";
@@ -82,20 +304,47 @@
             }, 2000);
         });
         
-        // کدهای پارتیکل‌ها بدون تغییر
+        // Create floating particles
         const particlesContainer = document.getElementById('particles');
         const particleCount = 30;
+        
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             particle.classList.add('particle');
+            
             particle.style.left = `${Math.random() * 100}vw`;
             particle.style.top = `${Math.random() * 100}vh`;
+            
             const size = Math.random() * 3 + 1;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
             particle.style.animationDelay = `${Math.random() * 15}s`;
+            
             particlesContainer.appendChild(particle);
         }
+
+        // ========== اضافه شده برای فارکستر ==========
+        // به‌روزرسانی خودکار فریم هنگام تعامل کاربر
+        function updateFrameConfig() {
+            const frameConfig = {
+                version: "vNext",
+                image: "https://i.imgur.com/muoYEIu.jpeg",
+                buttons: [{
+                    label: "🪐 Mint Now",
+                    action: "post"
+                }],
+                post_url: window.location.href
+            };
+            
+            const metaTag = document.querySelector('meta[name="fc:frame"]');
+            if (metaTag) {
+                metaTag.content = JSON.stringify(frameConfig);
+            }
+        }
+        
+        // اولین بار که صفحه لود می‌شود
+        updateFrameConfig();
+        // ==========================================
     </script>
 </body>
 </html>
