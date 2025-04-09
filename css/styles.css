@@ -1,20 +1,125 @@
-.app-container {
+/* Reset */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f0f0f0; /* خاکستری */
+}
+
+/* صفحه لودینگ (آپدیت شده) */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #f0f0f0;
+}
+
+.loading-spinner {
+  border: 5px solid #ddd;
+  border-top: 5px solid #8a2be2; /* بنفش فارکستر */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* هدر */
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+}
+
+.wallet-button {
+  background: #8a2be2; /* بنفش فارکستر */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.profile-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #8a2be2; /* بنفش فارکستر */
+}
+
+/* محتوای NFT */
+.nft-container {
   text-align: center;
   padding: 20px;
+  position: relative;
 }
 
 .nft-image {
-  max-width: 300px;
-  border-radius: 10px;
-  margin: 20px 0;
+  width: 250px;
+  border-radius: 15px; /* گوشه‌های گرد */
+  margin: 10px auto;
+  display: block;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-#mint-button {
-  background: #4CAF50;
+.nft-counter {
+  font-size: 14px;
+  color: #666;
+  margin: 5px 0;
+}
+
+.nft-description {
+  font-size: 16px;
+  color: #333;
+  margin: 10px 0;
+}
+
+/* دکمه مینت */
+.mint-button {
+  background: #8a2be2; /* بنفش فارکستر */
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 25px;
   font-size: 16px;
+  border-radius: 25px;
   cursor: pointer;
-  border-radius: 5px;
+  margin-top: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mint-button:hover {
+  background: #7b1fa2;
+}
+
+/* انیمیشن ستاره‌ها */
+.stars-animation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 260px;
+  height: 260px;
+  pointer-events: none;
+}
+
+.stars-animation::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%238a2be2" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>') no-repeat;
+  background-size: 15px;
+  opacity: 0;
+  animation: stars 3s infinite;
+}
+
+@keyframes stars {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.6; }
 }
