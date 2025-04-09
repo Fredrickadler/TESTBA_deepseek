@@ -21,10 +21,9 @@
                 "splashBackgroundColor": "#4a6cf7"
             }
         }
-    }' />
+    }'>
     
     <style>
-        /* استایل‌های اصلی */
         body {
             background-color: #f5f5f5;
             margin: 0;
@@ -67,11 +66,12 @@
             background-color: #2ecc71;
         }
     </style>
+    
+    <!-- استفاده از CDN جدید SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk/dist/index.min.js"></script>
 </head>
 <body>
-    <!-- محتوای اصلی (همه عناصر از ابتدا موجود هستند) -->
     <div class="container">
-        <!-- Wallet connection section -->
         <div class="wallet-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
             <button id="connectWalletBtn" class="wallet-btn">
                 Connect Wallet
@@ -79,20 +79,17 @@
             <div id="userProfile" class="profile-circle"></div>
         </div>
         
-        <!-- Main content -->
         <div class="content" style="text-align: center; margin: 40px 0;">
             <h1 style="font-size: 28px; margin-bottom: 16px;">Cosmic NFT</h1>
             <p style="color: #666; font-size: 16px;">Mint your exclusive NFT on Warpcast</p>
         </div>
         
-        <!-- Mint button -->
         <div style="text-align: center; margin-top: 40px;">
             <button id="mintBtn" class="mint-btn" style="padding: 14px 28px; font-size: 18px;">
                 MINT NFT
             </button>
         </div>
         
-        <!-- Share button -->
         <div style="text-align: center; margin-top: 20px;">
             <button id="shareBtn" class="mint-btn" style="background-color: #2ecc71;">
                 Share with Friends
@@ -100,35 +97,25 @@
         </div>
     </div>
 
-    <!-- Farcaster SDK via CDN -->
-    <script type="module">
-        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
-        
-        // تکنیک پیشرفته برای مدیریت لودینگ
-        (async function() {
-            // 1. همه عناصر از ابتدا در DOM موجود هستند (بدون تغییر layout بعدی)
-            // 2. فوراً اسپلش اسکرین را مخفی می‌کنیم
-            try {
-                await sdk.actions.ready({
-                    disableNativeGestures: true
-                });
-                
-                console.log("Splash screen hidden successfully");
-            } catch (error) {
-                console.warn("Error hiding splash screen:", error);
-                // در صورت خطا، به کار ادامه می‌دهیم
-            }
-            
-            // اینجا می‌توانید سایر کدهای initialization را اضافه کنید
-            // مانند اتصال wallet یا بارگذاری داده‌ها
-        })();
+    <script>
+        // روش جدید با SDK 0.0.34
+        document.addEventListener('DOMContentLoaded', function() {
+            // مخفی کردن اسپلش اسکرین با جدیدترین روش
+            frame.sdk.actions.ready({
+                disableNativeGestures: true
+            }).then(function() {
+                console.log("Frame is ready!");
+            }).catch(function(error) {
+                console.warn("Error in frame ready:", error);
+            });
+        });
     </script>
 
-    <!-- JavaScript files -->
-    <script src="js/app.js" type="module"></script>
-    <script src="js/wallet.js" type="module"></script>
-    <script src="js/mint.js" type="module"></script>
-    <script src="js/farcaster.js" type="module"></script>
-    <script src="js/share.js" type="module"></script>
+    <!-- فایل‌های جاوااسکریپت -->
+    <script src="js/app.js"></script>
+    <script src="js/wallet.js"></script>
+    <script src="js/mint.js"></script>
+    <script src="js/farcaster.js"></script>
+    <script src="js/share.js"></script>
 </body>
 </html>
