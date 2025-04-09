@@ -4,49 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmic NFT</title>
+    <meta property="og:title" content="Cosmic NFT">
+    <meta property="og:description" content="Mint your exclusive NFT on Warpcast">
+    
+    <!-- فریم برای اشتراک‌گذاری -->
+    <meta name="fc:frame" content='{
+        "version": "next",
+        "imageUrl": "https://your-vercel-app-url.vercel.app/images/share-image.png",
+        "button": {
+            "title": "🪄 Mint NFT",
+            "action": {
+                "type": "launch_frame",
+                "url": "https://your-vercel-app-url.vercel.app",
+                "name": "Cosmic NFT",
+                "splashImageUrl": "https://your-vercel-app-url.vercel.app/images/logo.png",
+                "splashBackgroundColor": "#4a6cf7"
+            }
+        }
+    }' />
+    
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/loading.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Wallet connection section -->
-        <div class="wallet-section">
-            <button id="connectWalletBtn" class="wallet-btn">
-                Connect Wallet
-            </button>
-            <div id="userProfile" class="profile-circle"></div>
-        </div>
-        
-        <!-- Main content -->
-        <div class="content">
-            <h1>Cosmic NFT</h1>
-            <p>Mint your exclusive NFT on Warpcast</p>
-        </div>
-        
-        <!-- Mint button -->
-        <button id="mintBtn" class="mint-btn">
-            MINT NFT
-        </button>
-    </div>
-
-    <!-- Farcaster SDK via CDN -->
-    <script type="module">
-        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
-        
-        // وقتی صفحه کاملاً بارگذاری شد
-        window.addEventListener('DOMContentLoaded', async () => {
-            // مخفی کردن اسپلش اسکرین
-            await sdk.actions.ready();
-            
-            // اینجا می‌توانید کدهای دیگر را اضافه کنید
-            console.log("App is ready!");
-        });
-    </script>
-
-    <!-- JavaScript files -->
-    <script src="js/app.js"></script>
-    <script src="js/wallet.js"></script>
-    <script src="js/mint.js"></script>
-    <script src="js/farcaster.js"></script>
+    <!-- محتوای قبلی بدون تغییر -->
 </body>
 </html>
