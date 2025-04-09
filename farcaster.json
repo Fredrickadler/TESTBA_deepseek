@@ -1,0 +1,12 @@
+{
+  "frame": {
+    "version": "1",
+    "name": "Premium NFT Mint",
+    "iconUrl": "https://yourdomain.com/icon.png",
+    "homeUrl": "https://yourdomain.com",
+    "imageUrl": "https://yourdomain.com/preview.png",
+    "buttonTitle": "Mint NFT",
+    "splashImageUrl": "https://yourdomain.com/splash.png",
+    "splashBackgroundColor": "#8A5AFF"
+  }
+}
