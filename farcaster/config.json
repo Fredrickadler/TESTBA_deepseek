@@ -1,1 +1,7 @@
-.
+{
+  "name": "Cosmic Fragment NFT Mint",
+  "description": "Mint exclusive cosmic NFT fragments on Farcaster",
+  "icon": "https://i.imgur.com/muoYEIu.jpeg",
+  "url": "https://your-deployed-url.com",
+  "requires": ["auth", "wallet"]
+}
