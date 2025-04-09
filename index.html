@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmic NFT</title>
     
-    <!-- فریم اشتراک‌گذاری -->
+    <!-- Frame Metadata -->
     <meta name="fc:frame" content='{
         "version": "next",
         "imageUrl": "https://i.imgur.com/muoYEIu.jpeg",
@@ -22,7 +22,7 @@
     }'>
     
     <style>
-        /* ریست استایل‌ها */
+        /* Reset Styles */
         * {
             margin: 0;
             padding: 0;
@@ -30,164 +30,140 @@
             font-family: 'Arial', sans-serif;
         }
         
+        /* Full-screen gray background */
         body {
-            background-color: #f0f0f0; /* رنگ خاکستری */
-            padding: 0; /* حذف padding برای پر کردن کامل صفحه */
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .container {
-            background-color: white;
-            width: 100%;
-            max-width: 100%;
+            background-color: #f0f0f0 !important;
             height: 100vh;
-            overflow-y: auto;
-            text-align: center;
-        }
-        
-        /* پیش‌نمایش NFT بدون حاشیه */
-        .nft-preview {
-            width: 100%;
-            height: 50vh;
-            margin: 0 auto;
             overflow: hidden;
         }
         
-        .nft-preview img {
+        /* Main container */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* NFT Image - full width, no borders */
+        .nft-image {
             width: 100%;
-            height: 100%;
+            height: 60vh;
             object-fit: cover;
         }
         
-        /* بخش محتوا */
-        .content-section {
+        /* Content area */
+        .content-area {
             padding: 20px;
+            background: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            flex-grow: 1;
+            position: relative;
         }
         
-        /* دکمه‌ها */
-        .btn {
+        /* Wallet button - top left */
+        .wallet-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: #6A3CB5;
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        /* Mint button */
+        .mint-btn {
+            background-color: #6A3CB5;
+            color: white;
+            border: none;
+            padding: 15px;
             border-radius: 8px;
             font-size: 18px;
             font-weight: bold;
-            cursor: pointer;
             width: 90%;
             max-width: 400px;
-            margin: 15px auto;
+            margin: 20px auto;
             display: block;
-            transition: all 0.3s;
         }
         
-        .btn-connect {
-            background-color: #6A3CB5; /* بنفش فارکستر */
+        /* Title styles */
+        .title {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 10px;
         }
         
-        .btn-mint {
-            background-color: #6A3CB5;
-        }
-        
-        .btn-share {
-            background-color: #2ecc71;
-        }
-        
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        
-        /* پروفایل کاربر */
-        .profile-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #e0e0e0;
-            display: flex;
+        /* Loading overlay - initially hidden */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            z-index: 100;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
-        }
-        
-        /* اطلاعات کیف پول */
-        .wallet-info {
-            font-size: 14px;
-            color: #666;
-            word-break: break-all;
-            margin: 10px 0;
-            padding: 10px;
-            background: #f8f8f8;
-            border-radius: 8px;
-            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- پیش‌نمایش NFT بدون حاشیه -->
-        <div class="nft-preview">
-            <img src="https://i.imgur.com/muoYEIu.jpeg" alt="Cosmic NFT Preview">
-        </div>
+    <!-- Loading overlay (hidden by default) -->
+    <div id="loadingOverlay">
+        <div>Loading...</div>
+    </div>
+
+    <!-- Main app container -->
+    <div class="app-container">
+        <!-- NFT Image - full width -->
+        <img src="https://i.imgur.com/muoYEIu.jpeg" class="nft-image" alt="NFT Preview">
         
-        <!-- بخش محتوای تعاملی -->
-        <div class="content-section">
-            <h1>Cosmic NFT</h1>
-            <p>Mint your exclusive NFT on Warpcast</p>
-            
-            <!-- دکمه اتصال کیف پول -->
-            <button id="connectWalletBtn" class="btn btn-connect">
+        <!-- Content area -->
+        <div class="content-area">
+            <!-- Wallet connect button - top left -->
+            <button id="connectWalletBtn" class="wallet-btn">
                 Connect Wallet
             </button>
             
-            <!-- اطلاعات کیف پول -->
-            <div id="walletInfo" class="wallet-info"></div>
+            <h1 class="title">Cosmic NFT</h1>
+            <p style="text-align: center;">Mint your exclusive NFT on Warpcast</p>
             
-            <!-- دکمه Mint -->
-            <button id="mintBtn" class="btn btn-mint">
+            <!-- Mint button -->
+            <button id="mintBtn" class="mint-btn">
                 MINT NFT 🪄
-            </button>
-            
-            <!-- دکمه Share -->
-            <button id="shareBtn" class="btn btn-share">
-                Share with Friends
             </button>
         </div>
     </div>
 
-    <!-- اسکریپت مدیریت لودینگ -->
+    <!-- Simple Farcaster SDK implementation -->
     <script>
-        // راه‌حل قطعی برای مشکل لودینگ
-        function hideSplashScreen() {
-            if (typeof frame !== 'undefined' && frame.sdk) {
-                frame.sdk.actions.ready({
-                    disableNativeGestures: true
-                }).catch(error => {
-                    console.warn("Error hiding splash screen:", error);
-                });
+        // Immediately try to hide the splash screen
+        function hideSplash() {
+            if (window.frame?.sdk) {
+                frame.sdk.actions.ready().catch(e => console.log("Splash already hidden"));
             } else {
-                setTimeout(hideSplashScreen, 300);
+                setTimeout(hideSplash, 100);
             }
         }
         
-        // اجرای سریع‌تر بدون انتظار برای DOMContentLoaded
-        setTimeout(hideSplashScreen, 100);
+        // First attempt to hide splash
+        hideSplash();
         
-        // مدیریت رویدادها پس از لود کامل
-        document.addEventListener('DOMContentLoaded', function() {
-            // شبیه‌سازی اتصال کیف پول
-            document.getElementById('connectWalletBtn').addEventListener('click', function() {
-                const walletInfo = document.getElementById('walletInfo');
-                walletInfo.style.display = "block";
-                walletInfo.textContent = "Connected: 0x7f...3a4b (Simulated)";
-                this.textContent = "✔ Wallet Connected";
-                this.style.opacity = "0.7";
-                this.style.cursor = "default";
-            });
-            
-            // رویدادهای دیگر...
+        // Fallback in case SDK loads later
+        document.addEventListener('DOMContentLoaded', hideSplash);
+        
+        // Final fallback after 3 seconds
+        setTimeout(hideSplash, 3000);
+        
+        // Wallet connection simulation
+        document.getElementById('connectWalletBtn').addEventListener('click', function() {
+            this.textContent = "Connected ✔";
+            this.style.backgroundColor = "#2ecc71";
         });
     </script>
 </body>
