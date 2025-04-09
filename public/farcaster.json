@@ -1,0 +1,9 @@
+{
+  "name": "Cosmic NFT Mint",
+  "description": "Mint exclusive cosmic fragments",
+  "icon": "https://i.imgur.com/muoYEIu.jpeg",
+  "splashImageUrl": "https://i.imgur.com/muoYEIu.jpeg",
+  "splashBackgroundColor": "#0F0F0F",
+  "url": "https://testba-deepseek.vercel.app",
+  "requiredPermissions": ["auth", "wallet"]
+}
