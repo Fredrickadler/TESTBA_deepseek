@@ -1,17 +1,30 @@
-import { showLoading, hideLoading, updateLoadingProgress } from './app.js';
+import { ethers } from 'ethers';
 
-async function mintNFT() {
+// تنظیمات قرارداد
+const CONTRACT_ADDRESS = "0xe2ba182898141f19b4a7d739c715cd162d31766c";
+const CONTRACT_ABI = [{
+  "inputs": [],
+  "name": "mint",
+  "outputs": [],
+  "stateMutability": "payable",
+  "type": "function"
+}];
+
+// مینت NFT
+export async function mintNFT() {
   try {
-    showLoading('Starting mint process...', { progress: 0 });
-    // مرحله 1
-    updateLoadingProgress(30);
-    // مرحله 2
-    updateLoadingProgress(60);
-    // مرحله نهایی
-    updateLoadingProgress(100);
-    hideLoading();
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    
+    const tx = await contract.mint({
+      value: ethers.utils.parseEther("0.01")
+    });
+    
+    await tx.wait();
+    return tx;
   } catch (error) {
-    hideLoading();
+    console.error("Minting failed:", error);
     throw error;
   }
 }
