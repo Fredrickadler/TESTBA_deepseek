@@ -3,128 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Mint Mini-App</title>
-    
-    <!-- متا تگ‌های ضروری برای اشتراک‌گذاری در فید -->
-    <meta property="fc:frame" content='{
-        "version":"next",
-        "imageUrl":"https://i.imgur.com/muoYEIu.jpeg",
-        "button":{
-            "title":"🧙‍♂️ Mint NFT Now",
-            "action":{
-                "type":"launch_frame",
-                "url":"https://testba-deepseek.vercel.app",
-                "name":"NFT Minter",
-                "splashImageUrl":"https://i.imgur.com/muoYEIu.jpeg",
-                "splashBackgroundColor":"#8a63ff"
-            }
-        }
-    }'>
-    
+    <title>NFT Mint on Warpcast</title>
+    <meta property="fc:frame" content="vNext">
+    <meta property="fc:frame:image" content="https://i.imgur.com/muoYEIu.jpeg">
+    <meta property="fc:frame:button:1" content="Mint NFT (0.001 ETH)">
+    <meta property="fc:frame:post_url" content="https://testba-deepseek.vercel.app/api/mint">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background: #f5f5f5;
+            background-color: #0F0F0F;
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            text-align: center;
+            padding: 0;
             margin: 0;
-            padding: 20px;
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
         }
         .container {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            max-width: 500px;
+            max-width: 420px;
             width: 100%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
         }
         .nft-image {
             width: 100%;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
         }
-        button {
-            background: #8a63ff;
+        .mint-btn {
+            background: #8A5AFF;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
             font-size: 16px;
-            margin-top: 10px;
-        }
-        #status {
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
             margin-top: 15px;
-            padding: 10px;
-            border-radius: 8px;
-            background: #f0f0f0;
-            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>✨ Warpcast NFT</h1>
-        <img src="https://i.imgur.com/muoYEIu.jpeg" class="nft-image" alt="NFT Preview">
-        
-        <button id="mintBtn">Mint with Warplet</button>
-        <div id="status"></div>
+        <img src="https://i.imgur.com/muoYEIu.jpeg" class="nft-image" alt="NFT">
+        <button class="mint-btn" id="mintBtn">MINT WITH WARPCAST</button>
     </div>
 
-    <!-- تمام منطق برنامه در همین فایل -->
-    <script type="module">
-        // 1. تنظیمات اولیه
-        import { init } from 'https://esm.sh/@farcaster/frame-sdk';
-        const { actions, wallet } = await init();
-        
-        // 2. مخفی کردن اسپلش اسکرین
-        await actions.ready({ disableNativeGestures: false });
-        
-        // 3. مدیریت رویدادها
-        document.getElementById('mintBtn').addEventListener('click', async () => {
-            const statusEl = document.getElementById('status');
-            statusEl.style.display = 'block';
-            statusEl.textContent = 'در حال اتصال به Warplet...';
-            
-            try {
-                // 4. دریافت آدرس کاربر
-                const [address] = await window.ethereum.request({ 
-                    method: 'eth_requestAccounts' 
-                });
-                
-                // 5. شبیه‌سازی مینت (در نسخه واقعی با قرارداد تعامل کنید)
-                statusEl.textContent = 'در حال پردازش تراکنش...';
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                // 6. نتیجه نهایی
-                statusEl.innerHTML = '✅ <strong>NFT با موفقیت مینت شد!</strong>';
-                document.getElementById('mintBtn').textContent = 'مینت شده!';
-                
-                // 7. به‌روزرسانی embed برای اشتراک‌گذاری
-                updateShareEmbed(address);
-            } catch (error) {
-                statusEl.textContent = `خطا: ${error.message}`;
-            }
+    <script>
+        // ساده‌ترین نسخه ممکن مطابق درخواست شما
+        document.getElementById('mintBtn').addEventListener('click', () => {
+            alert('این دکمه در Warpcast کار می‌کند!');
         });
-        
-        // 8. تابع به‌روزرسانی embed پس از مینت
-        function updateShareEmbed(address) {
-            const newEmbed = {
-                version: "next",
-                imageUrl: `https://api.your-app.com/generate-image?address=${address}`,
-                button: {
-                    title: "🎉 من هم مینت کردم!",
-                    action: {
-                        type: "launch_frame",
-                        url: window.location.href,
-                        splashImageUrl: "https://i.imgur.com/muoYEIu.jpeg"
-                    }
-                }
-            };
-            document.querySelector('meta[property="fc:frame"]').content = JSON.stringify(newEmbed);
-        }
     </script>
 </body>
 </html>
