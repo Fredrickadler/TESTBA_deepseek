@@ -5,20 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NFT Minter</title>
   
-  <!-- متا تگ‌های اشتراک‌گذاری برای فارکستر -->
+  <!-- متا تگ‌های اصلی -->
   <meta property="og:title" content="NFT Minter">
+  <meta property="og:description" content="Mint exclusive NFTs on Farcaster">
   <meta property="og:image" content="https://i.imgur.com/muoYEIu.jpeg">
-  <meta property="fc:frame" content='{
-    "version": "vNext",
-    "image": "https://i.imgur.com/muoYEIu.jpeg",
-    "buttons": [
-      {
-        "label": "Mint NFT",
-        "action": "post_redirect",
-        "target": "https://testba-deepseek.vercel.app"
+  <meta property="og:url" content="https://testba-deepseek.vercel.app">
+  
+  <!-- متا تگ اشتراک‌گذاری فارکستر -->
+  <meta name="fc:frame" content='{
+    "version": "next",
+    "imageUrl": "https://i.imgur.com/muoYEIu.jpeg",
+    "button": {
+      "title": "Mint NFT Now",
+      "action": {
+        "type": "launch_frame",
+        "url": "https://testba-deepseek.vercel.app",
+        "name": "NFT Minter",
+        "splashImageUrl": "https://i.imgur.com/muoYEIu.jpeg",
+        "splashBackgroundColor": "#1A1A2E"
       }
-    ],
-    "post_url": "https://testba-deepseek.vercel.app/api/frame"
+    }
   }'>
   
   <style>
@@ -27,17 +33,19 @@
       --secondary: #FF7E5F;
       --bg-dark: #1A1A2E;
       --bg-light: #16213E;
+      --text-light: #F0F0F0;
+      --text-gray: #AAAAAA;
     }
     
     body {
       font-family: 'Arial', sans-serif;
       background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
-      color: white;
+      color: var(--text-light);
       margin: 0;
-      padding: 20px;
+      padding: 0;
       min-height: 100vh;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
     }
     
@@ -46,26 +54,103 @@
       backdrop-filter: blur(10px);
       border-radius: 20px;
       padding: 2rem;
-      width: 100%;
+      width: 90%;
       max-width: 500px;
+      margin: 2rem auto;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* بقیه استایل‌ها مانند کد قبلی */
+    h1 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+    }
+    
+    #userInfo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+    }
+    
+    #userAvatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    #walletInfo {
+      color: var(--text-gray);
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    
+    .btn {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 0.5rem 0;
+      font-weight: bold;
+      width: 100%;
+      max-width: 200px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(108, 77, 246, 0.4);
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
+    #nftImage {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 15px;
+      margin: 1rem auto;
+      display: block;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    #status {
+      color: var(--text-gray);
+      margin: 1rem 0;
+      min-height: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>NFT Minter</h1>
+    
     <div id="userInfo">
       <div id="userAvatar">R</div>
       <span>@reces.water</span>
     </div>
+    
     <img id="nftImage" src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT Preview">
+    
     <div id="walletInfo">Connect your wallet to start</div>
     <div id="status"></div>
+    
     <button class="btn" id="connectBtn">Connect Wallet</button>
     <button class="btn" id="mintBtn" disabled>Mint NFT</button>
   </div>
@@ -75,7 +160,6 @@
   <script type="module">
     import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
     
-    // کدهای جاوااسکریپت مانند قبل
     const connectBtn = document.getElementById('connectBtn');
     const mintBtn = document.getElementById('mintBtn');
     const walletInfo = document.getElementById('walletInfo');
@@ -91,9 +175,11 @@
       "type": "function"
     }];
     
+    // اتصال به کیف پول
     connectBtn.addEventListener('click', async () => {
       try {
         status.textContent = "Connecting...";
+        connectBtn.disabled = true;
         
         if (!sdk.wallet?.ethProvider) {
           throw new Error("Please open in Warpcast/Farcaster");
@@ -107,16 +193,17 @@
         const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
         
         walletInfo.innerHTML = `Connected: <strong>${shortAddress}</strong>`;
-        connectBtn.disabled = true;
         mintBtn.disabled = false;
         status.textContent = "Ready to mint!";
         
       } catch (error) {
         status.textContent = error.message;
+        connectBtn.disabled = false;
         console.error(error);
       }
     });
     
+    // مینت NFT
     mintBtn.addEventListener('click', async () => {
       try {
         status.textContent = "Preparing transaction...";
@@ -137,6 +224,7 @@
         await tx.wait();
         status.textContent = "🎉 Mint successful!";
         document.getElementById('nftImage').style.border = "3px solid #6C4DF6";
+        document.getElementById('nftImage').style.transform = "scale(1.03)";
         
       } catch (error) {
         status.textContent = error.message;
@@ -145,6 +233,7 @@
       }
     });
     
+    // نمایش اطلاعات کاربر واقعی
     async function loadUserProfile() {
       try {
         const { fid, username } = await sdk.auth();
@@ -157,6 +246,7 @@
       }
     }
     
+    // بارگذاری اولیه
     loadUserProfile();
   </script>
 </body>
