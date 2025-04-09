@@ -1,18 +1,30 @@
 import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+import { getFrameConfig } from './frame-config.js';
 
-// پیکربندی اولیه
+// تنظیمات اولیه
 sdk.configure({
-  button: {
-    wallet: '#connectWallet',
-    mint: '#mintButton',
-    share: '.share-btn' // اضافه کردن دکمه اشتراک‌گذاری
-  }
+    button: {
+        wallet: '#connectWallet',
+        mint: '#mintButton'
+    }
 });
 
-// مدیریت اشتراک‌گذاری
-sdk.on('share', () => {
-  // اینجا می‌توانید منطق سفارشی برای اشتراک‌گذاری اضافه کنید
-  console.log('User initiated share action');
-});
+// به‌روزرسانی خودکار فریم
+function updateFrame() {
+    const frameConfig = getFrameConfig();
+    const metaTag = document.querySelector('meta[name="fc:frame"]');
+    if (metaTag) {
+        metaTag.content = JSON.stringify(frameConfig);
+    }
+}
 
-// بقیه کدهای موجود...
+// اولین بار که صفحه لود می‌شود
+updateFrame();
+
+// وقتی کاربر NFT را mint می‌کند
+sdk.on('mint-success', (data) => {
+    updateFrame({
+        image: data.nftImage,
+        buttonLabel: "🎉 View My NFT"
+    });
+});
