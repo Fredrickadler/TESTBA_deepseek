@@ -1,54 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cosmic Fragment NFT</title>
-  
-  <!-- متا تگ‌های اشتراک‌گذاری -->
-  <meta property="og:title" content="Cosmic Fragment NFT">
-  <meta property="og:description" content="A unique piece of digital art, crafted with cosmic energy and rare stardust. Own a fragment of the universe!">
-  <meta property="og:image" content="./assets/images/nft.webp">
-  <meta property="og:url" content="https://testba-deepseek.vercel.app">
-  
-  <!-- فونت‌ها -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto+Slab:wght@300&display=swap" rel="stylesheet">
-  
-  <!-- استایل‌ها -->
-  <link rel="stylesheet" href="./css/styles.css">
-  <link rel="stylesheet" href="./css/loading.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic NFT</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/loading.css">
 </head>
 <body>
-  <div class="stars-background"></div>
-  <div class="container">
-    <div class="profile-section">
-      <button class="wallet-button" id="connectBtn">Connect Wallet</button>
-      <div class="profile-circle" id="userAvatar"></div>
+    <div class="container">
+        <!-- Wallet connection section -->
+        <div class="wallet-section">
+            <button id="connectWalletBtn" class="wallet-btn">
+                Connect Wallet
+            </button>
+            <div id="userProfile" class="profile-circle"></div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="content">
+            <h1>Cosmic NFT</h1>
+            <p>Mint your exclusive NFT on Warpcast</p>
+        </div>
+        
+        <!-- Mint button -->
+        <button id="mintBtn" class="mint-btn">
+            MINT NFT
+        </button>
     </div>
-    
-    <div class="header">
-      <img src="./assets/images/nft.webp" alt="NFT Image" class="nft-image">
-      <h1>Cosmic Fragment</h1>
-      <p class="nft-description">A unique piece of digital art, crafted with cosmic energy and rare stardust. Own a fragment of the universe!</p>
-      <p class="nft-availability">Available: <span id="available">44 / 44</span></p>
-    </div>
-    
-    <button class="mint-button" id="mintButton" disabled>Mint Now</button>
-    <p id="status"></p>
-  </div>
 
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="loader"></div>
-    <p id="loadingText">Processing...</p>
-  </div>
-
-  <!-- اسکریپت‌ها -->
-  <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
-  <script src="https://unpkg.com/@farcaster/miniapps-sdk@0.0.5/dist/index.umd.js"></script>
-  
-  <script type="module" src="./js/farcaster.js"></script>
-  <script type="module" src="./js/wallet.js"></script>
-  <script type="module" src="./js/mint.js"></script>
-  <script type="module" src="./js/app.js"></script>
+    <!-- JavaScript files -->
+    <script src="js/app.js"></script>
+    <script src="js/wallet.js"></script>
+    <script src="js/mint.js"></script>
+    <script src="js/farcaster.js"></script>
 </body>
 </html>
