@@ -40,6 +40,8 @@
             max-width: 600px;
             margin: 0 auto;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-height: 80vh;
+            position: relative;
         }
         .wallet-btn, .mint-btn {
             background-color: #4a6cf7;
@@ -50,6 +52,11 @@
             font-weight: bold;
             cursor: pointer;
             margin: 10px 0;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .profile-circle {
             width: 40px;
@@ -58,9 +65,42 @@
             background-color: #e0e0e0;
             border: 2px solid #4a6cf7;
         }
+        #shareBtn {
+            background-color: #2ecc71;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4a6cf7;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <!-- صفحه لودینگ -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- محتوای اصلی -->
     <div class="container">
         <!-- Wallet connection section -->
         <div class="wallet-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
@@ -96,12 +136,25 @@
         import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
         
         // وقتی صفحه کاملاً بارگذاری شد
-        window.addEventListener('DOMContentLoaded', async () => {
-            // مخفی کردن اسپلش اسکرین
-            await sdk.actions.ready();
-            
-            console.log("App is ready!");
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // مخفی کردن اسپلش اسکرین Warpcast
+                await sdk.actions.ready();
+                
+                // مخفی کردن لودینگ اسپینر ما
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                console.log("App is fully loaded!");
+            } catch (error) {
+                console.error("Error in initialization:", error);
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
         });
+
+        // اگر SDK لود نشد، بعد از 5 ثانیه لودینگ را مخفی کنیم
+        setTimeout(() => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }, 5000);
     </script>
 
     <!-- JavaScript files -->
