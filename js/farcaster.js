@@ -1,4 +1,4 @@
-// تنظیمات فریم فارکستر
+// تنظیمات فریم فارکستر// تنظیمات فریم فارکستر
 const frameConfig = {
   version: "next",
   imageUrl: "./assets/images/nft.webp",
