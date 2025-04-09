@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(15, 15, 26, 0.8);
+  background: rgba(15, 15, 26, 0.9); /* تاریک‌تر برای خوانایی بهتر */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,6 +13,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  backdrop-filter: blur(5px); /* افکت بلور برای پس‌زمینه */
 }
 
 .loading-overlay.active {
@@ -21,10 +22,10 @@
 }
 
 .loader {
-  width: 48px;
-  height: 48px;
-  border: 5px solid var(--primary);
-  border-bottom-color: transparent;
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--primary);
+  border-bottom-color: var(--secondary);
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
@@ -34,9 +35,22 @@
 #loadingText {
   margin-top: 20px;
   color: white;
+  font-size: 1.1rem;
+  font-family: 'Poppins', sans-serif;
 }
 
+/* انیمیشن‌ها */
 @keyframes rotation {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* اضافه کردن انیمیشن به overlay */
+.loading-overlay.active {
+  animation: fadeIn 0.3s ease-out;
 }
