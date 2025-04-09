@@ -10,14 +10,14 @@
     <!-- فریم برای اشتراک‌گذاری -->
     <meta name="fc:frame" content='{
         "version": "next",
-        "imageUrl": "https://your-vercel-app-url.vercel.app/images/share-image.png",
+        "imageUrl": "https://i.imgur.com/muoYEIu.jpeg",
         "button": {
             "title": "🪄 Mint NFT",
             "action": {
                 "type": "launch_frame",
                 "url": "https://your-vercel-app-url.vercel.app",
                 "name": "Cosmic NFT",
-                "splashImageUrl": "https://your-vercel-app-url.vercel.app/images/logo.png",
+                "splashImageUrl": "https://i.imgur.com/muoYEIu.jpeg",
                 "splashBackgroundColor": "#4a6cf7"
             }
         }
@@ -25,8 +25,90 @@
     
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/loading.css">
+    <style>
+        /* استایل‌های موقت برای رفع مشکل نمایش */
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .wallet-btn, .mint-btn {
+            background-color: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .profile-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            border: 2px solid #4a6cf7;
+        }
+    </style>
 </head>
 <body>
-    <!-- محتوای قبلی بدون تغییر -->
+    <div class="container">
+        <!-- Wallet connection section -->
+        <div class="wallet-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <button id="connectWalletBtn" class="wallet-btn">
+                Connect Wallet
+            </button>
+            <div id="userProfile" class="profile-circle"></div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="content" style="text-align: center; margin: 40px 0;">
+            <h1 style="font-size: 28px; margin-bottom: 16px;">Cosmic NFT</h1>
+            <p style="color: #666; font-size: 16px;">Mint your exclusive NFT on Warpcast</p>
+        </div>
+        
+        <!-- Mint button -->
+        <div style="text-align: center; margin-top: 40px;">
+            <button id="mintBtn" class="mint-btn" style="padding: 14px 28px; font-size: 18px;">
+                MINT NFT
+            </button>
+        </div>
+        
+        <!-- Share button -->
+        <div style="text-align: center; margin-top: 20px;">
+            <button id="shareBtn" class="mint-btn" style="background-color: #2ecc71;">
+                Share with Friends
+            </button>
+        </div>
+    </div>
+
+    <!-- Farcaster SDK via CDN -->
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+        
+        // وقتی صفحه کاملاً بارگذاری شد
+        window.addEventListener('DOMContentLoaded', async () => {
+            // مخفی کردن اسپلش اسکرین
+            await sdk.actions.ready();
+            
+            console.log("App is ready!");
+        });
+    </script>
+
+    <!-- JavaScript files -->
+    <script src="js/app.js" type="module"></script>
+    <script src="js/wallet.js" type="module"></script>
+    <script src="js/mint.js" type="module"></script>
+    <script src="js/farcaster.js" type="module"></script>
+    <script src="js/share.js" type="module"></script>
 </body>
 </html>
