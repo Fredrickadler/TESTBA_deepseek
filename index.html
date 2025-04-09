@@ -1,180 +1,239 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مینت NFT اختصاصی</title>
+    <title>Exclusive NFT Mint</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tanha&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #7B4AFF;
+            --primary-dark: #5D30E6;
+            --gray-900: #121212;
+            --gray-800: #1E1E1E;
+            --gray-700: #2D2D2D;
+            --gray-400: #9E9E9E;
+            --gray-200: #E0E0E0;
+        }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Tanha', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         
         body {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
+            background-color: var(--gray-900);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px;
         }
         
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #4a4a4a;
+            padding: 24px 0;
+        }
+        
+        .wallet-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
         
         .wallet-btn {
-            background: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 12px 24px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
+            font-weight: 600;
+            font-size: 14px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(110, 69, 226, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .wallet-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(110, 69, 226, 0.6);
+            background: var(--primary-dark);
+            transform: translateY(-1px);
         }
         
-        .profile {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
+        .wallet-btn::before {
+            content: "";
+            display: block;
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M21 12a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5H5a5 5 0 0 0-5 5v10a5 5 0 0 0 5 5h8a5 5 0 0 0 5-5v-3h1a2 2 0 0 0 2-2zm-3 0v1H12V11h6zm-9-1V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v1z"/></svg>');
+        }
+        
+        .wallet-address {
+            background: var(--gray-800);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
         }
         
         .main-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 50px;
+            padding: 60px 0;
+        }
+        
+        .nft-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+            margin-bottom: 40px;
         }
         
         .nft-image {
-            width: 350px;
-            height: 350px;
-            border-radius: 15px;
+            width: 100%;
+            border-radius: 12px;
+            aspect-ratio: 1/1;
             object-fit: cover;
-            border: 3px solid #6e45e2;
-            box-shadow: 0 10px 30px rgba(110, 69, 226, 0.3);
-            margin-bottom: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(123, 74, 255, 0.2);
         }
         
         .nft-title {
-            font-size: 28px;
-            margin-bottom: 15px;
-            color: #e0e0e0;
-            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
         
         .nft-description {
             font-size: 16px;
-            color: #b0b0b0;
-            text-align: center;
-            max-width: 600px;
-            margin-bottom: 30px;
+            color: var(--gray-400);
+            margin-bottom: 24px;
             line-height: 1.6;
         }
         
+        .mint-section {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 420px;
+        }
+        
         .mint-btn {
-            background: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 30px;
+            padding: 16px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 18px;
+            font-weight: 600;
+            font-size: 16px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(110, 69, 226, 0.4);
-            margin-top: 20px;
+            margin-bottom: 16px;
         }
         
         .mint-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(110, 69, 226, 0.6);
+            background: var(--primary-dark);
+            transform: translateY(-2px);
         }
         
-        .info-box {
-            background-color: #2a2a2a;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 40px;
-            width: 100%;
-            max-width: 800px;
-            border-left: 4px solid #6e45e2;
-        }
-        
-        .info-title {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: #e0e0e0;
-        }
-        
-        .info-text {
+        .mint-stats {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray-400);
             font-size: 14px;
-            color: #b0b0b0;
-            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            width: 100%;
+            background: var(--gray-700);
+            border-radius: 2px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 65%;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 40px 0;
+            }
+            
+            .nft-card, .mint-section {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <button class="wallet-btn">اتصال کیف پول</button>
-            <div class="profile">PN</div>
+            <div class="wallet-section">
+                <button class="wallet-btn">Connect Wallet</button>
+                <div class="wallet-address">0x1a2...b3c4</div>
+            </div>
         </header>
         
         <main class="main-content">
-            <img src="https://i.imgur.com/muoYEIu.jpeg" alt="NFT" class="nft-image">
-            <h1 class="nft-title">NFT اختصاصی شما</h1>
-            <p class="nft-description">
-                این یک NFT منحصر به فرد است که می‌توانید آن را مینت کنید و در مجموعه دیجیتال خود داشته باشید. هر NFT دارای ویژگی‌های منحصر به فرد و ارزش خاص خود است.
-            </p>
-            <button class="mint-btn">مینت NFT</button>
-            
-            <div class="info-box">
-                <h2 class="info-title">راهنمای مینت</h2>
-                <p class="info-text">
-                    1. ابتدا با کلیک روی دکمه "اتصال کیف پول" کیف پول دیجیتال خود را متصل کنید.<br>
-                    2. پس از اتصال کیف پول، می‌توانید با کلیک روی دکمه "مینت NFT" فرآیند مینت را آغاز کنید.<br>
-                    3. هزینه گس فی و مینت از کیف پول شما کسر خواهد شد.<br>
-                    4. پس از تایید تراکنش، NFT به کیف پول شما اضافه می‌شود.
+            <div class="nft-card glass-card">
+                <img src="https://i.imgur.com/muoYEIu.jpeg" alt="Exclusive NFT" class="nft-image">
+                <h1 class="nft-title">Digital Art Collection #0172</h1>
+                <p class="nft-description">
+                    This unique digital artwork is part of our genesis collection. Each piece is algorithmically generated and stored on the Ethereum blockchain.
                 </p>
+            </div>
+            
+            <div class="mint-section">
+                <div class="mint-stats">
+                    <span>65% Minted</span>
+                    <span>327/500</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <button class="mint-btn glass-card">MINT NOW (0.08 ETH)</button>
             </div>
         </main>
     </div>
     
     <script>
-        // اسکریپت اتصال کیف پول
-        document.querySelector('.wallet-btn').addEventListener('click', function() {
-            alert('اتصال کیف پول در حال پیاده‌سازی است...');
+        // Wallet connection simulation
+        const walletBtn = document.querySelector('.wallet-btn');
+        const walletAddress = document.querySelector('.wallet-address');
+        
+        walletBtn.addEventListener('click', () => {
+            walletBtn.style.display = 'none';
+            walletAddress.style.display = 'block';
+            // In a real implementation, you would connect to MetaMask or other wallet here
         });
         
-        // اسکریپت مینت NFT
+        // Mint button interaction
         document.querySelector('.mint-btn').addEventListener('click', function() {
-            alert('فرآیند مینت NFT آغاز خواهد شد...');
+            alert('Minting functionality would be implemented with Web3.js or Ethers.js in a real application');
         });
     </script>
 </body>
