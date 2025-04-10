@@ -1,15 +1,18 @@
 {
   "accountAssociation": {
-    "header": "<replace-this-with-header-from-Warpcast>",
-    "payload": "eyJkb21haW4iOiJ0ZXN0YmEtZGVlcHNlZWstdmVyY2VsLmFwcCJ9",
-    "signature": "<replace-this-with-signature-from-Warpcast>"
+    "header": "eyJmaWQiOjkyOTkxMCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDQ3ZTg5Q0YzMDBFNzI5MGNFMEE2Mjc2NzAwQTU1NjM5YmZCYkE3MzUifQ",
+    "payload": "eyJkb21haW4iOiJ0ZXN0YmEtZGVlcHNlZWsudmVyY2VsLmFwcCJ9",
+    "signature": "MHg1NWQ2NWMzMzA3NTY3NzU5ODdkZmY5YmNiNmQ3MmRhY2MwZDRkOWVmMzkwOWVmOTIyNmYzZDFjYzI1YmM4OGI1NGY4NDY5N2E0YTNiOWE4MmQ1ODEwZWRkMWY0YmQ0OWIwNzRmM2IwZTBjYWI2N2VjZDEzZWQ1YTdmMzBkOTA3ZDFj"
   },
   "frame": {
-    "name": "Cosmic Fragment",
     "version": "1",
-    "iconUrl": "https://i.imgur.com/IkqVXfl.jpeg",
+    "name": "Example Frame",
+    "iconUrl": "https://testba-deepseek.vercel.app/icon.png",
     "homeUrl": "https://testba-deepseek.vercel.app",
-    "splashImageUrl": "https://i.imgur.com/IkqVXfl.jpeg",
-    "splashBackgroundColor": "#8A5AFF"
+    "imageUrl": "https://testba-deepseek.vercel.app/image.png",
+    "buttonTitle": "Check this out",
+    "splashImageUrl": "https://testba-deepseek.vercel.app/splash.png",
+    "splashBackgroundColor": "#eeccff",
+    "webhookUrl": "https://testba-deepseek.vercel.app/api/webhook"
   }
 }
