@@ -250,49 +250,10 @@
                 font-size: 14px;
             }
         }
-
-        /* Splash Screen Styles */
-        .loading-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f5f0ec;
-            color: #8A5AFF;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        .loading-text {
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .loading-spinner {
-            margin-top: 20px;
-            border: 6px solid #f3f3f3;
-            border-top: 6px solid #8A5AFF;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
-    <!-- Splash Screen -->
-    <div class="loading-container" id="loadingScreen">
-        <div class="loading-text">Loading your app...</div>
-        <div class="loading-spinner"></div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container" id="mainContent" style="display: none;">
+    <div class="container">
         <header>
             <button class="wallet-btn" id="connectWallet">
                 <i class="fas fa-wallet"></i> Connect Wallet
@@ -325,7 +286,6 @@
         </main>
     </div>
 
-    <!-- Particles -->
     <div class="particles"></div>
 
     <script type="module">
@@ -334,7 +294,6 @@
         async function onAppReady() {
             try {
                 await sdk.actions.ready();
-                document.getElementById("loadingScreen").style.display = "none";
                 document.getElementById("mainContent").style.display = "block";
             } catch (error) {
                 console.error("Error loading app:", error);
