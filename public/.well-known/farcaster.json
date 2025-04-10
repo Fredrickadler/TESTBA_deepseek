@@ -1,0 +1,15 @@
+{
+  "accountAssociation": {
+    "header": "<replace-this-with-header-from-Warpcast>",
+    "payload": "eyJkb21haW4iOiJ0ZXN0YmEtZGVlcHNlZWstdmVyY2VsLmFwcCJ9",
+    "signature": "<replace-this-with-signature-from-Warpcast>"
+  },
+  "frame": {
+    "name": "Cosmic Fragment",
+    "version": "1",
+    "iconUrl": "https://i.imgur.com/IkqVXfl.jpeg",
+    "homeUrl": "https://testba-deepseek.vercel.app",
+    "splashImageUrl": "https://i.imgur.com/IkqVXfl.jpeg",
+    "splashBackgroundColor": "#8A5AFF"
+  }
+}
