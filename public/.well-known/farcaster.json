@@ -5,13 +5,13 @@
     "signature": "MHg1NWQ2NWMzMzA3NTY3NzU5ODdkZmY5YmNiNmQ3MmRhY2MwZDRkOWVmMzkwOWVmOTIyNmYzZDFjYzI1YmM4OGI1NGY4NDY5N2E0YTNiOWE4MmQ1ODEwZWRkMWY0YmQ0OWIwNzRmM2IwZTBjYWI2N2VjZDEzZWQ1YTdmMzBkOTA3ZDFj"
   },
   "frame": {
-    "version": "1",
+    "version": "0.0.1",
     "name": "Cosmic Fragment",
     "iconUrl": "https://i.imgur.com/MYdBuKK.jpeg",
     "homeUrl": "https://testba-deepseek.vercel.app",
     "imageUrl": "https://i.imgur.com/MYdBuKK.jpeg",
     "buttonTitle": "Check this out",
-    "splashImageUrl": "https://imgur.com/a/fnl62DH",
+    "splashImageUrl": "https://i.imgur.com/MYdBuKK.jpeg",
     "splashBackgroundColor": "#eeccff",
     "webhookUrl": "https://testba-deepseek.vercel.app/api/webhook"
   }
