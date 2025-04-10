@@ -244,7 +244,7 @@
             <button class="wallet-btn" id="connectWallet">
                 <i class="fas fa-wallet"></i> Connect Wallet
             </button>
-            <div class="wallet-address" id="walletAddress">0x1a2...b3c4</div>
+            <div class="wallet-address" id="walletAddress" onclick="disconnectWallet()">0x1a2...b3c4</div>
         </header>
         
         <main class="main-content">
@@ -288,7 +288,7 @@
                     signer = await provider.getSigner();
                     userAddress = await signer.getAddress();
 
-                    // فقط آدرس کیف‌پول نمایش داده می‌شه، بدون تغییر متن دکمه
+                    connectWallet.textContent = 'Disconnect Wallet';
                     walletAddress.style.display = 'block';
                     walletAddress.textContent = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
                 } catch (error) {
@@ -300,6 +300,14 @@
             }
         });
 
+        function disconnectWallet() {
+            signer = null;
+            provider = null;
+            userAddress = null;
+            walletAddress.style.display = 'none';
+            connectWallet.textContent = 'Connect Wallet';
+        }
+        
         const mintButton = document.getElementById('mintButton');
         
         mintButton.addEventListener('click', async () => {
@@ -313,7 +321,7 @@
                 ];
 
                 const contract = new ethers.Contract(contractAddress, contractABI, signer);
-                const pricePerNFT = ethers.parseEther("0.00044");
+                const pricePerNFT = ethers.utils.parseEther("0.00044");
                 const quantity = 1;
 
                 const tx = await contract.mint(userAddress, quantity, {
