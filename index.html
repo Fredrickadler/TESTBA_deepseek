@@ -79,6 +79,7 @@
             font-weight: 500;
             display: none;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
         }
         
         .main-content {
@@ -299,7 +300,7 @@
             }
         });
 
-        connectWallet.addEventListener('dblclick', () => {
+        walletAddress.addEventListener('click', () => {
             if (signer) {
                 signer = null;
                 provider = null;
