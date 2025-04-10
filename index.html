@@ -234,14 +234,49 @@
                 font-size: 14px;
             }
         }
+        
+        /* Splash Screen Styles */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f0ec;
+            color: #8A5AFF;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .loading-text {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .loading-spinner {
+            margin-top: 20px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #8A5AFF;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
-    <!-- Meta tag for sharing -->
-    <meta name="fc:frame" content='{"version":"next","imageUrl":"https://i.imgur.com/muoYEIu.jpeg","button":{"title":"🚩 Mint NFT","action":{"type":"launch_frame","url":"https://testba-deepseek.vercel.app","name":"DeepSeek","splashImageUrl":"https://i.imgur.com/muoYEIu.jpeg","splashBackgroundColor":"#f5f0ec"}}}' />
 </head>
 <body>
+    <div class="loading-container" id="loadingScreen">
+        <div class="loading-text">Loading your app...</div>
+        <div class="loading-spinner"></div>
+    </div>
+
     <div class="particles" id="particles"></div>
     
-    <div class="container">
+    <div class="container" id="mainContent" style="display: none;">
         <header>
             <button class="wallet-btn" id="connectWallet">
                 <i class="fas fa-wallet"></i> Connect Wallet
@@ -276,70 +311,19 @@
         </main>
     </div>
     
-    <script>
-        let provider, signer, address;
+    <script type="module">
+        import { sdk } from '@farcaster/frame-sdk';
 
-        const connectWallet = document.getElementById('connectWallet');
-        const walletAddress = document.getElementById('walletAddress');
-        
-        // Connect Wallet
-        connectWallet.addEventListener('click', async () => {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    provider = new ethers.BrowserProvider(window.ethereum);
-                    await provider.send("eth_requestAccounts", []);
-                    signer = await provider.getSigner();
-                    address = await signer.getAddress();
+        async function onAppReady() {
+            await sdk.actions.ready({ disableNativeGestures: true });
 
-                    connectWallet.style.display = 'none';
-                    walletAddress.style.display = 'block';
-                    walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
-                } catch (error) {
-                    console.error(error);
-                }
-            } else {
-                alert('Please install MetaMask!');
-            }
-        });
-
-        const mintButton = document.getElementById('mintButton');
-        
-        mintButton.addEventListener('click', async () => {
-            if (!signer) {
-                alert('Please connect your wallet first!');
-                return;
-            }
-            
-            // Replace with your contract address and mint function
-            const contractAddress = '0xYourContractAddress';
-            const contractABI = [ /* ABI of your contract */ ];
-            const contract = new ethers.Contract(contractAddress, contractABI, signer);
-            
-            try {
-                const tx = await contract.mint(address, 1);
-                console.log('Minted NFT successfully:', tx);
-            } catch (error) {
-                console.error('Minting failed:', error);
-            }
-        });
-        
-        // Particle effect code
-        function createParticle() {
-            const particle = document.createElement('div');
-            particle.classList.add('particle');
-            document.getElementById('particles').appendChild(particle);
-
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
-            particle.style.left = `${x}px`;
-            particle.style.top = `${y}px`;
-
-            const size = Math.random() * 3 + 2;
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
+            // Hide the loading screen and show the main content
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
         }
 
-        setInterval(createParticle, 30);
+        // Simulating loading time
+        setTimeout(onAppReady, 3000); // Adjust as needed
     </script>
 </body>
 </html>
