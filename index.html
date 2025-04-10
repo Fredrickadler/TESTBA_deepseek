@@ -80,6 +80,7 @@
             font-weight: 500;
             display: none;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer; /* اضافه کردن این ویژگی برای قابل کلیک کردن بودن */
         }
         
         .main-content {
@@ -321,6 +322,14 @@
             } catch (error) {
                 console.error('Minting failed:', error);
             }
+        });
+        
+        // Disconnect Wallet by clicking the wallet address
+        walletAddress.addEventListener('click', () => {
+            connectWallet.style.display = 'inline-block';
+            walletAddress.style.display = 'none';
+            signer = null;
+            address = null;
         });
         
         // Particle effect code
