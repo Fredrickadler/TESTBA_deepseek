@@ -288,7 +288,7 @@
                     signer = await provider.getSigner();
                     userAddress = await signer.getAddress();
 
-                    connectWallet.textContent = 'Disconnect Wallet';
+                    'Disconnect Wallet'
                     walletAddress.style.display = 'block';
                     walletAddress.textContent = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
                 } catch (error) {
