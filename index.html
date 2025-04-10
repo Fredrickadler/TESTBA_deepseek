@@ -256,7 +256,6 @@
                             infuraId: "YOUR_INFURA_ID"
                         }
                     },
-                    // Add other wallet providers if needed
                 }
             });
         }
@@ -264,10 +263,15 @@
         async function connectWallet() {
             provider = await web3Modal.connect();
             const web3 = new ethers.Web3Provider(provider);
+
+            // This is the request to enable MetaMask or WalletConnect
+            await provider.enable(); // Ensure this is used for WalletConnect or MetaMask
+
             const accounts = await web3.listAccounts();
             selectedAccount = accounts[0];
 
             document.getElementById("walletAddress").textContent = selectedAccount;
+            document.getElementById("walletAddress").style.display = "block";
         }
 
         document.getElementById("connectWallet").addEventListener("click", async () => {
