@@ -79,7 +79,6 @@
             font-weight: 500;
             display: none;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
         }
         
         .main-content {
@@ -244,7 +243,7 @@
             <button class="wallet-btn" id="connectWallet">
                 <i class="fas fa-wallet"></i> Connect Wallet
             </button>
-            <div class="wallet-address" id="walletAddress" onclick="disconnectWallet()">0x1a2...b3c4</div>
+            <div class="wallet-address" id="walletAddress"></div>
         </header>
         
         <main class="main-content">
@@ -278,19 +277,17 @@
         const connectWallet = document.getElementById('connectWallet');
         const walletAddress = document.getElementById('walletAddress');
         
-        let provider, signer, userAddress;
-        
         connectWallet.addEventListener('click', async () => {
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    provider = new ethers.BrowserProvider(window.ethereum);
+                    const provider = new ethers.BrowserProvider(window.ethereum);
                     await provider.send("eth_requestAccounts", []);
-                    signer = await provider.getSigner();
-                    userAddress = await signer.getAddress();
+                    const signer = await provider.getSigner();
+                    const address = await signer.getAddress();
 
-                    'Disconnect Wallet'
+                    connectWallet.style.display = 'none';
                     walletAddress.style.display = 'block';
-                    walletAddress.textContent = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+                    walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
                 } catch (error) {
                     alert("Wallet connection failed or cancelled.");
                     console.error(error);
@@ -299,45 +296,21 @@
                 alert("Please install MetaMask or Trust Wallet.");
             }
         });
-
-        function disconnectWallet() {
-            signer = null;
-            provider = null;
-            userAddress = null;
-            walletAddress.style.display = 'none';
-            connectWallet.textContent = 'Connect Wallet';
-        }
         
-        const mintButton = document.getElementById('mintButton');
-        
-        mintButton.addEventListener('click', async () => {
-            mintButton.textContent = "Minting...";
-            mintButton.disabled = true;
-
+        walletAddress.addEventListener('click', async () => {
             try {
-                const contractAddress = "0xE2bA182898141f19B4a7d739c715cD162D31766C"; 
-                const contractABI = [
-                    "function mint(address to, uint256 quantity) public payable"
-                ];
-
-                const contract = new ethers.Contract(contractAddress, contractABI, signer);
-                const pricePerNFT = ethers.utils.parseEther("0.00044");
-                const quantity = 1;
-
-                const tx = await contract.mint(userAddress, quantity, {
-                    value: pricePerNFT.mul(quantity)
-                });
-
-                await tx.wait();
-                alert("NFT minted successfully! Check your wallet.");
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                const signer = await provider.getSigner();
+                const address = await signer.getAddress();
+                walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
+                walletAddress.style.display = 'block';
             } catch (error) {
-                console.error("Minting failed:", error);
-                alert("Minting failed! Try again.");
+                console.error(error);
             }
-
-            mintButton.textContent = "MINT NOW";
-            mintButton.disabled = false;
         });
+
+        // Your minting logic here...
     </script>
 </body>
 </html>
