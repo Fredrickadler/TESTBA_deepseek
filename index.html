@@ -302,32 +302,41 @@
         mintButton.addEventListener('click', async () => {
             mintButton.textContent = "Minting...";
             mintButton.disabled = true;
-            
+
             try {
                 const provider = new ethers.BrowserProvider(window.ethereum);
                 const signer = provider.getSigner();
-                const contract = new ethers.Contract(
-                    "0xE2bA182898141f19B4a7d739c715cD162D31766C", // آدرس قرارداد شما
-                    [
-                        // ABI قرارداد شما
-                        "function mint(address to, uint256 quantity) public payable"
-                    ],
-                    signer
-                );
 
-                const price = ethers.utils.parseEther("0.00044");
+                // آدرس قرارداد شما
+                const contractAddress = "0xE2bA182898141f19B4a7d739c715cD162D31766C"; 
+                
+                // ABI قرارداد شما
+                const contractABI = [
+                    "function mint(address to, uint256 quantity) public payable"
+                ];
 
-                const tx = await contract.mint(await signer.getAddress(), 1, {
-                    value: price
+                const contract = new ethers.Contract(contractAddress, contractABI, signer);
+                
+                // قیمت NFT
+                const pricePerNFT = ethers.utils.parseEther("0.00044"); // به ETH تبدیل شد
+                
+                // تعداد NFTهایی که می‌خواهیم مینت کنیم
+                const quantity = 1; // تغییر دهید به تعداد مورد نظر
+
+                // ارسال تراکنش مینت
+                const tx = await contract.mint(await signer.getAddress(), quantity, {
+                    value: pricePerNFT.mul(quantity)
                 });
 
+                // منتظر شدن برای تایید تراکنش
                 await tx.wait();
+                
                 alert("NFT minted successfully! Check your wallet.");
             } catch (error) {
                 console.error("Minting failed:", error);
                 alert("Minting failed! Try again.");
             }
-            
+
             mintButton.textContent = "MINT NOW";
             mintButton.disabled = false;
         });
