@@ -219,8 +219,8 @@
         
         .particle {
             position: absolute;
-            width: 2px;
-            height: 2px;
+            width: 4px;
+            height: 4px;
             background: rgba(138, 90, 255, 0.5);
             border-radius: 50%;
             animation: float 15s infinite linear;
@@ -286,7 +286,22 @@
         </main>
     </div>
 
-    <div class="particles"></div>
+    <div class="particles">
+        <!-- Dynamically generated particles -->
+        <script>
+            const particleCount = 100; // Set the desired number of particles
+            const particlesContainer = document.querySelector('.particles');
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.animationDuration = `${Math.random() * 5 + 10}s`; // Randomize float speed
+                particle.style.animationDelay = `${Math.random() * 5}s`; // Randomize animation start time
+                particlesContainer.appendChild(particle);
+            }
+        </script>
+    </div>
 
     <script type="module">
         import { sdk } from '@farcaster/frame-sdk';
