@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Premium NFT Mint</title>
-  
+
   <!-- FontAwesome و Font -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  
-  <!-- Meta Tag for Farcaster Frame -->
+
+  <!-- Farcaster Frame Meta Tag -->
   <meta name="fc:frame" content='{
     "version":"next",
     "imageUrl":"https://testba-deepseek.vercel.app/images/share-image.png",
@@ -26,13 +26,14 @@
     }
   }' />
 
-  <!-- Farcaster SDK اضافه شده -->
+  <!-- Farcaster SDK -->
   <script type="module">
     import sdk from 'https://esm.sh/@farcaster/frame-sdk';
+    window.sdk = sdk;
 
     window.addEventListener('DOMContentLoaded', async () => {
       try {
-        await sdk.actions.ready(); // اعلام لود کامل برای Warpcast
+        await sdk.actions.ready(); // Signal frame is ready
         const context = await sdk.context;
         console.log("Farcaster context:", context);
       } catch (err) {
@@ -42,7 +43,7 @@
   </script>
 
   <style>
-    /* کل CSS خودت همونه — هیچ تغییری نکرده */
+    /* تمام استایل‌ها همون کد قبلی هستن */
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
     :root { --primary: #8A5AFF; --primary-dark: #6E3AFF; --gray-900: #0F0F0F; --gray-800: #1A1A1A; --gray-700: #2E2E2E; --gray-400: #A0A0A0; --gray-200: #E5E5E5; }
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
@@ -80,7 +81,7 @@
 </head>
 <body>
   <div class="particles" id="particles"></div>
-  
+
   <div class="container">
     <header>
       <button class="wallet-btn" id="connectWallet">
@@ -88,7 +89,7 @@
       </button>
       <div class="wallet-address" id="walletAddress"></div>
     </header>
-    
+
     <main class="main-content">
       <div class="nft-card">
         <img src="https://i.imgur.com/muoYEIu.jpeg" alt="Exclusive NFT" class="nft-image">
@@ -99,7 +100,7 @@
           </p>
         </div>
       </div>
-      
+
       <div class="mint-section">
         <div class="mint-stats">
           <span>65% Minted</span>
@@ -108,9 +109,7 @@
         <div class="progress-container">
           <div class="progress-bar"></div>
         </div>
-        <button class="mint-btn" id="mintButton">
-          MINT NOW
-        </button>
+        <button class="mint-btn" id="mintButton">MINT NOW</button>
         <div class="mint-price">Price: 0.00044 ETH</div>
       </div>
     </main>
@@ -123,41 +122,45 @@
     const walletAddress = document.getElementById('walletAddress');
 
     connectWallet.addEventListener('click', async () => {
-      if (typeof window.ethereum !== 'undefined') {
-        try {
+      try {
+        if (window.sdk?.wallet?.ethProvider) {
+          provider = new ethers.BrowserProvider(window.sdk.wallet.ethProvider);
+          await provider.send("eth_requestAccounts", []);
+        } else if (window.ethereum) {
           provider = new ethers.BrowserProvider(window.ethereum);
           await provider.send("eth_requestAccounts", []);
-          signer = await provider.getSigner();
-          address = await signer.getAddress();
-
-          connectWallet.style.display = 'none';
-          walletAddress.style.display = 'block';
-          walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
-        } catch (error) {
-          console.error(error);
+        } else {
+          alert('No Ethereum provider found. Use Warpcast or install MetaMask.');
+          return;
         }
-      } else {
-        alert('Please install MetaMask!');
+
+        signer = await provider.getSigner();
+        address = await signer.getAddress();
+
+        connectWallet.style.display = 'none';
+        walletAddress.style.display = 'block';
+        walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
+      } catch (error) {
+        console.error("Wallet connection failed:", error);
       }
     });
 
     const mintButton = document.getElementById('mintButton');
-
     mintButton.addEventListener('click', async () => {
       if (!signer) {
         alert('Please connect your wallet first!');
         return;
       }
 
-      const contractAddress = '0xYourContractAddress'; // <-- اینجا آدرس قراردادتو بذار
-      const contractABI = [ /* ABI قرارداد NFT شما */ ];
+      const contractAddress = '0xYourContractAddress'; // <-- اینجا آدرس NFT Contract
+      const contractABI = [ /* ... ABI ... */ ]; // <-- اینجا ABI کامل قراردادت رو بذار
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
       try {
         const tx = await contract.mint(address, 1);
-        console.log('Minted NFT successfully:', tx);
-      } catch (error) {
-        console.error('Minting failed:', error);
+        console.log('Minted NFT:', tx);
+      } catch (err) {
+        console.error('Minting failed:', err);
       }
     });
 
@@ -172,12 +175,8 @@
       const particle = document.createElement('div');
       particle.classList.add('particle');
       document.getElementById('particles').appendChild(particle);
-
-      const x = Math.random() * window.innerWidth;
-      const y = Math.random() * window.innerHeight;
-      particle.style.left = `${x}px`;
-      particle.style.top = `${y}px`;
-
+      particle.style.left = `${Math.random() * window.innerWidth}px`;
+      particle.style.top = `${Math.random() * window.innerHeight}px`;
       const size = Math.random() * 3 + 2;
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
