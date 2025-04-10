@@ -7,11 +7,11 @@
   "frame": {
     "version": "1",
     "name": "Example Frame",
-    "iconUrl": "https://testba-deepseek.vercel.app/icon.png",
+    "iconUrl": "https://imgur.com/a/fnl62DH",
     "homeUrl": "https://testba-deepseek.vercel.app",
-    "imageUrl": "https://testba-deepseek.vercel.app/image.png",
+    "imageUrl": "https://imgur.com/a/fnl62DH",
     "buttonTitle": "Check this out",
-    "splashImageUrl": "https://testba-deepseek.vercel.app/splash.png",
+    "splashImageUrl": "https://imgur.com/a/fnl62DH",
     "splashBackgroundColor": "#eeccff",
     "webhookUrl": "https://testba-deepseek.vercel.app/api/webhook"
   }
