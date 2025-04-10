@@ -275,9 +275,9 @@
             "title": "Mint Now",
             "action": {
                 "type": "launch_frame",
-                "url": "https://testba-deepseek.vercel.app",
+                "url": "https://your-app-url.com",
                 "name": "Premium NFT Mint",
-                "splashImageUrl": "https://i.imgur.com/muoYEIu.jpeg",
+                "splashImageUrl": "https://your-image-url.com/logo.png",
                 "splashBackgroundColor": "#f5f0ec"
             }
         }
@@ -330,10 +330,14 @@
         import { sdk } from '@farcaster/frame-sdk';
 
         async function onAppReady() {
-            await sdk.actions.ready({ hideLoading: true });
-
-            document.getElementById("loadingScreen").style.display = "none";
-            document.getElementById("mainContent").style.display = "block";
+            try {
+                // Hide loading screen once app is ready
+                await sdk.actions.ready();
+                document.getElementById("loadingScreen").style.display = "none";
+                document.getElementById("mainContent").style.display = "block";
+            } catch (error) {
+                console.error("Error while loading the app:", error);
+            }
         }
 
         document.addEventListener("DOMContentLoaded", onAppReady);
