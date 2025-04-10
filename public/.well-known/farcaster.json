@@ -12,7 +12,7 @@
     "imageUrl": "https://i.imgur.com/MYdBuKK.jpeg",
     "buttonTitle": "Check this out",
     "splashImageUrl": "https://i.imgur.com/MYdBuKK.jpeg",
-    "splashBackgroundColor": "#eeccff",
+    "splashBackgroundColor": "#8A5AFF",
     "webhookUrl": "https://testba-deepseek.vercel.app/api/webhook"
   }
 }
