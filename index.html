@@ -274,16 +274,19 @@
     </div>
     
     <script>
+        let provider, signer, address;
+
         const connectWallet = document.getElementById('connectWallet');
         const walletAddress = document.getElementById('walletAddress');
         
+        // Connect Wallet
         connectWallet.addEventListener('click', async () => {
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    provider = new ethers.BrowserProvider(window.ethereum);
                     await provider.send("eth_requestAccounts", []);
-                    const signer = await provider.getSigner();
-                    const address = await signer.getAddress();
+                    signer = await provider.getSigner();
+                    address = await signer.getAddress();
 
                     connectWallet.style.display = 'none';
                     walletAddress.style.display = 'block';
@@ -297,17 +300,13 @@
             }
         });
         
-        walletAddress.addEventListener('click', async () => {
-            try {
-                const provider = new ethers.BrowserProvider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
-                const signer = await provider.getSigner();
-                const address = await signer.getAddress();
-                walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
-                walletAddress.style.display = 'block';
-            } catch (error) {
-                console.error(error);
-            }
+        // Disconnect Wallet by clicking on wallet address
+        walletAddress.addEventListener('click', () => {
+            connectWallet.style.display = 'block';
+            walletAddress.style.display = 'none';
+            provider = null;
+            signer = null;
+            address = null;
         });
 
         // Your minting logic here...
