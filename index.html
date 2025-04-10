@@ -48,6 +48,7 @@
             color: white;
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
         }
         
         .container {
@@ -207,6 +208,7 @@
             color: var(--gray-400);
         }
         
+        /* Particles/Stars animation */
         .particles {
             position: fixed;
             top: 0;
@@ -301,6 +303,16 @@
         }
 
         document.addEventListener("DOMContentLoaded", onAppReady);
+
+        // Add particles to background
+        const particlesContainer = document.querySelector(".particles");
+        for (let i = 0; i < 200; i++) {
+            const particle = document.createElement("div");
+            particle.classList.add("particle");
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.animationDuration = `${Math.random() * 5 + 10}s`; // random speed
+            particlesContainer.appendChild(particle);
+        }
     </script>
 </body>
 </html>
