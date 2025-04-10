@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium NFT Mint</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script> <!-- اضافه کردن ethers.js -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
         
@@ -283,13 +284,24 @@
         const connectWallet = document.getElementById('connectWallet');
         const walletAddress = document.getElementById('walletAddress');
         
-        connectWallet.addEventListener('click', () => {
-            // Simulate wallet connection
-            connectWallet.style.display = 'none';
-            walletAddress.style.display = 'block';
-            
-            // In a real app, you'd use Web3.js or Ethers.js here
-            // Example: await ethereum.request({ method: 'eth_requestAccounts' });
+        connectWallet.addEventListener('click', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    const signer = await provider.getSigner();
+                    const address = await signer.getAddress();
+
+                    connectWallet.style.display = 'none';
+                    walletAddress.style.display = 'block';
+                    walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
+                } catch (error) {
+                    alert("اتصال به کیف پول لغو شد یا خطایی رخ داد.");
+                    console.error(error);
+                }
+            } else {
+                alert("لطفاً MetaMask یا Trust Wallet را نصب کنید.");
+            }
         });
         
         // Mint Button Logic
