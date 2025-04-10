@@ -6,10 +6,10 @@
   },
   "frame": {
     "version": "1",
-    "name": "Example Frame",
-    "iconUrl": "https://imgur.com/a/fnl62DH",
+    "name": "Cosmic Fragment",
+    "iconUrl": "https://i.imgur.com/MYdBuKK.jpeg",
     "homeUrl": "https://testba-deepseek.vercel.app",
-    "imageUrl": "https://imgur.com/a/fnl62DH",
+    "imageUrl": "https://i.imgur.com/MYdBuKK.jpeg",
     "buttonTitle": "Check this out",
     "splashImageUrl": "https://imgur.com/a/fnl62DH",
     "splashBackgroundColor": "#eeccff",
