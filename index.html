@@ -330,14 +330,10 @@
         import { sdk } from '@farcaster/frame-sdk';
 
         async function onAppReady() {
-            try {
-                // Hide loading screen once app is ready
-                await sdk.actions.ready();
-                document.getElementById("loadingScreen").style.display = "none";
-                document.getElementById("mainContent").style.display = "block";
-            } catch (error) {
-                console.error("Error while loading the app:", error);
-            }
+            await sdk.actions.ready({ hideLoading: true });
+
+            document.getElementById("loadingScreen").style.display = "none";
+            document.getElementById("mainContent").style.display = "block";
         }
 
         document.addEventListener("DOMContentLoaded", onAppReady);
