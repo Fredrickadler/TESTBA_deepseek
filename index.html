@@ -244,7 +244,7 @@
             <button class="wallet-btn" id="connectWallet">
                 <i class="fas fa-wallet"></i> Connect Wallet
             </button>
-            <div class="wallet-address" id="walletAddress">0x1a2...b3c4</div>
+            <div class="wallet-address" id="walletAddress" onclick="disconnectWallet()">0x1a2...b3c4</div>
         </header>
         
         <main class="main-content">
@@ -300,15 +300,13 @@
             }
         });
 
-        walletAddress.addEventListener('click', () => {
-            if (signer) {
-                signer = null;
-                provider = null;
-                userAddress = null;
-                walletAddress.style.display = 'none';
-                connectWallet.textContent = 'Connect Wallet';
-            }
-        });
+        function disconnectWallet() {
+            signer = null;
+            provider = null;
+            userAddress = null;
+            walletAddress.style.display = 'none';
+            connectWallet.textContent = 'Connect Wallet';
+        }
         
         const mintButton = document.getElementById('mintButton');
         
@@ -342,4 +340,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
