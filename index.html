@@ -295,26 +295,51 @@
                     walletAddress.style.display = 'block';
                     walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
                 } catch (error) {
-                    alert("Wallet connection failed or cancelled.");
                     console.error(error);
                 }
             } else {
-                alert("Please install MetaMask or Trust Wallet.");
+                alert('Please install MetaMask!');
+            }
+        });
+
+        const mintButton = document.getElementById('mintButton');
+        
+        mintButton.addEventListener('click', async () => {
+            if (!signer) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+            
+            // Replace with your contract address and mint function
+            const contractAddress = '0xYourContractAddress';
+            const contractABI = [ /* ABI of your contract */ ];
+            const contract = new ethers.Contract(contractAddress, contractABI, signer);
+            
+            try {
+                const tx = await contract.mint(address, 1);
+                console.log('Minted NFT successfully:', tx);
+            } catch (error) {
+                console.error('Minting failed:', error);
             }
         });
         
-        // Disconnect Wallet by clicking on wallet address
-        walletAddress.addEventListener('click', () => {
-            connectWallet.style.display = 'block';
-            walletAddress.style.display = 'none';
-            provider = null;
-            signer = null;
-            address = null;
+        // Particle effect code
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            document.getElementById('particles').appendChild(particle);
 
-            // Optional: Clear sessionStorage, localStorage, or cookies if you're saving wallet state there.
-        });
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
 
-        // Your minting logic here...
+            const size = Math.random() * 3 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+        }
+
+        setInterval(createParticle, 30);
     </script>
 </body>
 </html>
