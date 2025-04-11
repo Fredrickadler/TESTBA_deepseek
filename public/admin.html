@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Notification Panel</title>
+  <style>
+    body {
+      background: #0f0f0f;
+      color: white;
+      font-family: 'Space Grotesk', sans-serif;
+      padding: 40px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #8A5AFF;
+      margin-bottom: 24px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      background: #1a1a1a;
+      color: white;
+    }
+
+    button {
+      background: #8A5AFF;
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #6E3AFF;
+    }
+
+    #result {
+      margin-top: 24px;
+      font-size: 15px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Send Notification</h1>
+  <input type="text" id="title" placeholder="Title (e.g. Mint is Live)">
+  <textarea id="body" placeholder="Message content..." rows="4"></textarea>
+  <input type="text" id="url" placeholder="Notification URL (optional)">
+  <button id="sendBtn">Send Notification</button>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('sendBtn').addEventListener('click', async () => {
+      const title = document.getElementById('title').value;
+      const body = document.getElementById('body').value;
+      const targetUrl = document.getElementById('url').value || 'https://testba-deepseek.vercel.app';
+
+      const res = await fetch('/api/send-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notificationId: 'custom-' + Date.now(),
+          title,
+          body,
+          targetUrl,
+          sendToAll: true  // توی API اینو هندل می‌کنی
+        })
+      });
+
+      const data = await res.json();
+      document.getElementById('result').innerText = data.success
+        ? '✅ Notification sent successfully!'
+        : '❌ Error: ' + (data.error || 'Unknown');
+    });
+  </script>
+</body>
+</html>
