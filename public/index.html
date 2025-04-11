@@ -179,7 +179,7 @@
         await sdk.actions.ready();
         const context = await sdk.context;
         console.log("Farcaster context:", context);
-     برای تست دستی: sendWelcomeNotification();
+        await sendWelcomeNotification();
       } catch (err) {
         console.error("Farcaster SDK error:", err);
       }
