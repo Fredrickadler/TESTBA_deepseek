@@ -11,7 +11,7 @@
     "homeUrl": "https://testba-deepseek.vercel.app",
     "imageUrl": "https://i.imgur.com/MYdBuKK.jpeg",
     "buttonTitle": "Check this out",
-    "splashImageUrl": "https://i.imgur.com/MYdBuKK.jpeg",
+    "splashImageUrl": "https://i.imgur.com/oxfooj0_d.webp?maxwidth=760&fidelity=grand",
     "splashBackgroundColor": "#8A5AFF",
     "webhookUrl": "https://testba-deepseek.vercel.app/api/webhook"
   }
