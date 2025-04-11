@@ -335,7 +335,7 @@
         await sdk.actions.ready();
         const context = await sdk.context;
         console.log("Farcaster context:", context);
-        await sendWelcomeNotification(); // اجرا میشه
+        await sendWelcomeNotification();
       } catch (err) {
         console.error("Farcaster SDK error:", err);
       }
@@ -344,19 +344,18 @@
     async function sendWelcomeNotification() {
       try {
         const result = await sdk.actions.addFrame();
+        console.log('addFrame result:', result);
 
         if (result.type === 'success' && result.notificationDetails) {
           const { token, url } = result.notificationDetails;
 
-          await fetch('/api/save-token', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, url }),
-          });
+          // ذخیره در localStorage (اختیاری)
+          localStorage.setItem('fcToken', token);
+          localStorage.setItem('fcUrl', url);
 
           console.log('✅ Frame added. Sending welcome notification...');
 
-          await fetch(url, {
+          const res = await fetch(url, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -371,9 +370,10 @@
             }),
           });
 
-          console.log('✅ Notification sent!');
+          const data = await res.json();
+          console.log('✅ Notification sent. Response:', data);
         } else {
-          console.warn('User rejected frame or no token available.');
+          console.warn('User rejected frame or no token available.', result);
         }
       } catch (error) {
         console.error('❌ Error sending welcome notification:', error);
