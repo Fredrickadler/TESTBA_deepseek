@@ -179,8 +179,7 @@
         await sdk.actions.ready();
         const context = await sdk.context;
         console.log("Farcaster context:", context);
-        // می‌تونی این تابعو هر وقت خواستی صدا بزنی
-        // await sendWelcomeNotification();
+        // برای تست دستی: sendWelcomeNotification();
       } catch (err) {
         console.error("Farcaster SDK error:", err);
       }
@@ -192,6 +191,13 @@
 
         if (result.type === 'success' && result.notificationDetails) {
           const { token, url } = result.notificationDetails;
+
+          // ذخیره توکن در سرور
+          await fetch('/api/save-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, url }),
+          });
 
           console.log('✅ Frame added. Sending welcome notification...');
 
@@ -218,8 +224,6 @@
         console.error('❌ Error sending welcome notification:', error);
       }
     }
-
-    // برای صدا زدن دستی (مثلاً بعد از کلیک یا مینت): sendWelcomeNotification();
   </script>
 </body>
 </html>
