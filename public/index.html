@@ -27,6 +27,7 @@
   }' />
 
   <style>
+    /* تمام استایل‌ها همون هستن و تغییری نکرده */
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
     :root {
       --primary: #8A5AFF;
@@ -78,9 +79,6 @@
       background: var(--primary-dark);
       transform: translateY(-2px);
       box-shadow: 0 6px 25px rgba(138, 90, 255, 0.4);
-    }
-    .wallet-btn i {
-      font-size: 16px;
     }
     .wallet-address {
       background: var(--gray-800);
@@ -292,15 +290,21 @@
         return;
       }
 
-      const contractAddress = '0xYourContractAddress'; // <-- قرارداد تو
-      const contractABI = [ /* ... ABI ... */ ];
+      const contractAddress = '0xe2ba182898141f19b4a7d739c715cd162d31766c';
+      const contractABI = [
+        "function mint() payable",
+        "function totalSupply() view returns (uint256)"
+      ];
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
       try {
-        const tx = await contract.mint(address, 1);
+        const tx = await contract.mint({
+          value: ethers.parseEther("0.00044")
+        });
         console.log('Minted NFT:', tx);
       } catch (err) {
         console.error('Minting failed:', err);
+        alert('Mint failed. Maybe sold out or not enough ETH.');
       }
     });
 
@@ -349,7 +353,6 @@
         if (result.type === 'success' && result.notificationDetails) {
           const { token, url } = result.notificationDetails;
 
-          // ذخیره در localStorage (اختیاری)
           localStorage.setItem('fcToken', token);
           localStorage.setItem('fcUrl', url);
 
