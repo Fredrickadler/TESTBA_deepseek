@@ -252,6 +252,8 @@
     </main>
   </div>
 
+<!-- ... تمام کد قبلی تا قبل از <script> بدون تغییر ... -->
+
   <!-- Wallet & Mint Logic -->
   <script>
     let provider, signer, address;
@@ -292,13 +294,13 @@
 
       const contractAddress = '0xe2ba182898141f19b4a7d739c715cd162d31766c';
       const contractABI = [
-        "function mint() payable",
+        "function mint(string tokenURI) payable",
         "function totalSupply() view returns (uint256)"
       ];
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
       try {
-        const tx = await contract.mint({
+        const tx = await contract.mint("https://i.imgur.com/muoYEIu.jpeg", {
           value: ethers.parseEther("0.00044")
         });
         console.log('Minted NFT:', tx);
