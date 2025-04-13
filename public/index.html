@@ -232,10 +232,9 @@
         alert('Transaction submitted!');
 
       } catch (err) {
-        console.error('Minting failed:', err);
-        alert('Transaction failed. Check console for details.');
-      }
-    });
+  console.error('Minting failed:', err);
+  alert('Transaction failed:\n' + (err?.message || JSON.stringify(err)));
+        });
 
     walletAddress.addEventListener('click', () => {
       connectWallet.style.display = 'inline-block';
