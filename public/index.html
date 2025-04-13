@@ -10,23 +10,17 @@
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Farcaster Frame Meta Tag -->
-  <meta name="fc:frame" content='{
-    "version":"next",
-    "imageUrl":"https://i.imgur.com/EfP517b.jpeg",
-    "button":{
-      "title":"Cosmic Fragment⚔️",
-      "action":{
-        "type":"launch_frame",
-        "url":"https://testba-deepseek.vercel.app",
-        "name":"Cosmic Fragment",
-        "splashImageUrl":"https://i.imgur.com/oxfooj0_d.webp?maxwidth=760&fidelity=grand",
-        "splashBackgroundColor":"#8A5AFF"
-      }
-    }
-  }' />
+  <!-- Transactional Frame Meta Tag -->
+  <meta property="og:title" content="Cosmic Fragment Frame" />
+  <meta name="fc:frame" content="vNext" />
+  <meta name="fc:frame:version" content="vNext" />
+  <meta name="fc:frame:image" content="https://i.imgur.com/EfP517b.jpeg" />
+  <meta name="fc:frame:post_url" content="https://testba-deepseek.vercel.app/api/frame" />
+  <meta name="fc:frame:button:1" content="Claim Now" />
+  <meta name="fc:frame:transaction:1" content="eip155:8453:0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb::claim()" />
 
   <style>
+    /* استایل دقیق همون کد تو، دست نخورده */
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
     :root {
       --primary: #8A5AFF;
@@ -254,138 +248,6 @@
     </main>
   </div>
 
-  <script>
-    let provider, signer, address;
-
-    const connectWallet = document.getElementById('connectWallet');
-    const walletAddress = document.getElementById('walletAddress');
-
-    connectWallet.addEventListener('click', async () => {
-      try {
-        if (window.sdk?.wallet?.ethProvider) {
-          provider = new ethers.BrowserProvider(window.sdk.wallet.ethProvider);
-          await provider.send("eth_requestAccounts", []);
-        } else if (window.ethereum) {
-          provider = new ethers.BrowserProvider(window.ethereum);
-          await provider.send("eth_requestAccounts", []);
-        } else {
-          alert('No Ethereum provider found. Use Warpcast or install MetaMask.');
-          return;
-        }
-
-        signer = await provider.getSigner();
-        address = await signer.getAddress();
-
-        connectWallet.style.display = 'none';
-        walletAddress.style.display = 'block';
-        walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
-      } catch (error) {
-        console.error("Wallet connection failed:", error);
-      }
-    });
-
-    const abi = [
-      { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
-      { "inputs": [], "name": "getRemainingNFTs", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "nftAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "name": "tokenIds", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "withdraw", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
-    ];
-
-    const mintButton = document.getElementById('mintButton');
-    mintButton.addEventListener('click', async () => {
-      if (!signer) {
-        alert('Please connect your wallet first!');
-        return;
-      }
-
-      const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
-      const contract = new ethers.Contract(contractAddress, abi, signer);
-
-      try {
-        const price = await contract.price();
-        const tx = await contract.claim({ value: price });
-        console.log('Minted NFT:', tx);
-      } catch (err) {
-        console.error('Minting failed:', err);
-      }
-    });
-
-    walletAddress.addEventListener('click', () => {
-      connectWallet.style.display = 'inline-block';
-      walletAddress.style.display = 'none';
-      signer = null;
-      address = null;
-    });
-
-    function createParticle() {
-      const particle = document.createElement('div');
-      particle.classList.add('particle');
-      document.getElementById('particles').appendChild(particle);
-      particle.style.left = `${Math.random() * window.innerWidth}px`;
-      particle.style.top = `${Math.random() * window.innerHeight}px`;
-      const size = Math.random() * 3 + 2;
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-    }
-
-    setInterval(createParticle, 100);
-  </script>
-
-  <script type="module">
-    import sdk from 'https://esm.sh/@farcaster/frame-sdk';
-    window.sdk = sdk;
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        await sdk.actions.ready();
-        const context = await sdk.context;
-        console.log("Farcaster context:", context);
-        await sendWelcomeNotification();
-      } catch (err) {
-        console.error("Farcaster SDK error:", err);
-      }
-    });
-
-    async function sendWelcomeNotification() {
-      try {
-        const result = await sdk.actions.addFrame();
-        console.log('addFrame result:', result);
-
-        if (result.type === 'success' && result.notificationDetails) {
-          const { token, url } = result.notificationDetails;
-
-          localStorage.setItem('fcToken', token);
-          localStorage.setItem('fcUrl', url);
-
-          console.log('✅ Frame added. Sending welcome notification...');
-
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              notificationId: 'welcome-001',
-              title: 'Welcome!',
-              body: 'Thanks for adding Cosmic Fragment.',
-              targetUrl: 'https://testba-deepseek.vercel.app',
-              tokens: [token],
-            }),
-          });
-
-          const data = await res.json();
-          console.log('✅ Notification sent. Response:', data);
-        } else {
-          console.warn('User rejected frame or no token available.', result);
-        }
-      } catch (error) {
-        console.error('❌ Error sending welcome notification:', error);
-      }
-    }
-  </script>
+  <!-- بقیه اسکریپت‌ها رو می‌تونی نگه داری ولی الان برای Farcaster Transaction دیگه نیازی به متامسک نداری -->
 </body>
 </html>
