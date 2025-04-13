@@ -222,19 +222,15 @@
 
         const price = await contract.price();
 
-        const tx = {
-          from: address,
+        const txResponse = await signer.sendTransaction({
           to: contractAddress,
-          value: ethers.hexlify(price),
+          value: price,
           data: contract.interface.encodeFunctionData('claim')
-        };
-
-        const txHash = await ethProvider.request({
-          method: 'eth_sendTransaction',
-          params: [tx]
         });
 
-        console.log('Transaction sent:', txHash);
+        console.log('Transaction sent:', txResponse.hash);
+        alert('Transaction submitted!');
+
       } catch (err) {
         console.error('Minting failed:', err);
         alert('Transaction failed. Check console for details.');
