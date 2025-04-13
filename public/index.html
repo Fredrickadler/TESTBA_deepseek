@@ -206,23 +206,40 @@
           return;
         }
 
-        signer = await provider.getSigner();
-        address = await signer.getAddress();
+        mintButton.addEventListener('click', async () => {
+  if (!signer || !address) {
+    alert('Please connect your wallet first!');
+    return;
+  }
 
-        connectWallet.style.display = 'none';
-        walletAddress.style.display = 'block';
-        walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
-      } catch (error) {
-        console.error("Wallet connection failed:", error);
-      }
+  const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
+  const abi = [
+    { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
+    { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
+  ];
+  const contract = new ethers.Contract(contractAddress, abi, signer);
+
+  try {
+    const price = await contract.price();
+
+    const txParams = {
+      from: address,
+      to: contractAddress,
+      value: ethers.hexlify(price),
+      data: contract.interface.encodeFunctionData('claim')
+    };
+
+    const txHash = await window.sdk.wallet.ethProvider.request({
+      method: 'eth_sendTransaction',
+      params: [txParams]
     });
 
-    const abi = [
-      { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
-      { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
-    ];
-
-    const mintButton = document.getElementById('mintButton');
+    console.log("Transaction sent:", txHash);
+  } catch (err) {
+    console.error('Minting failed:', err);
+  }
+});
+   const mintButton = document.getElementById('mintButton');
     mintButton.addEventListener('click', async () => {
       if (!signer) {
         alert('Please connect your wallet first!');
