@@ -124,7 +124,6 @@
     }
   </style>
 </head>
-
 <body>
   <div class="particles" id="particles"></div>
   <div class="container">
@@ -177,6 +176,7 @@
 
   <script>
     let provider, signer, address;
+
     const connectWallet = document.getElementById('connectWallet');
     const walletAddress = document.getElementById('walletAddress');
 
@@ -185,15 +185,15 @@
         if (window.sdk?.wallet?.ethProvider) {
           provider = new ethers.BrowserProvider(window.sdk.wallet.ethProvider);
           await provider.send("eth_requestAccounts", []);
+          signer = await provider.getSigner();
+          address = await signer.getAddress();
+
+          connectWallet.style.display = 'none';
+          walletAddress.style.display = 'block';
+          walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
         } else {
           alert('Please open this app inside Warpcast to connect your wallet.');
-          return;
         }
-        signer = await provider.getSigner();
-        address = await signer.getAddress();
-        connectWallet.style.display = 'none';
-        walletAddress.style.display = 'block';
-        walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
       } catch (error) {
         console.error("Wallet connection failed:", error);
       }
@@ -201,33 +201,43 @@
 
     const mintButton = document.getElementById('mintButton');
     mintButton.addEventListener('click', async () => {
-      if (!signer || !address) {
-        alert('Please connect your wallet first!');
+      if (!window.sdk?.wallet?.ethProvider) {
+        alert('Please open this app inside Warpcast to connect your wallet.');
         return;
       }
 
-      const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
-      const abi = [
-        { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
-        { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
-      ];
-      const contract = new ethers.Contract(contractAddress, abi, signer);
-
       try {
+        const ethProvider = window.sdk.wallet.ethProvider;
+        const signerProvider = new ethers.BrowserProvider(ethProvider);
+        const signer = await signerProvider.getSigner();
+        const address = await signer.getAddress();
+
+        const abi = [
+          { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
+          { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
+        ];
+
+        const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
+        const contract = new ethers.Contract(contractAddress, abi, signer);
+
         const price = await contract.price();
-        const txParams = {
+
+        const tx = {
           from: address,
           to: contractAddress,
           value: ethers.hexlify(price),
           data: contract.interface.encodeFunctionData('claim')
         };
-        const txHash = await window.sdk.wallet.ethProvider.request({
+
+        const txHash = await ethProvider.request({
           method: 'eth_sendTransaction',
-          params: [txParams]
+          params: [tx]
         });
-        console.log("Transaction sent:", txHash);
+
+        console.log('Transaction sent:', txHash);
       } catch (err) {
         console.error('Minting failed:', err);
+        alert('Transaction failed. Check console for details.');
       }
     });
 
