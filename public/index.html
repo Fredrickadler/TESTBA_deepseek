@@ -157,7 +157,8 @@
       margin-bottom: 24px;
       overflow: hidden;
     }
-    .progress-bar {height: 100%;
+    .progress-bar {
+      height: 100%;
       width: 65%;
       background: var(--primary);
       border-radius: 3px;
@@ -278,7 +279,7 @@
 
         connectWallet.style.display = 'none';
         walletAddress.style.display = 'block';
-        walletAddress.textContent = ${address.slice(0, 6)}...${address.slice(-4)};
+        walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
       } catch (error) {
         console.error("Wallet connection failed:", error);
       }
@@ -291,7 +292,8 @@
         return;
       }
 
-      const contractAddress = '0xYourContractAddress'; // <-- قرارداد توconst contractABI = [ /* ... ABI ... */ ];
+      const contractAddress = '0xYourContractAddress'; // <-- قرارداد تو
+      const contractABI = [ /* ... ABI ... */ ];
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
       try {
@@ -313,11 +315,11 @@
       const particle = document.createElement('div');
       particle.classList.add('particle');
       document.getElementById('particles').appendChild(particle);
-      particle.style.left = ${Math.random() * window.innerWidth}px;
-      particle.style.top = ${Math.random() * window.innerHeight}px;
+      particle.style.left = `${Math.random() * window.innerWidth}px`;
+      particle.style.top = `${Math.random() * window.innerHeight}px`;
       const size = Math.random() * 3 + 2;
-      particle.style.width = ${size}px;
-      particle.style.height = ${size}px;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
     }
 
     setInterval(createParticle, 100);
@@ -356,7 +358,7 @@
           const res = await fetch(url, {
             method: 'POST',
             headers: {
-              Authorization: Bearer ${token},
+              Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
