@@ -91,56 +91,78 @@
   </div>
 
   <!-- FRAME SDK + Warplet mint logic -->
-  <script type="module">
-    import sdk from 'https://esm.sh/@farcaster/frame-sdk';
-    window.sdk = sdk;
+<script>
+  let provider, signer, address;
 
-    let provider, signer;
+  const connectWallet = document.getElementById('connectWallet');
+  const walletAddress = document.getElementById('walletAddress');
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        await sdk.actions.ready();
-        const context = await sdk.context;
-        console.log("Farcaster context loaded:", context);
-
-        if (!sdk.wallet?.ethProvider) {
-          alert("Warpcast wallet not found. Open in Warpcast.");
-          return;
-        }
-
-        provider = new ethers.BrowserProvider(sdk.wallet.ethProvider);
+  connectWallet.addEventListener('click', async () => {
+    try {
+      if (window.sdk?.wallet?.ethProvider) {
+        provider = new ethers.BrowserProvider(window.sdk.wallet.ethProvider);
+        await provider.send("eth_requestAccounts", []);
         signer = await provider.getSigner();
-        const address = await signer.getAddress();
-        document.getElementById('walletAddress').textContent = `Connected: ${address.slice(0, 6)}...${address.slice(-4)}`;
-      } catch (err) {
-        console.error("Error initializing frame:", err);
+        address = await signer.getAddress();
+
+        connectWallet.style.display = 'none';
+        walletAddress.style.display = 'block';
+        walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
+      } else {
+        alert("Please open in Warpcast app to use the wallet.");
       }
-    });
+    } catch (error) {
+      console.error("Wallet connection failed:", error);
+    }
+  });
 
-    document.getElementById('mintButton').addEventListener('click', async () => {
-      try {
-        if (!signer) {
-          alert("Wallet not connected.");
-          return;
-        }
+  const abi = [
+    { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
+    { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
+  ];
 
-        const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
-        const abi = [
-          { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
-          { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
-        ];
+  const mintButton = document.getElementById('mintButton');
+  mintButton.addEventListener('click', async () => {
+    if (!signer) {
+      alert('Please connect your Warpcast wallet first!');
+      return;
+    }
 
-        const contract = new ethers.Contract(contractAddress, abi, signer);
-        const price = await contract.price();
-        const tx = await contract.claim({ value: price });
+    try {
+      const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
+      const contract = new ethers.Contract(contractAddress, abi, signer);
+      const price = await contract.price();
+      const tx = await contract.claim({ value: price });
 
-        console.log("Minting TX:", tx.hash);
-        alert("Transaction sent. Check your wallet!");
-      } catch (err) {
-        console.error("Minting failed:", err);
-        alert("Minting failed. Check console.");
-      }
-    });
-  </script>
+      console.log('Minted NFT:', tx);
+      alert('Mint submitted successfully!');
+    } catch (err) {
+      console.error('Minting failed:', err);
+      alert('Transaction failed. Check console.');
+    }
+  });
+
+  walletAddress.addEventListener('click', () => {
+    connectWallet.style.display = 'inline-block';
+    walletAddress.style.display = 'none';
+    signer = null;
+    address = null;
+  });
+</script>
+
+<script type="module">
+  import sdk from 'https://esm.sh/@farcaster/frame-sdk';
+  window.sdk = sdk;
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    try {
+      await sdk.actions.ready();
+      const context = await sdk.context;
+      console.log("Farcaster context:", context);
+    } catch (err) {
+      console.error("Farcaster SDK error:", err);
+    }
+  });
+</script>
 </body>
 </html>
