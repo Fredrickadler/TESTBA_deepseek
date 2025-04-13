@@ -255,91 +255,130 @@
   </div>
 
   <!-- Wallet & Mint Logic -->
-<!-- ... سایر بخش‌های فایل تغییری نکرده‌اند ... -->
+  <script>
+    let provider, signer, address;
 
-<script>
-  let provider, signer, address;
+    const connectWallet = document.getElementById('connectWallet');
+    const walletAddress = document.getElementById('walletAddress');
 
-  const connectWallet = document.getElementById('connectWallet');
-  const walletAddress = document.getElementById('walletAddress');
+    connectWallet.addEventListener('click', async () => {
+      try {
+        if (window.sdk?.wallet?.ethProvider) {
+          provider = new ethers.BrowserProvider(window.sdk.wallet.ethProvider);
+          await provider.send("eth_requestAccounts", []);
+        } else if (window.ethereum) {
+          provider = new ethers.BrowserProvider(window.ethereum);
+          await provider.send("eth_requestAccounts", []);
+        } else {
+          alert('No Ethereum provider found. Use Warpcast or install MetaMask.');
+          return;
+        }
 
-  connectWallet.addEventListener('click', async () => {
-    try {
-      if (window.sdk?.wallet?.ethProvider) {
-        provider = new ethers.BrowserProvider(window.sdk.wallet.ethProvider);
-        await provider.send("eth_requestAccounts", []);
-      } else if (window.ethereum) {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-      } else {
-        alert('No Ethereum provider found. Use Warpcast or install MetaMask.');
+        signer = await provider.getSigner();
+        address = await signer.getAddress();
+
+        connectWallet.style.display = 'none';
+        walletAddress.style.display = 'block';
+        walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
+      } catch (error) {
+        console.error("Wallet connection failed:", error);
+      }
+    });
+
+    const mintButton = document.getElementById('mintButton');
+    mintButton.addEventListener('click', async () => {
+      if (!signer) {
+        alert('Please connect your wallet first!');
         return;
       }
 
-      signer = await provider.getSigner();
-      address = await signer.getAddress();
+      const contractAddress = '0xYourContractAddress'; // <-- قرارداد تو
+      const contractABI = [ /* ... ABI ... */ ];
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-      connectWallet.style.display = 'none';
-      walletAddress.style.display = 'block';
-      walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
-    } catch (error) {
-      console.error("Wallet connection failed:", error);
+      try {
+        const tx = await contract.mint(address, 1);
+        console.log('Minted NFT:', tx);
+      } catch (err) {
+        console.error('Minting failed:', err);
+      }
+    });
+
+    walletAddress.addEventListener('click', () => {
+      connectWallet.style.display = 'inline-block';
+      walletAddress.style.display = 'none';
+      signer = null;
+      address = null;
+    });
+
+    function createParticle() {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      document.getElementById('particles').appendChild(particle);
+      particle.style.left = `${Math.random() * window.innerWidth}px`;
+      particle.style.top = `${Math.random() * window.innerHeight}px`;
+      const size = Math.random() * 3 + 2;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
     }
-  });
 
-  const mintButton = document.getElementById('mintButton');
-  mintButton.addEventListener('click', async () => {
-    if (!signer) {
-      alert('Please connect your wallet first!');
-      return;
+    setInterval(createParticle, 100);
+  </script>
+
+  <!-- Farcaster SDK + Notification Logic -->
+  <script type="module">
+    import sdk from 'https://esm.sh/@farcaster/frame-sdk';
+    window.sdk = sdk;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await sdk.actions.ready();
+        const context = await sdk.context;
+        console.log("Farcaster context:", context);
+        await sendWelcomeNotification();
+      } catch (err) {
+        console.error("Farcaster SDK error:", err);
+      }
+    });
+
+    async function sendWelcomeNotification() {
+      try {
+        const result = await sdk.actions.addFrame();
+        console.log('addFrame result:', result);
+
+        if (result.type === 'success' && result.notificationDetails) {
+          const { token, url } = result.notificationDetails;
+
+          // ذخیره در localStorage (اختیاری)
+          localStorage.setItem('fcToken', token);
+          localStorage.setItem('fcUrl', url);
+
+          console.log('✅ Frame added. Sending welcome notification...');
+
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              notificationId: 'welcome-001',
+              title: 'Welcome!',
+              body: 'Thanks for adding Cosmic Fragment.',
+              targetUrl: 'https://testba-deepseek.vercel.app',
+              tokens: [token],
+            }),
+          });
+
+          const data = await res.json();
+          console.log('✅ Notification sent. Response:', data);
+        } else {
+          console.warn('User rejected frame or no token available.', result);
+        }
+      } catch (error) {
+        console.error('❌ Error sending welcome notification:', error);
+      }
     }
-
-    const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
-    const contractABI = [
-      {
-        "inputs": [
-          { "internalType": "address", "name": "_nftAddress", "type": "address" },
-          { "internalType": "uint256[]", "name": "_tokenIds", "type": "uint256[]" }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-      },
-      { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
-      { "inputs": [], "name": "getRemainingNFTs", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "nftAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "name": "tokenIds", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "withdraw", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
-    ];
-
-    const contract = new ethers.Contract(contractAddress, contractABI, signer);
-
-    try {
-      const tx = await contract.claim({ value: ethers.parseEther("0.00044") });
-      console.log('Minted NFT:', tx);
-    } catch (err) {
-      console.error('Minting failed:', err);
-    }
-  });
-
-  walletAddress.addEventListener('click', () => {
-    connectWallet.style.display = 'inline-block';
-    walletAddress.style.display = 'none';
-    signer = null;
-    address = null;
-  });
-
-  function createParticle() {
-    const particle = document.createElement('div');
-    particle.classList.add('particle');
-    document.getElementById('particles').appendChild(particle);
-    particle.style.left = `${Math.random() * window.innerWidth}px`;
-    particle.style.top = `${Math.random() * window.innerHeight}px`;
-    const size = Math.random() * 3 + 2;
-    particle.style.width = `${size}px`;
-    particle.style.height = `${size}px`;
-  }
-
-  setInterval(createParticle, 100);
-</script>
+  </script>
+</body>
+</html>
