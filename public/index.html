@@ -210,7 +210,6 @@
         const ethProvider = window.sdk.wallet.ethProvider;
         const signerProvider = new ethers.BrowserProvider(ethProvider);
         const signer = await signerProvider.getSigner();
-        const address = await signer.getAddress();
 
         const abi = [
           { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
@@ -222,11 +221,7 @@
 
         const price = await contract.price();
 
-        const txResponse = await signer.sendTransaction({
-          to: contractAddress,
-          value: price,
-          data: contract.interface.encodeFunctionData('claim')
-        });
+        const txResponse = await contract.claim({ value: price });
 
         console.log('Transaction sent:', txResponse.hash);
         alert('Transaction submitted!');
@@ -258,4 +253,4 @@
     setInterval(createParticle, 100);
   </script>
 </body>
-</html> 
+</html>
