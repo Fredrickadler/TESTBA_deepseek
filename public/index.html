@@ -214,21 +214,28 @@ mintButton.addEventListener('click', async () => {
 
     const abi = [
       { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
-      { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
+      { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
+      { "inputs": [], "name": "remainingNFTs", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
     ];
 
     const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
     const contract = new ethers.Contract(contractAddress, abi, signer);
 
+    // دریافت تعداد NFTهای باقی‌مانده
+    const remainingNFTs = await contract.remainingNFTs();
+    console.log("Remaining NFTs:", remainingNFTs.toString());  // چاپ تعداد NFT باقی‌مانده
+
+    // اگر هیچ NFT باقی نمانده بود، تراکنش انجام نمی‌شود
+    if (remainingNFTs.toNumber() <= 0) {
+      alert("No NFTs left to mint.");
+      return;
+    }
+
     // دریافت قیمت
     const price = await contract.price();
     console.log("Price for minting:", price.toString());  // چاپ قیمت
 
-    // برآورد گاز قبل از تراکنش
-    const gasEstimate = await contract.estimateGas.claim({ value: price });
-    console.log("Estimated gas:", gasEstimate.toString());
-
-    // اگر قیمت درست دریافت شد و گاز درست بود، تراکنش رو ارسال کن
+    // اگر قیمت درست دریافت شد، تراکنش رو ارسال کن
     if (price > 0) {
       const txResponse = await contract.claim({ value: price });
 
