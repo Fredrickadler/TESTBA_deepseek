@@ -200,36 +200,45 @@
     });
 
     const mintButton = document.getElementById('mintButton');
-    mintButton.addEventListener('click', async () => {
-      if (!window.sdk?.wallet?.ethProvider) {
-        alert('Please open this app inside Warpcast to connect your wallet.');
-        return;
-      }
+mintButton.addEventListener('click', async () => {
+  if (!window.sdk?.wallet?.ethProvider) {
+    alert('Please open this app inside Warpcast to connect your wallet.');
+    return;
+  }
 
-      try {
-        const ethProvider = window.sdk.wallet.ethProvider;
-        const signerProvider = new ethers.BrowserProvider(ethProvider);
-        const signer = await signerProvider.getSigner();
+  try {
+    const ethProvider = window.sdk.wallet.ethProvider;
+    const signerProvider = new ethers.BrowserProvider(ethProvider);
+    const signer = await signerProvider.getSigner();
+    const address = await signer.getAddress();
 
-        const abi = [
-          { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
-          { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
-        ];
+    const abi = [
+      { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
+      { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
+    ];
 
-        const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
-        const contract = new ethers.Contract(contractAddress, abi, signer);
+    const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
+    const contract = new ethers.Contract(contractAddress, abi, signer);
 
-        const price = await contract.price();
+    // دریافت قیمت
+    const price = await contract.price();
+    console.log("Price for minting:", price.toString());  // چاپ قیمت
 
-        const txResponse = await contract.claim({ value: price });
+    // اگر قیمت درست دریافت شد، تراکنش رو ارسال کن
+    if (price > 0) {
+      const txResponse = await contract.claim({ value: price });
 
-        console.log('Transaction sent:', txResponse.hash);
-        alert('Transaction submitted!');
-      } catch (err) {
-        console.error('Minting failed:', err);
-        alert('Transaction failed:\n' + (err?.message || JSON.stringify(err)));
-      }
-    });
+      console.log('Transaction sent:', txResponse.hash);
+      alert('Transaction submitted!');
+    } else {
+      alert('Price is not valid.');
+    }
+
+  } catch (err) {
+    console.error('Minting failed:', err);
+    alert('Transaction failed:\n' + (err?.message || JSON.stringify(err)));
+  }
+     });
 
     walletAddress.addEventListener('click', () => {
       connectWallet.style.display = 'inline-block';
