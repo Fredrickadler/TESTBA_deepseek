@@ -215,14 +215,14 @@ mintButton.addEventListener('click', async () => {
     const abi = [
       { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
       { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "remainingNFTs", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
+      { "inputs": [], "name": "getRemainingNFTs", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
     ];
 
     const contractAddress = '0xCEF937447B21879E2bd4abAdbCf98f582aD506Fb';
     const contract = new ethers.Contract(contractAddress, abi, signer);
 
     // دریافت تعداد NFTهای باقی‌مانده
-    const remainingNFTs = await contract.remainingNFTs();
+    const remainingNFTs = await contract.getRemainingNFTs();
     console.log("Remaining NFTs:", remainingNFTs.toString());  // چاپ تعداد NFT باقی‌مانده
 
     // اگر هیچ NFT باقی نمانده بود، تراکنش انجام نمی‌شود
@@ -249,7 +249,7 @@ mintButton.addEventListener('click', async () => {
     console.error('Minting failed:', err);
     alert('Transaction failed:\n' + (err?.message || JSON.stringify(err)));
   }
-    });
+});
 
     walletAddress.addEventListener('click', () => {
       connectWallet.style.display = 'inline-block';
