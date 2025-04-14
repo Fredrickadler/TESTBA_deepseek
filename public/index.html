@@ -224,7 +224,11 @@ mintButton.addEventListener('click', async () => {
     const price = await contract.price();
     console.log("Price for minting:", price.toString());  // چاپ قیمت
 
-    // اگر قیمت درست دریافت شد، تراکنش رو ارسال کن
+    // برآورد گاز قبل از تراکنش
+    const gasEstimate = await contract.estimateGas.claim({ value: price });
+    console.log("Estimated gas:", gasEstimate.toString());
+
+    // اگر قیمت درست دریافت شد و گاز درست بود، تراکنش رو ارسال کن
     if (price > 0) {
       const txResponse = await contract.claim({ value: price });
 
@@ -238,7 +242,7 @@ mintButton.addEventListener('click', async () => {
     console.error('Minting failed:', err);
     alert('Transaction failed:\n' + (err?.message || JSON.stringify(err)));
   }
-     });
+    });
 
     walletAddress.addEventListener('click', () => {
       connectWallet.style.display = 'inline-block';
