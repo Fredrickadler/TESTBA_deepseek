@@ -225,7 +225,6 @@
 
         console.log('Transaction sent:', txResponse.hash);
         alert('Transaction submitted!');
-
       } catch (err) {
         console.error('Minting failed:', err);
         alert('Transaction failed:\n' + (err?.message || JSON.stringify(err)));
