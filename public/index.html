@@ -3,29 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Premium NFT Mint</title>
+  <title>Premium NFT Transfer</title>
 
+  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Ethers.js Library -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <meta name="fc:frame" content='{
-    "version":"next",
-    "imageUrl":"https://i.imgur.com/EfP517b.jpeg",
-    "button":{
-      "title":"Cosmic Fragment⚔️",
-      "action":{
-        "type":"launch_frame",
-        "url":"https://testba-deepseek.vercel.app",
-        "name":"Cosmic Fragment",
-        "splashImageUrl":"https://i.imgur.com/oxfooj0_d.webp?maxwidth=760&fidelity=grand",
-        "splashBackgroundColor":"#8A5AFF"
-      }
-    }
-  }' />
-
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    /* Global Styles */
     :root {
       --primary: #8A5AFF;
       --primary-dark: #6E3AFF;
@@ -35,98 +25,249 @@
       --gray-400: #A0A0A0;
       --gray-200: #E5E5E5;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
-    body { background-color: var(--gray-900); color: white; min-height: 100vh; overflow-x: hidden; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-    header { display: flex; justify-content: flex-end; padding: 24px 0; }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    body {
+      background-color: var(--gray-900);
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 24px 0;
+    }
+
     .wallet-btn {
-      background: var(--primary); color: white; border: none; padding: 12px 24px;
-      border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 15px;
-      transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
     }
-    .wallet-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 25px rgba(138, 90, 255, 0.4); }
-    .wallet-btn i { font-size: 16px; }
-    .wallet-address {
-      background: var(--gray-800); padding: 10px 20px; border-radius: 12px;
-      font-size: 14px; font-weight: 500; display: none;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); cursor: pointer;
+
+    .wallet-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(138, 90, 255, 0.4);
     }
+
+    .wallet-btn i {
+      font-size: 16px;
+    }
+
+    .wallet-address {
+      background: var(--gray-800);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+
+    /* Main Content */
     .main-content {
-      display: flex; flex-direction: column; align-items: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       padding: 40px 0 80px;
     }
+
     .nft-card {
-      width: 100%; max-width: 420px; margin-bottom: 40px; position: relative;
-      overflow: hidden; border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
     }
+
     .nft-image {
-      width: 100%; aspect-ratio: 1/1; object-fit: cover;
-      display: block; transition: transform 0.5s ease;
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
     }
-    .nft-card:hover .nft-image { transform: scale(1.03); }
+
+    .nft-card:hover .nft-image {
+      transform: scale(1.03);
+    }
+
     .nft-overlay {
-      position: absolute; bottom: 0; left: 0; right: 0;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
       background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-      padding: 24px; color: white;
+      padding: 24px;
+      color: white;
     }
-    .nft-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+
+    .nft-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
     .nft-description {
-      font-size: 15px; color: var(--gray-200); opacity: 0.9; line-height: 1.5;
+      font-size: 15px;
+      color: var(--gray-200);
+      opacity: 0.9;
+      line-height: 1.5;
     }
+
+    /* Minting Section */
     .mint-section {
-      width: 100%; max-width: 420px; text-align: center;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
     }
+
     .mint-stats {
-      display: flex; justify-content: space-between;
-      color: var(--gray-400); font-size: 14px; margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--gray-400);
+      font-size: 14px;
+      margin-bottom: 12px;
     }
+
     .progress-container {
-      height: 6px; width: 100%; background: var(--gray-700);
-      border-radius: 3px; margin-bottom: 24px; overflow: hidden;
+      height: 6px;
+      width: 100%;
+      background: var(--gray-700);
+      border-radius: 3px;
+      margin-bottom: 24px;
+      overflow: hidden;
     }
+
     .progress-bar {
-      height: 100%; width: 65%; background: var(--primary);
-      border-radius: 3px; transition: width 0.5s ease;
+      height: 100%;
+      width: 65%;
+      background: var(--primary);
+      border-radius: 3px;
+      transition: width 0.5s ease;
     }
+
     .mint-btn {
-      background: var(--primary); color: white; border: none;
-      padding: 16px; border-radius: 12px; cursor: pointer;
-      font-weight: 600; font-size: 16px; transition: all 0.3s ease;
-      width: 100%; box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
     }
+
     .mint-btn:hover {
-      background: var(--primary-dark); transform: translateY(-3px);
+      background: var(--primary-dark);
+      transform: translateY(-3px);
       box-shadow: 0 8px 30px rgba(138, 90, 255, 0.5);
     }
-    .mint-price { margin-top: 12px; font-size: 14px; color: var(--gray-400); }
-    .particles {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: -1;
+
+    .mint-price {
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--gray-400);
     }
+
+    /* Particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
     .particle {
-      position: absolute; width: 2px; height: 2px;
-      background: rgba(138, 90, 255, 0.5); border-radius: 50%;
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(138, 90, 255, 0.5);
+      border-radius: 50%;
       animation: float 15s infinite linear;
     }
+
     @keyframes float {
-      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+      }
     }
+
     @media (max-width: 768px) {
-      .main-content { padding: 20px 0 60px; }
-      .nft-card, .mint-section { max-width: 100%; }
-      .nft-title { font-size: 20px; }
-      .nft-description { font-size: 14px; }
+      .main-content {
+        padding: 20px 0 60px;
+      }
+
+      .nft-card,
+      .mint-section {
+        max-width: 100%;
+      }
+
+      .nft-title {
+        font-size: 20px;
+      }
+
+      .nft-description {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
+
 <body>
+  <!-- Particles Background -->
   <div class="particles" id="particles"></div>
+
+  <!-- Main Container -->
   <div class="container">
+
+    <!-- Header (Connect Wallet Button) -->
     <header>
       <button class="wallet-btn" id="connectWallet">
         <i class="fas fa-wallet"></i> Connect Wallet
@@ -134,6 +275,7 @@
       <div class="wallet-address" id="walletAddress"></div>
     </header>
 
+    <!-- Main Content (NFT Card) -->
     <main class="main-content">
       <div class="nft-card">
         <img src="https://i.imgur.com/muoYEIu.jpeg" alt="Exclusive NFT" class="nft-image">
@@ -145,6 +287,7 @@
         </div>
       </div>
 
+      <!-- Minting Section -->
       <div class="mint-section">
         <div class="mint-stats">
           <span>65% Minted</span>
@@ -153,123 +296,84 @@
         <div class="progress-container">
           <div class="progress-bar"></div>
         </div>
-        <button class="mint-btn" id="mintButton">MINT NOW</button>
-        <div class="mint-price">Price: 0.00044 ETH</div>
+        <button class="mint-btn" id="mintBtn">Mint Now</button>
+        <p class="mint-price">Price: 0.1 ETH</p>
       </div>
     </main>
+
   </div>
 
-  <script type="module">
-    import sdk from 'https://esm.sh/@farcaster/frame-sdk';
-    window.sdk = sdk;
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        await sdk.actions.ready();
-        const context = await sdk.context;
-        console.log("Farcaster context:", context);
-      } catch (err) {
-        console.error("Farcaster SDK error:", err);
-      }
-    });
-  </script>
-
   <script>
-    let provider, signer, address;
+    const mintButton = document.getElementById('mintBtn');
+    const connectWalletButton = document.getElementById('connectWallet');
+    const walletAddressDisplay = document.getElementById('walletAddress');
+    let walletAddress = null;
+    let contract;
 
-    const connectWallet = document.getElementById('connectWallet');
-    const walletAddress = document.getElementById('walletAddress');
+    connectWalletButton.addEventListener('click', async () => {
+      if (!window.ethereum) {
+        alert('Please install MetaMask!');
+        return;
+      }
 
-    connectWallet.addEventListener('click', async () => {
       try {
-        if (window.sdk?.wallet?.ethProvider) {
-          provider = new ethers.BrowserProvider(window.sdk.wallet.ethProvider);
-          await provider.send("eth_requestAccounts", []);
-          signer = await provider.getSigner();
-          address = await signer.getAddress();
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        walletAddress = await signer.getAddress();
+        walletAddressDisplay.style.display = 'inline-block';
+        walletAddressDisplay.innerText = walletAddress;
 
-          connectWallet.style.display = 'none';
-          walletAddress.style.display = 'block';
-          walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
-        } else {
-          alert('Please open this app inside Warpcast to connect your wallet.');
-        }
-      } catch (error) {
-        console.error("Wallet connection failed:", error);
+        // Define contract ABI and address
+        const abi = [
+          { "inputs": [], "name": "buyNFT", "outputs": [], "stateMutability": "payable", "type": "function" },
+          { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
+        ];
+
+        const contractAddress = '0xYOUR_CONTRACT_ADDRESS';  // Replace with your contract address
+        contract = new ethers.Contract(contractAddress, abi, signer);
+      } catch (err) {
+        console.error('Connection failed:', err);
+        alert('Connection failed:\n' + (err?.message || JSON.stringify(err)));
       }
     });
 
-    const mintButton = document.getElementById('mintButton');
-mintButton.addEventListener('click', async () => {
-  if (!window.sdk?.wallet?.ethProvider) {
-    alert('Please open this app inside Warpcast to connect your wallet.');
-    return;
-  }
+    mintButton.addEventListener('click', async () => {
+      if (!contract) {
+        alert('Please connect your wallet first.');
+        return;
+      }
 
-  try {
-    const ethProvider = window.sdk.wallet.ethProvider;
-    const signerProvider = new ethers.BrowserProvider(ethProvider);
-    const signer = await signerProvider.getSigner();
-    const address = await signer.getAddress();
-
-    const abi = [
-      { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
-      { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "getRemainingNFTs", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
-    ];
-
-    const contractAddress = '0x9434006c47C54F04ab81d7343131a64032481b4e';
-    const contract = new ethers.Contract(contractAddress, abi, signer);
-
-    // دریافت تعداد NFTهای باقی‌مانده
-    const remainingNFTs = await contract.getRemainingNFTs();
-    console.log("Remaining NFTs:", remainingNFTs.toString());  // چاپ تعداد NFT باقی‌مانده
-
-    // اگر هیچ NFT باقی نمانده بود، تراکنش انجام نمی‌شود
-    if (remainingNFTs.toNumber() <= 0) {
-      alert("No NFTs left to mint.");
-      return;
-    }
-
-    // دریافت قیمت
-    const price = await contract.price();
-    console.log("Price for minting:", price.toString());  // چاپ قیمت
-
-    // اگر قیمت درست دریافت شد، تراکنش رو ارسال کن
-    if (price > 0) {
-      const txResponse = await contract.claim({ value: price });
-
-      console.log('Transaction sent:', txResponse.hash);
-      alert('Transaction submitted!');
-    } else {
-      alert('Price is not valid.');
-    }
-
-  } catch (err) {
-    console.error('Minting failed:', err);
-    alert('Transaction failed:\n' + (err?.message || JSON.stringify(err)));
-  }
-});
-
-    walletAddress.addEventListener('click', () => {
-      connectWallet.style.display = 'inline-block';
-      walletAddress.style.display = 'none';
-      signer = null;
-      address = null;
+      try {
+        const price = await contract.price();
+        const tokenId = 1;  // Replace with the appropriate tokenId
+        const txResponse = await contract.buyNFT(tokenId, { value: price });
+        console.log('Transaction sent:', txResponse.hash);
+        alert('NFT successfully transferred!');
+      } catch (err) {
+        console.error('Mint failed:', err);
+        alert('Mint failed:\n' + (err?.message || JSON.stringify(err)));
+      }
     });
 
+    // Particle Animation
     function createParticle() {
       const particle = document.createElement('div');
       particle.classList.add('particle');
       document.getElementById('particles').appendChild(particle);
-      particle.style.left = `${Math.random() * window.innerWidth}px`;
-      particle.style.top = `${Math.random() * window.innerHeight}px`;
-      const size = Math.random() * 3 + 2;
+
+      const size = Math.random() * 4 + 2; // Random size between 2px and 6px
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+
+      setTimeout(() => {
+        particle.remove();
+      }, 15000);
     }
 
     setInterval(createParticle, 100);
+
   </script>
 </body>
 </html>
