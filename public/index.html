@@ -241,11 +241,11 @@
 
       <div class="mint-section">
         <div class="mint-stats">
-          <span>65% Minted</span>
-          <span>28/44</span>
+          <span id="mintPercentage">0% Minted</span>
+          <span id="mintCount">0/1000</span>
         </div>
         <div class="progress-container">
-          <div class="progress-bar"></div>
+          <div class="progress-bar" id="progressBar"></div>
         </div>
         <button class="mint-btn" id="mintButton">MINT NOW</button>
         <div class="mint-price">Price: 0.00149 ETH</div>
@@ -362,6 +362,11 @@
           alert(`✅ NFT minted successfully!\n\nTransaction: ${txHash}\n\nView on BaseScan: ${explorerUrl}`);
           
           console.log('Mint successful:', data);
+          
+          // به‌روزرسانی آمار بعد از مینت موفق
+          setTimeout(() => {
+            updateMintStats();
+          }, 2000); // 2 ثانیه صبر می‌کنیم تا تراکنش در بلاکچین ثبت بشه
         } else {
           throw new Error(data.error || 'Minting failed');
         }
@@ -415,9 +420,55 @@
       }
     }
     
+    // دریافت و به‌روزرسانی آمار مینت
+    async function updateMintStats() {
+      try {
+        const response = await fetch('/api/nft-stats');
+        const data = await response.json();
+        
+        if (data.success) {
+          const minted = data.minted || 0;
+          const totalSupply = data.totalSupply || 1000;
+          const percentage = data.percentage || 0;
+          
+          // به‌روزرسانی متن درصد
+          const mintPercentageEl = document.getElementById('mintPercentage');
+          if (mintPercentageEl) {
+            mintPercentageEl.textContent = `${percentage}% Minted`;
+          }
+          
+          // به‌روزرسانی تعداد
+          const mintCountEl = document.getElementById('mintCount');
+          if (mintCountEl) {
+            mintCountEl.textContent = `${minted}/${totalSupply}`;
+          }
+          
+          // به‌روزرسانی نوار progress
+          const progressBar = document.getElementById('progressBar');
+          if (progressBar) {
+            progressBar.style.width = `${percentage}%`;
+          }
+        }
+      } catch (error) {
+        console.error('Error updating mint stats:', error);
+        // در صورت خطا، مقادیر پیش‌فرض نمایش بده
+        const mintPercentageEl = document.getElementById('mintPercentage');
+        const mintCountEl = document.getElementById('mintCount');
+        const progressBar = document.getElementById('progressBar');
+        
+        if (mintPercentageEl) mintPercentageEl.textContent = '0% Minted';
+        if (mintCountEl) mintCountEl.textContent = '0/1000';
+        if (progressBar) progressBar.style.width = '0%';
+      }
+    }
+    
     // اجرا بعد از لود شدن صفحه
     window.addEventListener('load', () => {
       updateNFTTitle();
+      updateMintStats(); // دریافت آمار مینت
+      
+      // به‌روزرسانی آمار هر 30 ثانیه
+      setInterval(updateMintStats, 30000);
       
       // حذف loading screen
       const loadingScreen = document.querySelector('.loading-screen');
