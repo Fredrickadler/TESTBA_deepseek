@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Premium NFT Mint</title>
+  <title>Christmas Alpha NFT Mint</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
@@ -35,91 +35,222 @@
       --gray-400: #A0A0A0;
       --gray-200: #E5E5E5;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
-    body { background-color: var(--gray-900); color: white; min-height: 100vh; overflow-x: hidden; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-    header { display: flex; justify-content: flex-end; padding: 24px 0; }
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      font-family: 'Space Grotesk', sans-serif; 
+    }
+    body { 
+      background-color: var(--gray-900); 
+      color: white; 
+      min-height: 100vh; 
+      overflow-x: hidden; 
+    }
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 0 24px; 
+    }
+    header { 
+      display: flex; 
+      justify-content: flex-end; 
+      padding: 24px 0; 
+    }
     .wallet-btn {
-      background: var(--primary); color: white; border: none; padding: 12px 24px;
-      border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 15px;
-      transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
+      background: var(--primary); 
+      color: white; 
+      border: none; 
+      padding: 12px 24px;
+      border-radius: 12px; 
+      cursor: pointer; 
+      font-weight: 600; 
+      font-size: 15px;
+      transition: all 0.3s ease; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
       box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
     }
-    .wallet-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 25px rgba(138, 90, 255, 0.4); }
-    .wallet-btn i { font-size: 16px; }
+    .wallet-btn:hover { 
+      background: var(--primary-dark); 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 25px rgba(138, 90, 255, 0.4); 
+    }
+    .wallet-btn i { 
+      font-size: 16px; 
+    }
     .wallet-address {
-      background: var(--gray-800); padding: 10px 20px; border-radius: 12px;
-      font-size: 14px; font-weight: 500; display: none;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); cursor: pointer;
+      background: var(--gray-800); 
+      padding: 10px 20px; 
+      border-radius: 12px;
+      font-size: 14px; 
+      font-weight: 500; 
+      display: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
+      cursor: pointer;
     }
     .main-content {
-      display: flex; flex-direction: column; align-items: center;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center;
       padding: 40px 0 80px;
     }
     .nft-card {
-      width: 100%; max-width: 420px; margin-bottom: 40px; position: relative;
-      overflow: hidden; border-radius: 16px;
+      width: 100%; 
+      max-width: 420px; 
+      margin-bottom: 40px; 
+      position: relative;
+      overflow: hidden; 
+      border-radius: 16px;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
     }
-    .nft-image, .nft-video {
-      width: 100%; aspect-ratio: 1/1; object-fit: cover;
-      display: block; transition: transform 0.5s ease;
-    }
     .nft-video {
+      width: 100%; 
+      aspect-ratio: 1/1; 
+      object-fit: cover;
+      display: block; 
+      transition: transform 0.5s ease;
       background: #000;
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
-    .nft-card:hover .nft-image,
-    .nft-card:hover .nft-video { transform: scale(1.03); }
+    .nft-card:hover .nft-video { 
+      transform: scale(1.03); 
+    }
     .nft-overlay {
-      position: absolute; bottom: 0; left: 0; right: 0;
+      position: absolute; 
+      bottom: 0; 
+      left: 0; 
+      right: 0;
       background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-      padding: 24px; color: white;
+      padding: 24px; 
+      color: white;
     }
-    .nft-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .nft-title { 
+      font-size: 24px; 
+      font-weight: 700; 
+      margin-bottom: 8px; 
+    }
     .nft-description {
-      font-size: 15px; color: var(--gray-200); opacity: 0.9; line-height: 1.5;
+      font-size: 15px; 
+      color: var(--gray-200); 
+      opacity: 0.9; 
+      line-height: 1.5;
     }
     .mint-section {
-      width: 100%; max-width: 420px; text-align: center;
+      width: 100%; 
+      max-width: 420px; 
+      text-align: center;
     }
     .mint-stats {
-      display: flex; justify-content: space-between;
-      color: var(--gray-400); font-size: 14px; margin-bottom: 12px;
+      display: flex; 
+      justify-content: space-between;
+      color: var(--gray-400); 
+      font-size: 14px; 
+      margin-bottom: 12px;
     }
     .progress-container {
-      height: 6px; width: 100%; background: var(--gray-700);
-      border-radius: 3px; margin-bottom: 24px; overflow: hidden;
+      height: 6px; 
+      width: 100%; 
+      background: var(--gray-700);
+      border-radius: 3px; 
+      margin-bottom: 24px; 
+      overflow: hidden;
     }
     .progress-bar {
-      height: 100%; width: 65%; background: var(--primary);
-      border-radius: 3px; transition: width 0.5s ease;
+      height: 100%; 
+      width: 0%; 
+      background: var(--primary);
+      border-radius: 3px; 
+      transition: width 0.5s ease;
     }
     .mint-btn {
-      background: var(--primary); color: white; border: none;
-      padding: 16px; border-radius: 12px; cursor: pointer;
-      font-weight: 600; font-size: 16px; transition: all 0.3s ease;
-      width: 100%; box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
+      background: var(--primary); 
+      color: white; 
+      border: none;
+      padding: 16px; 
+      border-radius: 12px; 
+      cursor: pointer;
+      font-weight: 600; 
+      font-size: 16px; 
+      transition: all 0.3s ease;
+      width: 100%; 
+      box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
     }
     .mint-btn:hover {
-      background: var(--primary-dark); transform: translateY(-3px);
+      background: var(--primary-dark); 
+      transform: translateY(-3px);
       box-shadow: 0 8px 30px rgba(138, 90, 255, 0.5);
     }
-    .mint-price { margin-top: 12px; font-size: 14px; color: var(--gray-400); }
+    .mint-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .mint-price { 
+      margin-top: 12px; 
+      font-size: 14px; 
+      color: var(--gray-400); 
+    }
     .particles {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: -1;
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%;
+      pointer-events: none; 
+      z-index: -1;
     }
     .particle {
-      position: absolute; width: 2px; height: 2px;
-      background: rgba(255, 255, 255, 0.8); border-radius: 50%;
+      position: absolute; 
+      width: 2px; 
+      height: 2px;
+      background: rgba(255, 255, 255, 0.8); 
+      border-radius: 50%;
       animation: floatDown 15s infinite linear;
     }
     @keyframes floatDown {
-      0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
-      5% { opacity: 1; }
-      95% { opacity: 1; }
-      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+      0% { 
+        transform: translateY(-10px) rotate(0deg); 
+        opacity: 0; 
+      }
+      5% { 
+        opacity: 1; 
+      }
+      95% { 
+        opacity: 1; 
+      }
+      100% { 
+        transform: translateY(100vh) rotate(360deg); 
+        opacity: 0; 
+      }
     }
+    
+    /* Loading Screen */
+    body.loading {
+      overflow: hidden;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--gray-900);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.3s ease;
+    }
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    /* Mobile Optimization */
     @media (max-width: 768px) {
       body { 
         overflow-x: hidden; 
@@ -174,37 +305,6 @@
         overflow: hidden;
       }
     }
-    
-    /* بهینه‌سازی برای لودینگ سریع‌تر */
-    .nft-video {
-      will-change: transform;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-    }
-    
-    /* جلوگیری از گیر کردن در لودینگ */
-    body.loading {
-      overflow: hidden;
-    }
-    
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--gray-900);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.3s ease;
-    }
-    
-    .loading-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body class="loading">
@@ -258,7 +358,6 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       try {
-        // لود کردن SDK به صورت async برای جلوگیری از گیر کردن
         const sdkModule = await import('https://esm.sh/@farcaster/frame-sdk');
         window.sdk = sdkModule.default || sdkModule;
         
@@ -266,7 +365,6 @@
         const context = await window.sdk.context;
         console.log("Farcaster context:", context);
         
-        // دریافت FID از context
         if (context?.user?.fid) {
           userFid = context.user.fid;
           console.log("User FID:", userFid);
@@ -276,9 +374,7 @@
         }
       } catch (err) {
         console.error("Farcaster SDK error:", err);
-        // حتی اگر SDK لود نشد، صفحه باید کار کنه
       } finally {
-        // حذف loading screen
         const loadingScreen = document.querySelector('.loading-screen');
         if (loadingScreen) {
           setTimeout(() => {
@@ -289,7 +385,6 @@
       }
     });
 
-    // ذخیره FID در window برای دسترسی از script دیگر
     window.getUserFid = () => userFid;
   </script>
 
@@ -298,6 +393,7 @@
 
     const connectWallet = document.getElementById('connectWallet');
     const walletAddress = document.getElementById('walletAddress');
+    const mintButton = document.getElementById('mintButton');
 
     connectWallet.addEventListener('click', async () => {
       try {
@@ -318,27 +414,95 @@
       }
     });
 
-    const mintButton = document.getElementById('mintButton');
+    walletAddress.addEventListener('click', () => {
+      connectWallet.style.display = 'inline-block';
+      walletAddress.style.display = 'none';
+      signer = null;
+      address = null;
+    });
+
+    // دریافت و به‌روزرسانی آمار مینت
+    async function updateMintStats() {
+      try {
+        const response = await fetch('/api/nft-stats');
+        const data = await response.json();
+        
+        if (data.success) {
+          const minted = data.minted || 0;
+          const totalSupply = data.totalSupply || 1000;
+          const percentage = data.percentage || 0;
+          
+          const mintPercentageEl = document.getElementById('mintPercentage');
+          if (mintPercentageEl) {
+            mintPercentageEl.textContent = `${percentage}% Minted`;
+          }
+          
+          const mintCountEl = document.getElementById('mintCount');
+          if (mintCountEl) {
+            mintCountEl.textContent = `${minted}/${totalSupply}`;
+          }
+          
+          const progressBar = document.getElementById('progressBar');
+          if (progressBar) {
+            progressBar.style.width = `${percentage}%`;
+          }
+        }
+      } catch (error) {
+        console.error('Error updating mint stats:', error);
+        const mintPercentageEl = document.getElementById('mintPercentage');
+        const mintCountEl = document.getElementById('mintCount');
+        const progressBar = document.getElementById('progressBar');
+        
+        if (mintPercentageEl) mintPercentageEl.textContent = '0% Minted';
+        if (mintCountEl) mintCountEl.textContent = '0/1000';
+        if (progressBar) progressBar.style.width = '0%';
+      }
+    }
+
+    // به‌روزرسانی عنوان NFT
+    function updateNFTTitle() {
+      const nftTitle = document.getElementById('nftTitle');
+      if (nftTitle) {
+        const nftNumber = Math.floor(Math.random() * 1000) + 1;
+        nftTitle.textContent = `Christmas Alpha #${nftNumber}`;
+      }
+    }
+
+    // ایجاد particle
+    function createParticle() {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      document.getElementById('particles').appendChild(particle);
+      particle.style.left = `${Math.random() * window.innerWidth}px`;
+      particle.style.top = `-10px`;
+      const size = Math.random() * 3 + 2;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      
+      setTimeout(() => {
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      }, 15000);
+    }
+
+    // مینت NFT
     mintButton.addEventListener('click', async () => {
-      // بررسی اینکه آیا در محیط Farcaster هستیم
       if (!window.sdk) {
         alert('Please open this app inside Warpcast to mint NFT.');
         return;
       }
 
-      // دریافت FID
       const fid = window.getUserFid?.();
       if (!fid) {
         alert('Unable to get your Farcaster ID. Please refresh the page.');
         return;
       }
 
-      // غیرفعال کردن دکمه در حین پردازش
       mintButton.disabled = true;
       mintButton.textContent = 'Minting...';
 
       try {
-        // فراخوانی API برای مینت NFT با استفاده از Neynar
         const response = await fetch('/api/mint-nft', {
           method: 'POST',
           headers: {
@@ -363,10 +527,9 @@
           
           console.log('Mint successful:', data);
           
-          // به‌روزرسانی آمار بعد از مینت موفق
           setTimeout(() => {
             updateMintStats();
-          }, 2000); // 2 ثانیه صبر می‌کنیم تا تراکنش در بلاکچین ثبت بشه
+          }, 2000);
         } else {
           throw new Error(data.error || 'Minting failed');
         }
@@ -375,102 +538,18 @@
         console.error('Minting failed:', err);
         alert('❌ Minting failed:\n' + (err?.message || JSON.stringify(err)));
       } finally {
-        // فعال کردن مجدد دکمه
         mintButton.disabled = false;
         mintButton.textContent = 'MINT NOW';
       }
     });
 
-    walletAddress.addEventListener('click', () => {
-      connectWallet.style.display = 'inline-block';
-      walletAddress.style.display = 'none';
-      signer = null;
-      address = null;
-    });
-
-    function createParticle() {
-      const particle = document.createElement('div');
-      particle.classList.add('particle');
-      document.getElementById('particles').appendChild(particle);
-      particle.style.left = `${Math.random() * window.innerWidth}px`;
-      particle.style.top = `-10px`; // شروع از بالا
-      const size = Math.random() * 3 + 2;
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-      
-      // حذف particle بعد از اتمام انیمیشن
-      setTimeout(() => {
-        if (particle.parentNode) {
-          particle.parentNode.removeChild(particle);
-        }
-      }, 15000);
-    }
-
-    // کاهش تعداد particle برای موبایل
-    const isMobile = window.innerWidth <= 768;
-    setInterval(createParticle, isMobile ? 200 : 100);
-    
-    // به‌روزرسانی عنوان NFT با عدد تصادفی (می‌تونی از API بگیری)
-    function updateNFTTitle() {
-      const nftTitle = document.getElementById('nftTitle');
-      if (nftTitle) {
-        // عدد تصادفی بین 1 تا 1000 (می‌تونی از API واقعی بگیری)
-        const nftNumber = Math.floor(Math.random() * 1000) + 1;
-        nftTitle.textContent = `Christmas Alpha #${nftNumber}`;
-      }
-    }
-    
-    // دریافت و به‌روزرسانی آمار مینت
-    async function updateMintStats() {
-      try {
-        const response = await fetch('/api/nft-stats');
-        const data = await response.json();
-        
-        if (data.success) {
-          const minted = data.minted || 0;
-          const totalSupply = data.totalSupply || 1000;
-          const percentage = data.percentage || 0;
-          
-          // به‌روزرسانی متن درصد
-          const mintPercentageEl = document.getElementById('mintPercentage');
-          if (mintPercentageEl) {
-            mintPercentageEl.textContent = `${percentage}% Minted`;
-          }
-          
-          // به‌روزرسانی تعداد
-          const mintCountEl = document.getElementById('mintCount');
-          if (mintCountEl) {
-            mintCountEl.textContent = `${minted}/${totalSupply}`;
-          }
-          
-          // به‌روزرسانی نوار progress
-          const progressBar = document.getElementById('progressBar');
-          if (progressBar) {
-            progressBar.style.width = `${percentage}%`;
-          }
-        }
-      } catch (error) {
-        console.error('Error updating mint stats:', error);
-        // در صورت خطا، مقادیر پیش‌فرض نمایش بده
-        const mintPercentageEl = document.getElementById('mintPercentage');
-        const mintCountEl = document.getElementById('mintCount');
-        const progressBar = document.getElementById('progressBar');
-        
-        if (mintPercentageEl) mintPercentageEl.textContent = '0% Minted';
-        if (mintCountEl) mintCountEl.textContent = '0/1000';
-        if (progressBar) progressBar.style.width = '0%';
-      }
-    }
-    
     // اجرا بعد از لود شدن صفحه
     window.addEventListener('load', () => {
       updateNFTTitle();
-      updateMintStats(); // دریافت آمار مینت
+      updateMintStats();
       
-      // به‌روزرسانی آمار هر 30 ثانیه
       setInterval(updateMintStats, 30000);
       
-      // حذف loading screen
       const loadingScreen = document.querySelector('.loading-screen');
       if (loadingScreen) {
         setTimeout(() => {
@@ -479,6 +558,10 @@
         }, 500);
       }
     });
+
+    // ایجاد particles
+    const isMobile = window.innerWidth <= 768;
+    setInterval(createParticle, isMobile ? 200 : 100);
   </script>
 </body>
 </html>

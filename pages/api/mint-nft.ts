@@ -9,7 +9,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'FID is required' });
   }
 
-  // دریافت API key و Wallet ID از environment variables
   const apiKey = process.env.NEYNAR_API_KEY;
   const walletId = process.env.NEYNAR_WALLET_ID;
 
@@ -19,11 +18,9 @@ export default async function handler(req, res) {
     });
   }
 
-  // آدرس قرارداد جدید
   const contractAddress = '0xE3285ae14Ce5407AAa6F0135671108B237DaA789';
 
   try {
-    // فراخوانی Neynar API برای مینت NFT
     const response = await fetch('https://api.neynar.com/v2/farcaster/nft/mint', {
       method: 'POST',
       headers: {
@@ -32,7 +29,7 @@ export default async function handler(req, res) {
         'x-wallet-id': walletId,
       },
       body: JSON.stringify({
-        network: 'base', // Base network
+        network: 'base',
         contract_address: contractAddress,
         recipients: [
           {
@@ -40,7 +37,7 @@ export default async function handler(req, res) {
             quantity: 1,
           },
         ],
-        async: false, // منتظر می‌مونیم تا تراکنش کامل بشه
+        async: false,
       }),
     });
 
@@ -54,7 +51,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // اگر تراکنش موفق بود
     if (data.transactions && data.transactions.length > 0) {
       const transaction = data.transactions[0];
       return res.status(200).json({
@@ -77,4 +73,3 @@ export default async function handler(req, res) {
     });
   }
 }
-

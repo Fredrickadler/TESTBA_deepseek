@@ -4,18 +4,13 @@ export default async function handler(req, res) {
   }
 
   const contractAddress = '0xE3285ae14Ce5407AAa6F0135671108B237DaA789';
-  const totalSupply = 1000; // ساپلای کل
+  const totalSupply = 1000;
   const baseRpcUrl = 'https://mainnet.base.org';
 
   try {
-    // Function selector برای totalSupply() = keccak256("totalSupply()")[:4]
-    // totalSupply() signature: 0x18160ddd
     const functionSelector = '0x18160ddd';
-    
-    // Encode function call
-    const data = functionSelector.padEnd(66, '0'); // 0x + 4 bytes selector + 32 bytes padding
+    const data = functionSelector.padEnd(66, '0');
 
-    // فراخوانی RPC برای خواندن از قرارداد
     const rpcResponse = await fetch(baseRpcUrl, {
       method: 'POST',
       headers: {
@@ -39,16 +34,13 @@ export default async function handler(req, res) {
     
     let mintedCount = 0;
     if (rpcData.result && rpcData.result !== '0x') {
-      // تبدیل hex به decimal
       mintedCount = parseInt(rpcData.result, 16);
     }
 
-    // محاسبه درصد
     const percentage = totalSupply > 0 
       ? Math.round((mintedCount / totalSupply) * 100) 
       : 0;
 
-    // محدود کردن درصد بین 0 تا 100
     const clampedPercentage = Math.min(100, Math.max(0, percentage));
 
     return res.status(200).json({
@@ -61,7 +53,6 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('NFT Stats error:', error);
     
-    // در صورت خطا، مقادیر پیش‌فرض برمی‌گردونیم
     return res.status(200).json({
       success: true,
       minted: 0,
@@ -70,4 +61,3 @@ export default async function handler(req, res) {
     });
   }
 }
-
