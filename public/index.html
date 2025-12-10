@@ -163,15 +163,29 @@
     import sdk from 'https://esm.sh/@farcaster/frame-sdk';
     window.sdk = sdk;
 
+    let userFid = null;
+
     window.addEventListener('DOMContentLoaded', async () => {
       try {
         await sdk.actions.ready();
         const context = await sdk.context;
         console.log("Farcaster context:", context);
+        
+        // دریافت FID از context
+        if (context?.user?.fid) {
+          userFid = context.user.fid;
+          console.log("User FID:", userFid);
+        } else if (context?.fid) {
+          userFid = context.fid;
+          console.log("User FID:", userFid);
+        }
       } catch (err) {
         console.error("Farcaster SDK error:", err);
       }
     });
+
+    // ذخیره FID در window برای دسترسی از script دیگر
+    window.getUserFid = () => userFid;
   </script>
 
   <script>
@@ -200,56 +214,62 @@
     });
 
     const mintButton = document.getElementById('mintButton');
-mintButton.addEventListener('click', async () => {
-  if (!window.sdk?.wallet?.ethProvider) {
-    alert('Please open this app inside Warpcast to connect your wallet.');
-    return;
-  }
+    mintButton.addEventListener('click', async () => {
+      // بررسی اینکه آیا در محیط Farcaster هستیم
+      if (!window.sdk) {
+        alert('Please open this app inside Warpcast to mint NFT.');
+        return;
+      }
 
-  try {
-    const ethProvider = window.sdk.wallet.ethProvider;
-    const signerProvider = new ethers.BrowserProvider(ethProvider);
-    const signer = await signerProvider.getSigner();
-    const address = await signer.getAddress();
+      // دریافت FID
+      const fid = window.getUserFid?.();
+      if (!fid) {
+        alert('Unable to get your Farcaster ID. Please refresh the page.');
+        return;
+      }
 
-    const abi = [
-      { "inputs": [], "name": "claim", "outputs": [], "stateMutability": "payable", "type": "function" },
-      { "inputs": [], "name": "price", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-      { "inputs": [], "name": "getRemainingNFTs", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
-    ];
+      // غیرفعال کردن دکمه در حین پردازش
+      mintButton.disabled = true;
+      mintButton.textContent = 'Minting...';
 
-    const contractAddress = '0x9434006c47C54F04ab81d7343131a64032481b4e';
-    const contract = new ethers.Contract(contractAddress, abi, signer);
+      try {
+        // فراخوانی API برای مینت NFT با استفاده از Neynar
+        const response = await fetch('/api/mint-nft', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fid: fid,
+          }),
+        });
 
-    // دریافت تعداد NFTهای باقی‌مانده
-    const remainingNFTs = await contract.getRemainingNFTs();
-    console.log("Remaining NFTs:", remainingNFTs.toString());  // چاپ تعداد NFT باقی‌مانده
+        const data = await response.json();
 
-    // اگر هیچ NFT باقی نمانده بود، تراکنش انجام نمی‌شود
-    if (remainingNFTs.toNumber() <= 0) {
-      alert("No NFTs left to mint.");
-      return;
-    }
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to mint NFT');
+        }
 
-    // دریافت قیمت
-    const price = await contract.price();
-    console.log("Price for minting:", price.toString());  // چاپ قیمت
+        if (data.success) {
+          const txHash = data.transactionHash;
+          const explorerUrl = `https://basescan.org/tx/${txHash}`;
+          
+          alert(`✅ NFT minted successfully!\n\nTransaction: ${txHash}\n\nView on BaseScan: ${explorerUrl}`);
+          
+          console.log('Mint successful:', data);
+        } else {
+          throw new Error(data.error || 'Minting failed');
+        }
 
-    // اگر قیمت درست دریافت شد، تراکنش رو ارسال کن
-    if (price > 0) {
-      const txResponse = await contract.claim({ value: price });
-
-      console.log('Transaction sent:', txResponse.hash);
-      alert('Transaction submitted!');
-    } else {
-      alert('Price is not valid.');
-    }
-
-  } catch (err) {
-    console.error('Minting failed:', err);
-    alert('Transaction failed:\n' + (err?.message || JSON.stringify(err)));
-  }
-});
+      } catch (err) {
+        console.error('Minting failed:', err);
+        alert('❌ Minting failed:\n' + (err?.message || JSON.stringify(err)));
+      } finally {
+        // فعال کردن مجدد دکمه
+        mintButton.disabled = false;
+        mintButton.textContent = 'MINT NOW';
+      }
+    });
 
     walletAddress.addEventListener('click', () => {
       connectWallet.style.display = 'inline-block';
