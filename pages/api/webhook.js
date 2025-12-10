@@ -1,4 +1,4 @@
-// api/webhook.js
+// webhook.js
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {

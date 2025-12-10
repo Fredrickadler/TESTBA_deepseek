@@ -1,3 +1,5 @@
+// send-notification.ts
+
 import { getTokens } from '../../lib/tokens';
 
 export default async function handler(req, res) {
