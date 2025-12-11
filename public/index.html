@@ -544,16 +544,16 @@
     </main>
   </div>
 
-  <script type="module">
-    // index.html
-    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-    
-    let userFid = null;
-    const debugLogs = [];
-    let debugLogTimer = null;
+  <script>
+    // Global variables accessible from all scripts
+    window.userFid = null;
+    window.debugLogs = [];
+    window.debugLogTimer = null;
+    window.isSDKLoaded = false;
+    window.sdk = null;
 
     // Debug system for sending logs
-    function debugLog(level, message, data) {
+    window.debugLog = function(level, message, data) {
       try {
         const logEntry = {
           level,
@@ -566,24 +566,24 @@
           sdkAvailable: !!window.sdk
         };
         
-        debugLogs.push(logEntry);
+        window.debugLogs.push(logEntry);
         console.log(`[${level}]`, message, data || '');
         
-        if (debugLogs.length >= 10) {
-          sendDebugLogs();
-        } else if (!debugLogTimer) {
-          debugLogTimer = setTimeout(sendDebugLogs, 2000);
+        if (window.debugLogs.length >= 10) {
+          window.sendDebugLogs();
+        } else if (!window.debugLogTimer) {
+          window.debugLogTimer = setTimeout(window.sendDebugLogs, 2000);
         }
       } catch (e) {
         console.log(`[${level}]`, message, data || '');
       }
-    }
+    };
 
-    async function sendDebugLogs() {
-      if (debugLogs.length === 0) return;
-      const logsToSend = [...debugLogs];
-      debugLogs.length = 0;
-      debugLogTimer = null;
+    window.sendDebugLogs = async function() {
+      if (window.debugLogs.length === 0) return;
+      const logsToSend = [...window.debugLogs];
+      window.debugLogs.length = 0;
+      window.debugLogTimer = null;
       
       try {
         await fetch('/api/debug-log', {
@@ -599,121 +599,21 @@
       } catch (err) {
         console.error('Failed to send debug logs:', err);
       }
-    }
+    };
 
     window.addEventListener('beforeunload', () => {
-      sendDebugLogs();
+      window.sendDebugLogs();
     });
 
-    // Attach SDK to window
-    window.sdk = sdk;
-
-    // According to Neynar documentation: "Call ready() as early as possible, but after pageload processes"
-    let isLoaded = false;
-    
-    async function initSDK() {
-      // Check if SDK is available (as per Neynar docs)
-      if (!sdk) {
-        debugLog('WARN', 'SDK not available yet, waiting...');
-        // Retry after a short delay
-        setTimeout(() => {
-          if (!isLoaded) {
-            initSDK();
-          }
-        }, 100);
-        return;
-      }
-      
-      if (isLoaded) {
-        debugLog('INFO', 'SDK already initialized, skipping');
-        return;
-      }
-      
-      debugLog('INFO', 'initSDK started', { sdkAvailable: !!sdk });
-      
-      try {
-        // According to Neynar: "Call ready() when your interface is loaded and ready to be displayed"
-        debugLog('INFO', 'Calling sdk.actions.ready()...');
-        await sdk.actions.ready();
-        debugLog('SUCCESS', 'SDK ready() called successfully');
-        
-        isLoaded = true;
-        
-        // Hide loading screen after ready() completes
-        hideLoadingScreen();
-        
-        // Fetch context after ready (optional)
-        try {
-          const context = await sdk.context;
-          debugLog('SUCCESS', 'Context fetched', {
-            hasUser: !!context?.user,
-            fid: context?.user?.fid
-          });
-          
-          if (context?.user?.fid) {
-            userFid = context.user.fid;
-          }
-        } catch (ctxErr) {
-          debugLog('WARN', 'Context fetch error', { error: ctxErr?.message });
-        }
-        
-        // Initialize app features after SDK ready
-        setTimeout(() => {
-          debugLog('INFO', 'Initializing app features after SDK ready');
-          
-          if (typeof window.updateMintStats === 'function') {
-            window.updateMintStats();
-            // Update stats every 30 seconds
-            setInterval(() => {
-              if (typeof window.updateMintStats === 'function') {
-                window.updateMintStats();
-              }
-            }, 30000);
-          }
-          
-          if (typeof window.setupVideo === 'function') {
-            window.setupVideo();
-          }
-          
-          // Play music with delay to ensure loading
-          setTimeout(() => {
-            if (typeof window.playBackgroundMusic === 'function') {
-              window.playBackgroundMusic();
-            }
-          }, 500);
-          
-          // Send logs
-          if (typeof sendDebugLogs === 'function') {
-            sendDebugLogs();
-          }
-        }, 100);
-        
-      } catch (err) {
-        debugLog('ERROR', 'SDK initialization error', {
-          error: err?.message,
-          stack: err?.stack
-        });
-        // Hide loading screen even on error
-        hideLoadingScreen();
-        isLoaded = true; // Mark as attempted to prevent infinite retries
-      }
-    }
-
-    function hideLoadingScreen() {
-      debugLog('INFO', 'hideLoadingScreen function called');
-      
-      const loadingScreens = document.querySelectorAll('.loading-screen');
-      debugLog('INFO', 'Loading screens found in hideLoadingScreen', { count: loadingScreens.length });
+    // Hide loading screen function - must be available globally
+    window.hideLoadingScreen = function() {
+      window.debugLog('INFO', 'hideLoadingScreen function called');
       
       const loadingScreen = document.querySelector('.loading-screen');
       if (loadingScreen) {
-        debugLog('INFO', 'Hiding loading screen...', {
-          hasClass: loadingScreen.classList.contains('hidden'),
-          display: window.getComputedStyle(loadingScreen).display,
-          visibility: window.getComputedStyle(loadingScreen).visibility
-        });
+        window.debugLog('INFO', 'Hiding loading screen...');
         
-        // Hide and remove loading screen
+        // Force hide loading screen
         loadingScreen.classList.add('hidden');
         loadingScreen.style.display = 'none';
         loadingScreen.style.opacity = '0';
@@ -728,10 +628,7 @@
         document.body.classList.remove('loading');
         document.body.style.overflow = 'auto';
         
-        debugLog('SUCCESS', 'Loading screen hidden', {
-          finalDisplay: window.getComputedStyle(loadingScreen).display,
-          finalVisibility: window.getComputedStyle(loadingScreen).visibility
-        });
+        window.debugLog('SUCCESS', 'Loading screen hidden');
         
         // Hide test button
         const forceHideBtn = document.getElementById('forceHideLoading');
@@ -739,83 +636,63 @@
           forceHideBtn.style.display = 'none';
         }
       } else {
-        debugLog('WARN', 'Loading screen element not found');
-      }
-    }
-
-    // Initialize SDK - following Neynar documentation pattern
-    // "Call ready() as early as possible, but after pageload processes"
-    debugLog('INFO', 'Page script started', {
-      readyState: document.readyState,
-      url: window.location.href,
-      sdkAvailable: !!sdk
-    });
-    
-    // Function to load SDK (similar to React useEffect pattern from Neynar docs)
-    const load = async () => {
-      if (sdk && !isLoaded) {
-        await initSDK();
+        window.debugLog('WARN', 'Loading screen element not found');
       }
     };
-    
-    // Wait for DOM to be ready, then initialize
-    // According to Neynar: "after pageload processes that might cause UI to re-render"
-    if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', () => {
-        debugLog('INFO', 'DOM loaded - starting SDK initialization');
-        load();
-      });
-    } else {
-      // DOM already loaded, start immediately
-      debugLog('INFO', 'DOM already loaded - starting SDK initialization');
-      load();
-    }
-    
-    // Backup: Also try on window load
-    window.addEventListener('load', () => {
-      if (!isLoaded) {
-        debugLog('INFO', 'Window loaded (backup) - starting SDK initialization');
-        load();
-      }
-    });
-    
-    // Fallback: Force hide loading screen after 3 seconds if SDK not ready
+
+    // CRITICAL: Force hide loading screen after 1.5 seconds - NO MATTER WHAT
     setTimeout(() => {
-      if (!isLoaded) {
-        debugLog('WARN', 'SDK not ready after 3 seconds - hiding loading screen anyway');
-        hideLoadingScreen();
-      }
-    }, 3000);
+      window.debugLog('WARN', 'Force hiding loading screen after 1.5 seconds');
+      window.hideLoadingScreen();
+    }, 1500);
 
-    window.getUserFid = () => userFid;
-    window.hideLoadingScreen = hideLoadingScreen;
-    window.debugLog = debugLog;
-    
-    // Initialize app features on window - these are called after script loads
-    window.initAppFeatures = function() {
-      debugLog('INFO', 'Initializing app features after SDK ready');
-      
-      // Send logs
-      if (typeof sendDebugLogs === 'function') {
-        sendDebugLogs();
+    // Load SDK dynamically
+    (async function() {
+      try {
+        window.debugLog('INFO', 'Starting SDK import...');
+        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk');
+        window.sdk = sdk;
+        window.debugLog('SUCCESS', 'SDK imported successfully');
+        
+        // Try to call ready() but don't block on it
+        if (sdk && sdk.actions && sdk.actions.ready) {
+          window.debugLog('INFO', 'Calling sdk.actions.ready()...');
+          
+          // Use Promise.race to timeout after 2 seconds
+          Promise.race([
+            sdk.actions.ready().then(() => {
+              window.debugLog('SUCCESS', 'SDK ready() completed');
+              window.isSDKLoaded = true;
+              window.hideLoadingScreen();
+              
+              // Fetch context after ready
+              sdk.context.then(context => {
+                if (context?.user?.fid) {
+                  window.userFid = context.user.fid;
+                  window.debugLog('SUCCESS', 'Context fetched', { fid: context.user.fid });
+                }
+              }).catch(err => {
+                window.debugLog('WARN', 'Context fetch error', { error: err?.message });
+              });
+            }),
+            new Promise((resolve) => setTimeout(() => {
+              window.debugLog('WARN', 'SDK ready() timeout after 2 seconds');
+              resolve('timeout');
+            }, 2000))
+          ]).then(() => {
+            window.hideLoadingScreen();
+          });
+        } else {
+          window.debugLog('WARN', 'SDK actions not available');
+          window.hideLoadingScreen();
+        }
+      } catch (err) {
+        window.debugLog('ERROR', 'SDK import failed', { error: err?.message });
+        window.hideLoadingScreen();
       }
-      
-      // Update stats
-      if (typeof updateMintStats === 'function') {
-        updateMintStats();
-        setInterval(updateMintStats, 30000);
-      }
-      
-      // Setup video
-      if (typeof setupVideo === 'function') {
-        setupVideo();
-      }
-      
-      // Play music
-      if (typeof playBackgroundMusic === 'function') {
-        playBackgroundMusic();
-      }
-    };
+    })();
+
+    window.getUserFid = () => window.userFid;
   </script>
 
   <script>
@@ -950,7 +827,7 @@
       }
     }
 
-    // ╪º█î╪¼╪º╪» particle
+    // Create particle
     function createParticle() {
       const particle = document.createElement('div');
       particle.classList.add('particle');
@@ -1075,8 +952,8 @@
     
     // Send logs every 5 seconds
     setInterval(() => {
-      if (debugLogs.length > 0) {
-        sendDebugLogs();
+      if (window.debugLogs && window.debugLogs.length > 0) {
+        window.sendDebugLogs();
       }
     }, 5000);
     
