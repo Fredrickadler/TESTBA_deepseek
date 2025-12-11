@@ -465,18 +465,6 @@
         position: fixed;
         overflow: hidden;
       }
-      .loading-screen.hidden {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        z-index: -9999 !important;
-        pointer-events: none !important;
-        position: fixed !important;
-        top: -9999px !important;
-        left: -9999px !important;
-        width: 0 !important;
-        height: 0 !important;
-      }
       body.loading {
         overflow: auto !important;
       }
@@ -692,12 +680,9 @@
     
     // طبق داکیومنت: "After your app is fully loaded and ready to display"
     // فقط بعد از window.load صدا می‌زنیم
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
       debugLog('INFO', 'Window loaded - starting SDK initialization');
-      initSDK().catch(err => {
-        debugLog('ERROR', 'SDK init error', { error: err?.message });
-        hideLoadingScreen();
-      });
+      await initSDK();
     });
 
     window.getUserFid = () => userFid;
@@ -929,17 +914,15 @@
       // loading screen فقط بعد از ready() موفق حذف می‌شود
     }
 
-    // اجرا بعد از لود شدن صفحه
-    // فقط بعد از window.load و بعد از ready() موفق
+    // اجرا بعد از لود شدن صفحه - فقط یک بار در window.load
+    // این توابع را اجرا می‌کنیم اما loading screen را حذف نمی‌کنیم
+    // loading screen فقط بعد از ready() موفق حذف می‌شود
     window.addEventListener('load', () => {
-      debugLog('INFO', 'Window loaded', {
+      debugLog('INFO', 'Window loaded - initializing app features', {
         sdkAvailable: !!window.sdk
       });
       
-      // این توابع را اجرا می‌کنیم اما loading screen را حذف نمی‌کنیم
-      // loading screen فقط بعد از ready() موفق حذف می‌شود
       sendDebugLogs();
-      
       updateMintStats();
       setupVideo();
       playBackgroundMusic();
