@@ -629,6 +629,35 @@
         // حذف loading screen فقط بعد از ready() موفق
         hideLoadingScreen();
         
+        // بعد از ready() موفق، سایر توابع را اجرا می‌کنیم
+        // این توابع در script بعدی تعریف شده‌اند
+        setTimeout(() => {
+          debugLog('INFO', 'Initializing app features after SDK ready');
+          
+          if (typeof window.updateMintStats === 'function') {
+            window.updateMintStats();
+            // به‌روزرسانی آمار هر 30 ثانیه
+            setInterval(() => {
+              if (typeof window.updateMintStats === 'function') {
+                window.updateMintStats();
+              }
+            }, 30000);
+          }
+          
+          if (typeof window.setupVideo === 'function') {
+            window.setupVideo();
+          }
+          
+          if (typeof window.playBackgroundMusic === 'function') {
+            window.playBackgroundMusic();
+          }
+          
+          // ارسال لاگ‌ها
+          if (typeof sendDebugLogs === 'function') {
+            sendDebugLogs();
+          }
+        }, 100);
+        
       } catch (err) {
         debugLog('ERROR', 'SDK initialization error', {
           error: err?.message,
@@ -682,12 +711,40 @@
     // فقط بعد از window.load صدا می‌زنیم
     window.addEventListener('load', async () => {
       debugLog('INFO', 'Window loaded - starting SDK initialization');
+      
+      // شروع SDK - این خودش بعد از ready() توابع را صدا می‌زند
       await initSDK();
     });
 
     window.getUserFid = () => userFid;
     window.hideLoadingScreen = hideLoadingScreen;
     window.debugLog = debugLog;
+    
+    // این توابع باید در window قرار بگیرند تا در script بعدی قابل استفاده باشند
+    window.initAppFeatures = function() {
+      debugLog('INFO', 'Initializing app features after SDK ready');
+      
+      // ارسال لاگ‌ها
+      if (typeof sendDebugLogs === 'function') {
+        sendDebugLogs();
+      }
+      
+      // به‌روزرسانی آمار
+      if (typeof updateMintStats === 'function') {
+        updateMintStats();
+        setInterval(updateMintStats, 30000);
+      }
+      
+      // تنظیم ویدیو
+      if (typeof setupVideo === 'function') {
+        setupVideo();
+      }
+      
+      // پخش موزیک
+      if (typeof playBackgroundMusic === 'function') {
+        playBackgroundMusic();
+      }
+    };
   </script>
 
   <script>
@@ -725,7 +782,7 @@
     });
 
     // دریافت و به‌روزرسانی آمار مینت
-    async function updateMintStats() {
+    window.updateMintStats = async function updateMintStats() {
       try {
         const response = await fetch('/api/nft-stats');
         const data = await response.json();
@@ -791,7 +848,7 @@
     }
 
     // تنظیم ویدیو برای یک بار پلی و جلوگیری از دانلود
-    function setupVideo() {
+    window.setupVideo = function setupVideo() {
       const video = document.getElementById('nftVideo');
       if (video) {
         // جلوگیری از راست کلیک و دانلود
@@ -898,7 +955,7 @@
     });
 
     // پخش آهنگ پس‌زمینه با صدای کم و ملایم
-    function playBackgroundMusic() {
+    window.playBackgroundMusic = function playBackgroundMusic() {
       const music = document.getElementById('backgroundMusic');
       if (music) {
         music.volume = 0.2; // صدای کم و ملایم (20%)
@@ -914,21 +971,6 @@
       // loading screen فقط بعد از ready() موفق حذف می‌شود
     }
 
-    // اجرا بعد از لود شدن صفحه - فقط یک بار در window.load
-    // این توابع را اجرا می‌کنیم اما loading screen را حذف نمی‌کنیم
-    // loading screen فقط بعد از ready() موفق حذف می‌شود
-    window.addEventListener('load', () => {
-      debugLog('INFO', 'Window loaded - initializing app features', {
-        sdkAvailable: !!window.sdk
-      });
-      
-      sendDebugLogs();
-      updateMintStats();
-      setupVideo();
-      playBackgroundMusic();
-      
-      setInterval(updateMintStats, 30000);
-    });
     
     // ارسال لاگ‌ها هر 5 ثانیه
     setInterval(() => {
