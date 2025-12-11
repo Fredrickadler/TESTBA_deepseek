@@ -551,8 +551,9 @@
 
   <script type="module">
     // index.html
+    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+    
     let userFid = null;
-    let isReadyCalled = false;
     const debugLogs = [];
     let debugLogTimer = null;
 
@@ -567,8 +568,7 @@
           userAgent: navigator.userAgent,
           url: window.location.href,
           readyState: document.readyState,
-          sdkAvailable: !!window.sdk,
-          isReadyCalled
+          sdkAvailable: !!window.sdk
         };
         
         debugLogs.push(logEntry);
@@ -581,7 +581,6 @@
           debugLogTimer = setTimeout(sendDebugLogs, 2000);
         }
       } catch (e) {
-        // Fallback: اگر debugLog خطا داد، حداقل console.log را صدا بزن
         console.log(`[${level}]`, message, data || '');
       }
     }
@@ -590,7 +589,7 @@
       if (debugLogs.length === 0) return;
       
       const logsToSend = [...debugLogs];
-      debugLogs.length = 0; // Clear array
+      debugLogs.length = 0;
       debugLogTimer = null;
       
       try {
@@ -616,118 +615,50 @@
       sendDebugLogs();
     });
 
-    // تابع ساده و مطمئن برای صدا زدن ready()
-    // این باید حتماً اجرا شود - حتی اگر SDK لود نشود
-    async function callReady() {
-      try {
-        debugLog('INFO', 'READY CALLED - Attempting to call sdk.actions.ready()', {
-          sdkExists: !!window.sdk,
-          actionsExists: !!window.sdk?.actions,
-          readyExists: !!window.sdk?.actions?.ready
-        });
-        
-        if (window.sdk?.actions?.ready) {
-          await window.sdk.actions.ready();
-          debugLog('SUCCESS', 'SDK ready() called successfully');
-          isReadyCalled = true;
-        } else {
-          debugLog('WARN', 'SDK not available yet, will retry...', {
-            sdk: !!window.sdk,
-            actions: !!window.sdk?.actions,
-            ready: !!window.sdk?.actions?.ready
-          });
-          // اگر SDK هنوز لود نشده، دوباره تلاش کن
-          setTimeout(callReady, 100);
-        }
-      } catch (err) {
-        debugLog('ERROR', 'Ready call error', {
-          error: err?.message,
-          stack: err?.stack,
-          name: err?.name
-        });
-        isReadyCalled = true; // Mark as called even on error
-      }
-    }
-
-    // بهینه‌سازی SDK طبق داکیومنت Farcaster
-    // مهم: باید sdk.actions.ready() را صدا بزنیم تا splash screen مخفی شود
+    // طبق داکیومنت Farcaster: باید sdk.actions.ready() را صدا بزنیم
+    // "After your app loads, you must call sdk.actions.ready() to hide the splash screen"
     async function initSDK() {
-      const startTime = Date.now();
-      debugLog('INFO', 'Starting SDK initialization...', {
-        readyState: document.readyState,
-        location: window.location.href
-      });
-      
       try {
-        const importStart = Date.now();
-        debugLog('INFO', 'Importing SDK from esm.sh...');
+        debugLog('INFO', 'Starting SDK initialization...');
         
-        // Import SDK
-        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk');
-        const importTime = Date.now() - importStart;
+        // دریافت context برای گرفتن FID
+        try {
+          const context = await sdk.context;
+          debugLog('SUCCESS', 'Context fetched', {
+            hasUser: !!context?.user,
+            fid: context?.user?.fid
+          });
+          
+          if (context?.user?.fid) {
+            userFid = context.user.fid;
+          }
+        } catch (ctxErr) {
+          debugLog('WARN', 'Context fetch error', {
+            error: ctxErr?.message
+          });
+        }
         
-        window.sdk = sdk;
-        debugLog('SUCCESS', 'SDK imported successfully', {
-          importTime: `${importTime}ms`,
-          sdkType: typeof sdk,
-          hasActions: !!sdk?.actions,
-          hasReady: !!sdk?.actions?.ready
-        });
-        
-        // مهم: همیشه ready() را صدا بزنیم - بدون timeout
+        // مهم: صدا زدن ready() برای مخفی کردن splash screen
         // طبق داکیومنت: "If you don't call ready(), users will see an infinite loading screen"
-        const readyStart = Date.now();
-        await callReady();
-        const readyTime = Date.now() - readyStart;
-        
-        debugLog('INFO', 'Ready() completed', {
-          readyTime: `${readyTime}ms`,
-          isReadyCalled
-        });
+        debugLog('INFO', 'Calling sdk.actions.ready()...');
+        await sdk.actions.ready();
+        debugLog('SUCCESS', 'SDK ready() called successfully');
         
         // حذف loading screen بعد از ready()
         hideLoadingScreen();
         
-        // دریافت context (اختیاری - برای گرفتن FID) - بعد از ready()
-        // این را به صورت async انجام می‌دهیم تا blocking نکند
-        setTimeout(async () => {
-          try {
-            debugLog('INFO', 'Fetching SDK context...');
-            const context = await sdk.context;
-            debugLog('SUCCESS', 'Context fetched', {
-              hasUser: !!context?.user,
-              hasFid: !!context?.user?.fid,
-              fid: context?.user?.fid
-            });
-            
-            if (context?.user?.fid) {
-              userFid = context.user.fid;
-            }
-          } catch (ctxErr) {
-            debugLog('ERROR', 'Context fetch error', {
-              error: ctxErr?.message,
-              stack: ctxErr?.stack
-            });
-          }
-        }, 100);
-        
-        const totalTime = Date.now() - startTime;
-        debugLog('SUCCESS', 'SDK initialization completed', {
-          totalTime: `${totalTime}ms`
-        });
-        
       } catch (err) {
-        const totalTime = Date.now() - startTime;
-        debugLog('ERROR', 'Farcaster SDK error', {
+        debugLog('ERROR', 'SDK initialization error', {
           error: err?.message,
-          stack: err?.stack,
-          name: err?.name,
-          totalTime: `${totalTime}ms`
+          stack: err?.stack
         });
-        // اگر SDK لود نشد، باز هم loading screen را حذف کنیم
+        // حتی اگر خطا داد، loading screen را حذف کنیم
         hideLoadingScreen();
       }
     }
+    
+    // ذخیره SDK در window برای استفاده در جاهای دیگر
+    window.sdk = sdk;
 
     function hideLoadingScreen() {
       const loadingScreen = document.querySelector('.loading-screen');
@@ -762,111 +693,22 @@
       }
     }
 
-    // تست فوری - مطمئن شویم کد اجرا می‌شود
-    console.log('=== SCRIPT LOADED ===');
-    console.log('ReadyState:', document.readyState);
-    console.log('URL:', window.location.href);
+    // شروع SDK بلافاصله
+    debugLog('INFO', 'Page script started', {
+      readyState: document.readyState,
+      url: window.location.href
+    });
     
-    // شروع دیباگ - با try/catch برای اطمینان از اجرا
-    try {
-      debugLog('INFO', 'Page script started', {
-        readyState: document.readyState,
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-        isInIframe: window.self !== window.top
-      });
-    } catch (e) {
-      console.error('DebugLog error:', e);
-      console.log('[INFO] Page script started (fallback)');
-    }
-    
-    // شروع لود SDK بلافاصله
-    try {
-      initSDK().catch(err => {
-        try {
-          debugLog('ERROR', 'SDK init error in catch', {
-            error: err?.message,
-            stack: err?.stack
-          });
-        } catch (e) {
-          console.error('SDK init error:', err);
-        }
-        // حتی اگر SDK خطا داد، loading screen را حذف کن
-        hideLoadingScreen();
-      });
-    } catch (e) {
-      console.error('Failed to start SDK:', e);
+    // طبق داکیومنت: "After your app is fully loaded and ready to display"
+    initSDK().catch(err => {
+      debugLog('ERROR', 'SDK init error', { error: err?.message });
       hideLoadingScreen();
-    }
+    });
     
-    // Fallback: اگر SDK لود نشد، ready() را با retry صدا بزن
-    setTimeout(async () => {
-      if (!isReadyCalled && window.sdk?.actions?.ready) {
-        console.log("Fallback: Calling ready() after timeout");
-        await callReady();
-        hideLoadingScreen();
-      }
-    }, 500);
-    
-    // حذف اجباری loading screen - بدون شرط و فوری
-    // این باید بلافاصله اجرا شود تا مینی‌اپ حتماً نمایش داده شود
+    // Fallback: حذف loading screen بعد از 1.5 ثانیه
     setTimeout(() => {
-      console.log("FORCE HIDE: Hiding loading screen immediately (100ms)");
       hideLoadingScreen();
-    }, 100);
-
-    // Fallback فوری: حذف loading screen بعد از 200ms
-    setTimeout(() => {
-      console.log("Fast fallback (200ms): hiding loading screen");
-      hideLoadingScreen();
-    }, 200);
-    
-    // Fallback سریع: حذف loading screen بعد از 500ms
-    setTimeout(() => {
-      console.log("Quick fallback (500ms): hiding loading screen");
-      hideLoadingScreen();
-    }, 500);
-    
-    // Fallback متوسط: حذف loading screen بعد از 1 ثانیه
-    setTimeout(() => {
-      console.log("Medium fallback (1s): hiding loading screen");
-      hideLoadingScreen();
-    }, 1000);
-    
-    // Fallback نهایی: حذف loading screen بعد از 2 ثانیه
-    setTimeout(() => {
-      console.log("Final fallback (2s): hiding loading screen");
-      hideLoadingScreen();
-    }, 2000);
-    
-    // Fallback اضافی: حذف loading screen بعد از DOMContentLoaded
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-          console.log("DOMContentLoaded fallback: hiding loading screen");
-          hideLoadingScreen();
-        }, 50);
-      });
-    } else {
-      setTimeout(() => {
-        console.log("Document ready fallback: hiding loading screen");
-        hideLoadingScreen();
-      }, 50);
-    }
-    
-    // Fallback برای موبایل: حذف loading screen بعد از اولین touch
-    let touchHandled = false;
-    const handleTouch = () => {
-      if (!touchHandled) {
-        touchHandled = true;
-        console.log("Touch fallback: hiding loading screen");
-        hideLoadingScreen();
-        document.removeEventListener('touchstart', handleTouch);
-        document.removeEventListener('click', handleTouch);
-      }
-    };
-    document.addEventListener('touchstart', handleTouch, { once: true });
-    document.addEventListener('click', handleTouch, { once: true });
+    }, 1500);
 
     window.getUserFid = () => userFid;
   </script>
