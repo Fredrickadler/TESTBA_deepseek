@@ -262,12 +262,27 @@
       opacity: 0.85;
       filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3));
     }
+    .mint-btn-snow-2 {
+      position: absolute;
+      top: -52px;
+      left: 40%;
+      transform: translateX(-50%);
+      width: 175%;
+      height: auto;
+      max-width: 380px;
+      min-width: 320px;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0.85;
+      filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3));
+    }
     .mint-btn:hover {
       background: var(--primary-dark); 
       transform: translateY(-3px);
       box-shadow: 0 8px 30px rgba(138, 90, 255, 0.5);
     }
-    .mint-btn:hover .mint-btn-snow {
+    .mint-btn:hover .mint-btn-snow,
+    .mint-btn:hover .mint-btn-snow-2 {
       animation: snowShake 0.5s ease;
     }
     @keyframes snowShake {
@@ -280,7 +295,8 @@
       cursor: not-allowed;
       transform: none;
     }
-    .mint-btn:disabled .mint-btn-snow {
+    .mint-btn:disabled .mint-btn-snow,
+    .mint-btn:disabled .mint-btn-snow-2 {
       opacity: 0.5;
     }
     .mint-price { 
@@ -406,6 +422,13 @@
         width: 165%;
         left: 60%;
       }
+      .mint-btn-snow-2 {
+        max-width: 350px;
+        min-width: 280px;
+        top: -48px;
+        width: 165%;
+        left: 40%;
+      }
       .mint-price {
         font-size: 13px;
         margin-top: 10px;
@@ -463,6 +486,7 @@
         <div class="mint-btn-wrapper">
           <button class="mint-btn" id="mintButton">
             <img src="/PNG/snow.PNG" alt="Snow" class="mint-btn-snow" />
+            <img src="/PNG/snow.PNG" alt="Snow" class="mint-btn-snow-2" />
             MINT NOW
           </button>
         </div>
