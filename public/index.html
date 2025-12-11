@@ -4,6 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Test</title>
+  
+  <meta name="fc:frame" content='{
+    "version":"1",
+    "imageUrl":"https://i.imgur.com/EfP517b.jpeg",
+    "button":{
+      "title":"Christmas Alpha🎅",
+      "action":{
+        "type":"launch_miniapp",
+        "url":"https://testba-deepseek.vercel.app",
+        "name":"Christmas Alpha",
+        "splashImageUrl":"https://i.imgur.com/oxfooj0_d.webp?maxwidth=760&fidelity=grand",
+        "splashBackgroundColor":"#8A5AFF"
+      }
+    }
+  }' />
+  <meta name="fc:miniapp" content='{
+    "version":"1",
+    "imageUrl":"https://i.imgur.com/EfP517b.jpeg",
+    "button":{
+      "title":"Christmas Alpha🎅",
+      "action":{
+        "type":"launch_miniapp",
+        "url":"https://testba-deepseek.vercel.app",
+        "name":"Christmas Alpha",
+        "splashImageUrl":"https://i.imgur.com/oxfooj0_d.webp?maxwidth=760&fidelity=grand",
+        "splashBackgroundColor":"#8A5AFF"
+      }
+    }
+  }' />
+
   <style>
     body {
       margin: 0;
@@ -17,9 +47,68 @@
       font-family: Arial, sans-serif;
       font-size: 48px;
     }
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .loading-screen.hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
+  <div class="loading-screen">
+    <div>Loading...</div>
+  </div>
+  
   <div>سلام</div>
+
+  <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+    
+    window.sdk = sdk;
+
+    async function initSDK() {
+      try {
+        console.log('Starting SDK initialization...');
+        
+        // Wait for SDK to be fully injected
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Call ready()
+        console.log('Calling sdk.actions.ready()...');
+        await sdk.actions.ready();
+        console.log('SDK ready() called successfully');
+        
+        // Hide loading screen
+        const loadingScreen = document.querySelector('.loading-screen');
+        if (loadingScreen) {
+          loadingScreen.classList.add('hidden');
+        }
+        
+      } catch (err) {
+        console.error('SDK initialization error:', err);
+        // Hide loading screen even on error
+        const loadingScreen = document.querySelector('.loading-screen');
+        if (loadingScreen) {
+          loadingScreen.classList.add('hidden');
+        }
+      }
+    }
+
+    // Start SDK after window loads
+    window.addEventListener('load', async () => {
+      console.log('Window loaded - starting SDK');
+      await initSDK();
+    });
+  </script>
 </body>
 </html>
