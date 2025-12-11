@@ -246,11 +246,39 @@
       width: 100%; 
       box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
       z-index: 2;
-      overflow: hidden;
+      overflow: visible;
+    }
+    .mint-btn-text-base {
+      position: relative;
+      z-index: 5;
+      color: white;
+    }
+    .mint-btn-text-green {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #22c55e;
+      z-index: 2;
+      pointer-events: none;
+      -webkit-mask-image: url('/PNG/snow.PNG'), url('/PNG/snow.PNG');
+      -webkit-mask-size: 175% auto, 175% auto;
+      -webkit-mask-position: 60% -58px, 60% -58px;
+      -webkit-mask-repeat: no-repeat, no-repeat;
+      -webkit-mask-composite: add;
+      mask-image: url('/PNG/snow.PNG'), url('/PNG/snow.PNG');
+      mask-size: 175% auto, 175% auto;
+      mask-position: 60% -58px, 60% -58px;
+      mask-repeat: no-repeat, no-repeat;
+      mask-composite: add;
     }
     .mint-btn-snow {
       position: absolute;
-      top: -52px;
+      top: -58px;
       left: 60%;
       transform: translateX(-50%);
       width: 175%;
@@ -263,7 +291,7 @@
     }
     .mint-btn-snow-2 {
       position: absolute;
-      top: -52px;
+      top: -58px;
       left: 60%;
       transform: translateX(-50%);
       width: 175%;
@@ -416,14 +444,14 @@
       .mint-btn-snow {
         max-width: 350px;
         min-width: 280px;
-        top: -48px;
+        top: -54px;
         width: 165%;
         left: 60%;
       }
       .mint-btn-snow-2 {
         max-width: 350px;
         min-width: 280px;
-        top: -48px;
+        top: -54px;
         width: 165%;
         left: 60%;
       }
@@ -483,9 +511,10 @@
         </div>
         <div class="mint-btn-wrapper">
           <button class="mint-btn" id="mintButton">
+            <span class="mint-btn-text-base">MINT NOW</span>
+            <span class="mint-btn-text-green">MINT NOW</span>
             <img src="/PNG/snow.PNG" alt="Snow" class="mint-btn-snow" />
             <img src="/PNG/snow.PNG" alt="Snow" class="mint-btn-snow-2" />
-            MINT NOW
           </button>
         </div>
         <div class="mint-price">Price: 0.00149 ETH</div>
