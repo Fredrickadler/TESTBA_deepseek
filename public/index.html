@@ -14,11 +14,11 @@
     "version":"next",
     "imageUrl":"https://i.imgur.com/EfP517b.jpeg",
     "button":{
-      "title":"Cosmic Fragment⚔️",
+      "title":"Christmas Alpha🎅",
       "action":{
         "type":"launch_frame",
         "url":"https://testba-deepseek.vercel.app",
-        "name":"Cosmic Fragment",
+        "name":"Christmas Alpha",
         "splashImageUrl":"https://i.imgur.com/oxfooj0_d.webp?maxwidth=760&fidelity=grand",
         "splashBackgroundColor":"#8A5AFF"
       }
@@ -116,6 +116,23 @@
       will-change: transform;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      pointer-events: none;
+      -webkit-touch-callout: none;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+    }
+    .nft-card {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
     }
     .nft-card:hover .nft-video { 
       transform: scale(1.03); 
@@ -313,13 +330,6 @@
       .particles {
         position: fixed;
         overflow: hidden;
-        display: none; /* غیرفعال کردن particles در موبایل برای عملکرد بهتر */
-      }
-      .loading-screen {
-        display: none; /* حذف loading screen در موبایل */
-      }
-      body.loading {
-        overflow: auto;
       }
     }
   </style>
@@ -347,6 +357,9 @@
           playsinline
           preload="auto"
           id="nftVideo"
+          draggable="false"
+          oncontextmenu="return false;"
+          controlslist="nodownload nofullscreen noremoteplayback"
         ></video>
         <div class="nft-overlay">
           <h1 class="nft-title" id="nftTitle">Christmas Alpha #1</h1>
@@ -371,16 +384,29 @@
   </div>
 
   <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+    
     let userFid = null;
+    let isReadyCalled = false;
 
-    // بهینه‌سازی برای موبایل - لود غیرهمزمان SDK
+    // بهینه‌سازی SDK طبق داکیومنت - صدا زدن ready() به محض آماده بودن
     async function initSDK() {
       try {
-        const sdkModule = await import('https://esm.sh/@farcaster/frame-sdk');
-        window.sdk = sdkModule.default || sdkModule;
+        window.sdk = sdk;
         
-        await window.sdk.actions.ready();
-        const context = await window.sdk.context;
+        // صدا زدن ready() به محض آماده بودن برای مخفی کردن splash screen
+        await sdk.actions.ready();
+        isReadyCalled = true;
+        
+        // حذف loading screen
+        const loadingScreen = document.querySelector('.loading-screen');
+        if (loadingScreen) {
+          loadingScreen.classList.add('hidden');
+          document.body.classList.remove('loading');
+        }
+        
+        // دریافت context
+        const context = await sdk.context;
         console.log("Farcaster context:", context);
         
         if (context?.user?.fid) {
@@ -392,39 +418,28 @@
         }
       } catch (err) {
         console.error("Farcaster SDK error:", err);
+        // حتی اگر SDK خطا داد، loading screen رو حذف کن
+        const loadingScreen = document.querySelector('.loading-screen');
+        if (loadingScreen) {
+          loadingScreen.classList.add('hidden');
+          document.body.classList.remove('loading');
+        }
       }
     }
 
-    // شروع لود SDK بلافاصله بدون blocking
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        initSDK();
-      });
-    } else {
-      initSDK();
-    }
+    // شروع لود SDK بلافاصله
+    initSDK();
 
-    // حذف سریع loading screen برای موبایل
-    const loadingScreen = document.querySelector('.loading-screen');
-    const isMobile = window.innerWidth <= 768;
-    
-    if (isMobile) {
-      // در موبایل loading screen رو سریع حذف کن
-      setTimeout(() => {
+    // Fallback: اگر ready() صدا زده نشد، بعد از 1 ثانیه loading screen رو حذف کن
+    setTimeout(() => {
+      if (!isReadyCalled) {
+        const loadingScreen = document.querySelector('.loading-screen');
         if (loadingScreen) {
           loadingScreen.classList.add('hidden');
           document.body.classList.remove('loading');
         }
-      }, 100);
-    } else {
-      // در دسکتاپ کمی بیشتر صبر کن
-      setTimeout(() => {
-        if (loadingScreen) {
-          loadingScreen.classList.add('hidden');
-          document.body.classList.remove('loading');
-        }
-      }, 500);
-    }
+      }
+    }, 1000);
 
     window.getUserFid = () => userFid;
   </script>
@@ -438,8 +453,9 @@
 
     connectWallet.addEventListener('click', async () => {
       try {
-        if (window.sdk?.wallet?.ethProvider) {
-          provider = new ethers.BrowserProvider(window.sdk.wallet.ethProvider);
+        if (window.sdk?.wallet?.getEthereumProvider) {
+          const ethProvider = window.sdk.wallet.getEthereumProvider();
+          provider = new ethers.BrowserProvider(ethProvider);
           await provider.send("eth_requestAccounts", []);
           signer = await provider.getSigner();
           address = await signer.getAddress();
@@ -507,10 +523,22 @@
       }
     }
 
-    // تنظیم ویدیو برای یک بار پلی
+    // تنظیم ویدیو برای یک بار پلی و جلوگیری از دانلود
     function setupVideo() {
       const video = document.getElementById('nftVideo');
       if (video) {
+        // جلوگیری از راست کلیک و دانلود
+        video.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+          return false;
+        });
+        
+        // جلوگیری از drag
+        video.addEventListener('dragstart', function(e) {
+          e.preventDefault();
+          return false;
+        });
+        
         video.addEventListener('ended', function() {
           this.currentTime = 0;
           this.pause();
