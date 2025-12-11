@@ -553,31 +553,36 @@
     // index.html
     let userFid = null;
     let isReadyCalled = false;
-    const debugLogs: any[] = [];
-    let debugLogTimer: any = null;
+    const debugLogs = [];
+    let debugLogTimer = null;
 
     // سیستم دیباگ برای ارسال لاگ‌ها
-    function debugLog(level: string, message: string, data?: any) {
-      const logEntry = {
-        level,
-        message,
-        data: data ? JSON.stringify(data) : null,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-        readyState: document.readyState,
-        sdkAvailable: !!window.sdk,
-        isReadyCalled
-      };
-      
-      debugLogs.push(logEntry);
-      console.log(`[${level}]`, message, data || '');
-      
-      // ارسال لاگ‌ها هر 2 ثانیه یا وقتی 10 لاگ جمع شد
-      if (debugLogs.length >= 10) {
-        sendDebugLogs();
-      } else if (!debugLogTimer) {
-        debugLogTimer = setTimeout(sendDebugLogs, 2000);
+    function debugLog(level, message, data) {
+      try {
+        const logEntry = {
+          level,
+          message,
+          data: data ? JSON.stringify(data) : null,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          url: window.location.href,
+          readyState: document.readyState,
+          sdkAvailable: !!window.sdk,
+          isReadyCalled
+        };
+        
+        debugLogs.push(logEntry);
+        console.log(`[${level}]`, message, data || '');
+        
+        // ارسال لاگ‌ها هر 2 ثانیه یا وقتی 10 لاگ جمع شد
+        if (debugLogs.length >= 10) {
+          sendDebugLogs();
+        } else if (!debugLogTimer) {
+          debugLogTimer = setTimeout(sendDebugLogs, 2000);
+        }
+      } catch (e) {
+        // Fallback: اگر debugLog خطا داد، حداقل console.log را صدا بزن
+        console.log(`[${level}]`, message, data || '');
       }
     }
 
@@ -634,7 +639,7 @@
           // اگر SDK هنوز لود نشده، دوباره تلاش کن
           setTimeout(callReady, 100);
         }
-      } catch (err: any) {
+      } catch (err) {
         debugLog('ERROR', 'Ready call error', {
           error: err?.message,
           stack: err?.stack,
@@ -698,7 +703,7 @@
             if (context?.user?.fid) {
               userFid = context.user.fid;
             }
-          } catch (ctxErr: any) {
+          } catch (ctxErr) {
             debugLog('ERROR', 'Context fetch error', {
               error: ctxErr?.message,
               stack: ctxErr?.stack
@@ -711,7 +716,7 @@
           totalTime: `${totalTime}ms`
         });
         
-      } catch (err: any) {
+      } catch (err) {
         const totalTime = Date.now() - startTime;
         debugLog('ERROR', 'Farcaster SDK error', {
           error: err?.message,
@@ -757,23 +762,42 @@
       }
     }
 
-    // شروع دیباگ
-    debugLog('INFO', 'Page script started', {
-      readyState: document.readyState,
-      userAgent: navigator.userAgent,
-      url: window.location.href,
-      isInIframe: window.self !== window.top
-    });
+    // تست فوری - مطمئن شویم کد اجرا می‌شود
+    console.log('=== SCRIPT LOADED ===');
+    console.log('ReadyState:', document.readyState);
+    console.log('URL:', window.location.href);
+    
+    // شروع دیباگ - با try/catch برای اطمینان از اجرا
+    try {
+      debugLog('INFO', 'Page script started', {
+        readyState: document.readyState,
+        userAgent: navigator.userAgent,
+        url: window.location.href,
+        isInIframe: window.self !== window.top
+      });
+    } catch (e) {
+      console.error('DebugLog error:', e);
+      console.log('[INFO] Page script started (fallback)');
+    }
     
     // شروع لود SDK بلافاصله
-    initSDK().catch(err => {
-      debugLog('ERROR', 'SDK init error in catch', {
-        error: err?.message,
-        stack: err?.stack
+    try {
+      initSDK().catch(err => {
+        try {
+          debugLog('ERROR', 'SDK init error in catch', {
+            error: err?.message,
+            stack: err?.stack
+          });
+        } catch (e) {
+          console.error('SDK init error:', err);
+        }
+        // حتی اگر SDK خطا داد، loading screen را حذف کن
+        hideLoadingScreen();
       });
-      // حتی اگر SDK خطا داد، loading screen را حذف کن
+    } catch (e) {
+      console.error('Failed to start SDK:', e);
       hideLoadingScreen();
-    });
+    }
     
     // Fallback: اگر SDK لود نشد، ready() را با retry صدا بزن
     setTimeout(async () => {
