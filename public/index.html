@@ -6,10 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Christmas Alpha NFT Mint</title>
 
+  <!-- External resources removed to prevent blocking - loaded async -->
   <link rel="preconnect" href="https://esm.sh">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js" defer></script>
 
   <meta name="fc:frame" content='{
     "version":"1",
@@ -41,7 +40,7 @@
   }' />
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    /* Font import removed to prevent blocking */
     :root {
       --primary: #8A5AFF;
       --primary-dark: #6E3AFF;
@@ -477,9 +476,7 @@
   </style>
 </head>
 <body class="loading">
-  <audio id="backgroundMusic" loop preload="auto">
-    <source src="/MUSIC/CHRISTMAS.mp3" type="audio/mpeg">
-  </audio>
+  <!-- Audio removed to prevent blocking -->
   <div class="loading-screen">
     <div style="color: var(--primary); font-size: 18px; font-weight: 600;">Loading...</div>
   </div>
@@ -506,10 +503,9 @@
         <video 
           src="https://highlight-creator-assets.highlight.xyz/main/image/60646a7e-c08a-4aa1-9747-36f2cfb34e50.mp4" 
           class="nft-video" 
-          autoplay 
           muted 
           playsinline
-          preload="auto"
+          preload="none"
           id="nftVideo"
           draggable="false"
           oncontextmenu="return false;"
@@ -545,154 +541,57 @@
   </div>
 
   <script>
-    // Global variables accessible from all scripts
+    // Minimal initialization - NO BLOCKING CODE
     window.userFid = null;
-    window.debugLogs = [];
-    window.debugLogTimer = null;
-    window.isSDKLoaded = false;
     window.sdk = null;
 
-    // Debug system for sending logs
-    window.debugLog = function(level, message, data) {
-      try {
-        const logEntry = {
-          level,
-          message,
-          data: data ? JSON.stringify(data) : null,
-          timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent,
-          url: window.location.href,
-          readyState: document.readyState,
-          sdkAvailable: !!window.sdk
-        };
-        
-        window.debugLogs.push(logEntry);
-        console.log(`[${level}]`, message, data || '');
-        
-        if (window.debugLogs.length >= 10) {
-          window.sendDebugLogs();
-        } else if (!window.debugLogTimer) {
-          window.debugLogTimer = setTimeout(window.sendDebugLogs, 2000);
-        }
-      } catch (e) {
-        console.log(`[${level}]`, message, data || '');
-      }
-    };
-
-    window.sendDebugLogs = async function() {
-      if (window.debugLogs.length === 0) return;
-      const logsToSend = [...window.debugLogs];
-      window.debugLogs.length = 0;
-      window.debugLogTimer = null;
-      
-      try {
-        await fetch('/api/debug-log', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            logs: logsToSend,
-            userAgent: navigator.userAgent,
-            url: window.location.href,
-            timestamp: new Date().toISOString()
-          })
-        });
-      } catch (err) {
-        console.error('Failed to send debug logs:', err);
-      }
-    };
-
-    window.addEventListener('beforeunload', () => {
-      window.sendDebugLogs();
-    });
-
-    // Hide loading screen function - must be available globally
+    // Simple hide loading screen - NO LOGGING, NO FETCH
     window.hideLoadingScreen = function() {
-      window.debugLog('INFO', 'hideLoadingScreen function called');
-      
       const loadingScreen = document.querySelector('.loading-screen');
       if (loadingScreen) {
-        window.debugLog('INFO', 'Hiding loading screen...');
-        
-        // Force hide loading screen
         loadingScreen.classList.add('hidden');
         loadingScreen.style.display = 'none';
         loadingScreen.style.opacity = '0';
         loadingScreen.style.visibility = 'hidden';
         loadingScreen.style.zIndex = '-9999';
         loadingScreen.style.pointerEvents = 'none';
-        loadingScreen.style.position = 'fixed';
-        loadingScreen.style.top = '-9999px';
-        loadingScreen.style.left = '-9999px';
-        loadingScreen.style.width = '0';
-        loadingScreen.style.height = '0';
         document.body.classList.remove('loading');
         document.body.style.overflow = 'auto';
-        
-        window.debugLog('SUCCESS', 'Loading screen hidden');
-        
-        // Hide test button
-        const forceHideBtn = document.getElementById('forceHideLoading');
-        if (forceHideBtn) {
-          forceHideBtn.style.display = 'none';
-        }
-      } else {
-        window.debugLog('WARN', 'Loading screen element not found');
       }
     };
 
-    // CRITICAL: Force hide loading screen after 1.5 seconds - NO MATTER WHAT
-    setTimeout(() => {
-      window.debugLog('WARN', 'Force hiding loading screen after 1.5 seconds');
+    // CRITICAL: Force hide loading screen IMMEDIATELY after 500ms - NO MATTER WHAT
+    setTimeout(function() {
       window.hideLoadingScreen();
-    }, 1500);
+    }, 500);
 
-    // Load SDK dynamically
-    (async function() {
-      try {
-        window.debugLog('INFO', 'Starting SDK import...');
-        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk');
-        window.sdk = sdk;
-        window.debugLog('SUCCESS', 'SDK imported successfully');
-        
-        // Try to call ready() but don't block on it
-        if (sdk && sdk.actions && sdk.actions.ready) {
-          window.debugLog('INFO', 'Calling sdk.actions.ready()...');
-          
-          // Use Promise.race to timeout after 2 seconds
-          Promise.race([
-            sdk.actions.ready().then(() => {
-              window.debugLog('SUCCESS', 'SDK ready() completed');
-              window.isSDKLoaded = true;
-              window.hideLoadingScreen();
-              
-              // Fetch context after ready
-              sdk.context.then(context => {
-                if (context?.user?.fid) {
-                  window.userFid = context.user.fid;
-                  window.debugLog('SUCCESS', 'Context fetched', { fid: context.user.fid });
-                }
-              }).catch(err => {
-                window.debugLog('WARN', 'Context fetch error', { error: err?.message });
-              });
-            }),
-            new Promise((resolve) => setTimeout(() => {
-              window.debugLog('WARN', 'SDK ready() timeout after 2 seconds');
-              resolve('timeout');
-            }, 2000))
-          ]).then(() => {
-            window.hideLoadingScreen();
-          });
-        } else {
-          window.debugLog('WARN', 'SDK actions not available');
-          window.hideLoadingScreen();
+    // Try to load SDK - but don't block on it
+    try {
+      import('https://esm.sh/@farcaster/miniapp-sdk').then(function(module) {
+        window.sdk = module.sdk;
+        if (window.sdk && window.sdk.actions && window.sdk.actions.ready) {
+          // Call ready() but don't wait for it
+          window.sdk.actions.ready().catch(function() {});
+          // Get context but don't wait
+          if (window.sdk.context) {
+            window.sdk.context.then(function(context) {
+              if (context && context.user && context.user.fid) {
+                window.userFid = context.user.fid;
+              }
+            }).catch(function() {});
+          }
         }
-      } catch (err) {
-        window.debugLog('ERROR', 'SDK import failed', { error: err?.message });
         window.hideLoadingScreen();
-      }
-    })();
+      }).catch(function() {
+        window.hideLoadingScreen();
+      });
+    } catch (e) {
+      window.hideLoadingScreen();
+    }
 
-    window.getUserFid = () => window.userFid;
+    window.getUserFid = function() {
+      return window.userFid;
+    };
   </script>
 
   <script>
@@ -729,10 +628,13 @@
       address = null;
     });
 
-    // Fetch and update mint stats
+    // Fetch and update mint stats - with timeout
     window.updateMintStats = async function updateMintStats() {
       try {
-        const response = await fetch('/api/nft-stats');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const response = await fetch('/api/nft-stats', { signal: controller.signal });
+        clearTimeout(timeoutId);
         const data = await response.json();
         
         if (data.success) {
@@ -795,36 +697,25 @@
       }
     }
 
-    // Setup video to prevent right-click and download
+    // Setup video - minimal, no blocking
     window.setupVideo = function setupVideo() {
-      const video = document.getElementById('nftVideo');
-      if (video) {
-        // Prevent right-click and download
-        video.addEventListener('contextmenu', function(e) {
-          e.preventDefault();
-          return false;
-        });
-        
-        // Prevent drag
-        video.addEventListener('dragstart', function(e) {
-          e.preventDefault();
-          return false;
-        });
-        
-        video.addEventListener('ended', function() {
-          this.currentTime = 0;
-          this.pause();
-        });
-        
-        // On mobile, play video after loading
-        if (window.innerWidth <= 768) {
-          video.addEventListener('loadeddata', function() {
-            this.play().catch(err => {
-              console.log('Video autoplay prevented:', err);
-            });
-          }, { once: true });
+      setTimeout(function() {
+        const video = document.getElementById('nftVideo');
+        if (video) {
+          video.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+          });
+          video.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+          });
+          // Try to play after delay - don't block
+          setTimeout(function() {
+            if (video) {
+              video.play().catch(function() {});
+            }
+          }, 2000);
         }
-      }
+      }, 1000);
     }
 
     // Create particle
@@ -902,70 +793,23 @@
       }
     });
 
-    // Play background music with autoplay and fallback
-    window.playBackgroundMusic = function playBackgroundMusic() {
-      try {
-        const music = document.getElementById('backgroundMusic');
-        if (music) {
-          music.volume = 0.2; // Low and gentle volume (20%)
-          console.log('Attempting to play background music...');
-          
-          const playPromise = music.play();
-          
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                console.log('Background music started playing successfully');
-              })
-              .catch(err => {
-                console.log('Auto-play prevented, waiting for user interaction:', err);
-                // If autoplay is prevented, wait for user interaction
-                const playOnInteraction = () => {
-                  music.play()
-                    .then(() => {
-                      console.log('Background music started after user interaction');
-                    })
-                    .catch(e => {
-                      console.error('Music play error after interaction:', e);
-                    });
-                };
-                
-                // Multiple event listeners to ensure playback
-                document.addEventListener('click', playOnInteraction, { once: true });
-                document.addEventListener('touchstart', playOnInteraction, { once: true });
-                document.addEventListener('keydown', playOnInteraction, { once: true });
-                
-                // Also retry after a short delay
-                setTimeout(() => {
-                  music.play().catch(e => console.log('Delayed play attempt failed:', e));
-                }, 1000);
-              });
-          }
-        } else {
-          console.warn('Background music element not found');
-        }
-      } catch (err) {
-        console.error('Error in playBackgroundMusic:', err);
-      }
-    }
+    // Music removed to prevent blocking
 
-    
-    // Send logs every 5 seconds
-    setInterval(() => {
-      if (window.debugLogs && window.debugLogs.length > 0) {
-        window.sendDebugLogs();
+    // Initialize features after page loads - NO BLOCKING
+    setTimeout(function() {
+      if (typeof window.updateMintStats === 'function') {
+        window.updateMintStats();
       }
-    }, 5000);
-    
-    // Initialize features on mobile
-    if (document.readyState === 'complete') {
-      updateMintStats();
-      setupVideo();
-    }
+      if (typeof window.setupVideo === 'function') {
+        window.setupVideo();
+      }
+    }, 1000);
 
-    // Create particles
-    const isMobile = window.innerWidth <= 768;
-    setInterval(createParticle, isMobile ? 200 : 100);
+    // Create particles - delayed to not block
+    setTimeout(function() {
+      const isMobile = window.innerWidth <= 768;
+      setInterval(createParticle, isMobile ? 200 : 100);
+    }, 2000);
   </script>
 </body>
 </html>
