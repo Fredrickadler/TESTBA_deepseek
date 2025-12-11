@@ -574,7 +574,6 @@
         debugLogs.push(logEntry);
         console.log(`[${level}]`, message, data || '');
         
-        // ارسال لاگ‌ها هر 2 ثانیه یا وقتی 10 لاگ جمع شد
         if (debugLogs.length >= 10) {
           sendDebugLogs();
         } else if (!debugLogTimer) {
@@ -587,7 +586,6 @@
 
     async function sendDebugLogs() {
       if (debugLogs.length === 0) return;
-      
       const logsToSend = [...debugLogs];
       debugLogs.length = 0;
       debugLogTimer = null;
@@ -595,9 +593,7 @@
       try {
         await fetch('/api/debug-log', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             logs: logsToSend,
             userAgent: navigator.userAgent,
@@ -610,18 +606,19 @@
       }
     }
 
-    // ارسال لاگ‌های باقی‌مانده قبل از unload
     window.addEventListener('beforeunload', () => {
       sendDebugLogs();
     });
 
-    // طبق داکیومنت Farcaster: باید sdk.actions.ready() را صدا بزنیم
-    // "After your app loads, you must call sdk.actions.ready() to hide the splash screen"
+    // ذخیره SDK در window
+    window.sdk = sdk;
+
+    // طبق داکیومنت Farcaster: "After your app loads, you must call sdk.actions.ready()"
     async function initSDK() {
       try {
         debugLog('INFO', 'Starting SDK initialization...');
         
-        // دریافت context برای گرفتن FID
+        // دریافت context (اختیاری)
         try {
           const context = await sdk.context;
           debugLog('SUCCESS', 'Context fetched', {
@@ -633,18 +630,15 @@
             userFid = context.user.fid;
           }
         } catch (ctxErr) {
-          debugLog('WARN', 'Context fetch error', {
-            error: ctxErr?.message
-          });
+          debugLog('WARN', 'Context fetch error', { error: ctxErr?.message });
         }
         
-        // مهم: صدا زدن ready() برای مخفی کردن splash screen
-        // طبق داکیومنت: "If you don't call ready(), users will see an infinite loading screen"
+        // مهم: صدا زدن ready() - طبق داکیومنت
         debugLog('INFO', 'Calling sdk.actions.ready()...');
         await sdk.actions.ready();
         debugLog('SUCCESS', 'SDK ready() called successfully');
         
-        // حذف loading screen بعد از ready()
+        // حذف loading screen
         hideLoadingScreen();
         
       } catch (err) {
@@ -652,13 +646,9 @@
           error: err?.message,
           stack: err?.stack
         });
-        // حتی اگر خطا داد، loading screen را حذف کنیم
         hideLoadingScreen();
       }
     }
-    
-    // ذخیره SDK در window برای استفاده در جاهای دیگر
-    window.sdk = sdk;
 
     function hideLoadingScreen() {
       const loadingScreen = document.querySelector('.loading-screen');
@@ -705,12 +695,15 @@
       hideLoadingScreen();
     });
     
-    // Fallback: حذف loading screen بعد از 1.5 ثانیه
+    // Fallback: حذف loading screen بعد از 2 ثانیه
     setTimeout(() => {
+      debugLog('INFO', 'Fallback: Hiding loading screen after timeout');
       hideLoadingScreen();
-    }, 1500);
+    }, 2000);
 
     window.getUserFid = () => userFid;
+    window.hideLoadingScreen = hideLoadingScreen;
+    window.debugLog = debugLog;
   </script>
 
   <script>
@@ -953,25 +946,20 @@
     
     // اجرا بعد از لود شدن صفحه
     window.addEventListener('load', () => {
-      // حذف اجباری loading screen
-      debugLog('INFO', 'Window loaded: hiding loading screen immediately', {
-        isReadyCalled,
+      debugLog('INFO', 'Window loaded', {
         sdkAvailable: !!window.sdk
       });
       hideLoadingScreen();
-      
-      // ارسال همه لاگ‌های باقی‌مانده
       sendDebugLogs();
       
-      updateMintStats(); // این خودش عنوان NFT رو هم به‌روز می‌کنه
+      updateMintStats();
       setupVideo();
-      playBackgroundMusic(); // پخش آهنگ پس‌زمینه
+      playBackgroundMusic();
       
-      // به‌روزرسانی آمار هر 30 ثانیه
       setInterval(updateMintStats, 30000);
     });
     
-    // ارسال لاگ‌ها هر 5 ثانیه به صورت دوره‌ای
+    // ارسال لاگ‌ها هر 5 ثانیه
     setInterval(() => {
       if (debugLogs.length > 0) {
         sendDebugLogs();
