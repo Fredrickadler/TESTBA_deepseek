@@ -350,6 +350,7 @@
       height: 100%;
       pointer-events: none; 
       z-index: -1;
+      display: none !important; /* موقتاً غیرفعال */
     }
     .particle {
       position: absolute; 
@@ -1019,9 +1020,9 @@
       setupVideo();
     }
 
-    // ایجاد particles
-    const isMobile = window.innerWidth <= 768;
-    setInterval(createParticle, isMobile ? 200 : 100);
+    // ایجاد particles - موقتاً غیرفعال
+    // const isMobile = window.innerWidth <= 768;
+    // setInterval(createParticle, isMobile ? 200 : 100);
   </script>
 </body>
 </html>
