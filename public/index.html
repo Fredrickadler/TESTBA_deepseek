@@ -483,6 +483,15 @@
   <div class="loading-screen">
     <div style="color: var(--primary); font-size: 18px; font-weight: 600;">Loading...</div>
   </div>
+  
+  <!-- دکمه تست برای دیباگ (موقت) -->
+  <button 
+    id="forceHideLoading" 
+    style="position:fixed;top:10px;right:10px;z-index:99999;background:#8A5AFF;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:12px;display:none;"
+    onclick="if(typeof hideLoadingScreen === 'function') { hideLoadingScreen(); } else { document.querySelector('.loading-screen')?.classList.add('hidden'); }"
+  >
+    Force Hide Loading
+  </button>
   <div class="particles" id="particles"></div>
   <div class="container">
     <header>
@@ -601,6 +610,12 @@
 
     // ╪╖╪¿┘é ╪»╪º┌⌐█î┘ê┘à┘å╪¬ Farcaster: "After your app loads, you must call sdk.actions.ready()"
     async function initSDK() {
+      debugLog('INFO', 'initSDK started');
+      
+      // چک کردن تعداد loading-screen elements
+      const loadingScreens = document.querySelectorAll('.loading-screen');
+      debugLog('INFO', 'Loading screens found', { count: loadingScreens.length });
+      
       try {
         debugLog('INFO', 'Starting SDK initialization...');
         
@@ -629,6 +644,7 @@
         debugLog('SUCCESS', 'SDK ready() called successfully');
         
         // ╪¡╪░┘ü loading screen ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é
+        debugLog('INFO', 'About to hide loading screen after successful ready()');
         hideLoadingScreen();
         
         // ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é╪î ╪│╪º█î╪▒ ╪¬┘ê╪º╪¿╪╣ ╪▒╪º ╪º╪¼╪▒╪º ┘à█îΓÇî┌⌐┘å█î┘à
@@ -669,11 +685,20 @@
           stack: err?.stack
         });
         // ┘ü┘é╪╖ ╪»╪▒ ╪╡┘ê╪▒╪¬ ╪«╪╖╪º╪î loading screen ╪▒╪º ╪¡╪░┘ü ┘à█îΓÇî┌⌐┘å█î┘à
+        debugLog('INFO', 'About to hide loading screen after error');
         hideLoadingScreen();
       }
+      
+      // اطمینان از اینکه loading screen حتماً حذف شده است
+      debugLog('INFO', 'initSDK completed');
     }
 
     function hideLoadingScreen() {
+      debugLog('INFO', 'hideLoadingScreen function called');
+      
+      const loadingScreens = document.querySelectorAll('.loading-screen');
+      debugLog('INFO', 'Loading screens found in hideLoadingScreen', { count: loadingScreens.length });
+      
       const loadingScreen = document.querySelector('.loading-screen');
       if (loadingScreen) {
         debugLog('INFO', 'Hiding loading screen...', {
@@ -701,24 +726,41 @@
           finalDisplay: window.getComputedStyle(loadingScreen).display,
           finalVisibility: window.getComputedStyle(loadingScreen).visibility
         });
+        
+        // مخفی کردن دکمه تست
+        const forceHideBtn = document.getElementById('forceHideLoading');
+        if (forceHideBtn) {
+          forceHideBtn.style.display = 'none';
+        }
       } else {
         debugLog('WARN', 'Loading screen element not found');
       }
     }
 
-    // ╪┤╪▒┘ê╪╣ SDK ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ window.load
+    // ╪┤╪▒┘ê╪╣ SDK ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ DOMContentLoaded (╪¿╪▒╪º█î ╪┤╪▒╪╣ ╪¿╪▒╪º█î ┘à┘ê╪¿╪º█î┘ä)
     debugLog('INFO', 'Page script started', {
       readyState: document.readyState,
       url: window.location.href
     });
     
-    // ╪╖╪¿┘é ╪»╪º┌⌐█î┘ê┘à┘å╪¬: "After your app is fully loaded and ready to display"
-    // ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ window.load ╪╡╪»╪º ┘à█îΓÇî╪▓┘å█î┘à
-    window.addEventListener('load', async () => {
-      debugLog('INFO', 'Window loaded - starting SDK initialization');
+    // طبق داکیومنت: "After your app is fully loaded and ready to display"
+    // استفاده از DOMContentLoaded برای موبایل بهتر است
+    window.addEventListener('DOMContentLoaded', async () => {
+      debugLog('INFO', 'DOM loaded - starting SDK initialization');
       
-      // ╪┤╪▒┘ê╪╣ SDK - ╪º█î┘å ╪«┘ê╪»╪┤ ╪¿╪╣╪» ╪º╪▓ ready() ╪¬┘ê╪º╪¿╪╣ ╪▒╪º ╪╡╪»╪º ┘à█îΓÇî╪▓┘å╪»
+      // شروع SDK - این خودش بعد از ready() توابع را صدا می‌زند
       await initSDK();
+    });
+    
+    // Backup: اگر DOMContentLoaded اجرا نشد، از window.load استفاده می‌کنیم
+    window.addEventListener('load', async () => {
+      debugLog('INFO', 'Window loaded (backup) - starting SDK initialization');
+      
+      // فقط اگر initSDK هنوز اجرا نشده باشد
+      if (!window.sdkInitialized) {
+        window.sdkInitialized = true;
+        await initSDK();
+      }
     });
 
     window.getUserFid = () => userFid;
