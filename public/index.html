@@ -382,9 +382,11 @@
       transition: opacity 0.2s ease;
     }
     .loading-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-      display: none;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      display: none !important;
+      visibility: hidden !important;
+      z-index: -1 !important;
     }
     
     /* Mobile Optimization - بهینه شده برای لود سریع */
@@ -462,6 +464,15 @@
       .particles {
         position: fixed;
         overflow: hidden;
+      }
+      .loading-screen.hidden {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        z-index: -1 !important;
+      }
+      body.loading {
+        overflow: auto !important;
       }
     }
   </style>
@@ -603,17 +614,36 @@
       const loadingScreen = document.querySelector('.loading-screen');
       if (loadingScreen) {
         loadingScreen.classList.add('hidden');
+        loadingScreen.style.display = 'none';
+        loadingScreen.style.opacity = '0';
+        loadingScreen.style.visibility = 'hidden';
         document.body.classList.remove('loading');
+        document.body.style.overflow = 'auto';
       }
     }
+
+    // تشخیص موبایل
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     // شروع لود SDK بلافاصله
     initSDK();
 
-    // Fallback: حذف loading screen بعد از 300ms در هر صورت
+    // Fallback قوی‌تر برای موبایل: حذف loading screen بعد از 200ms در موبایل و 500ms در دسکتاپ
+    const fallbackTimeout = isMobile ? 200 : 500;
     setTimeout(() => {
       hideLoadingScreen();
-    }, 300);
+    }, fallbackTimeout);
+
+    // Fallback اضافی برای موبایل: بعد از اولین تعامل کاربر
+    if (isMobile) {
+      const hideOnInteraction = () => {
+        hideLoadingScreen();
+        document.removeEventListener('touchstart', hideOnInteraction);
+        document.removeEventListener('click', hideOnInteraction);
+      };
+      document.addEventListener('touchstart', hideOnInteraction, { once: true });
+      document.addEventListener('click', hideOnInteraction, { once: true });
+    }
 
     window.getUserFid = () => userFid;
   </script>
@@ -845,6 +875,11 @@
       updateMintStats(); // این خودش عنوان NFT رو هم به‌روز می‌کنه
       setupVideo();
       playBackgroundMusic(); // پخش آهنگ پس‌زمینه
+      
+      // حذف loading screen بعد از لود کامل (fallback اضافی برای موبایل)
+      setTimeout(() => {
+        hideLoadingScreen();
+      }, 100);
       
       // به‌روزرسانی آمار هر 30 ثانیه
       setInterval(updateMintStats, 30000);
