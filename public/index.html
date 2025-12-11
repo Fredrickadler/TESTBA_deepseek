@@ -229,7 +229,7 @@
       }
     }
     
-    /* Loading Screen */
+    /* Loading Screen - بهینه شده برای موبایل */
     body.loading {
       overflow: hidden;
     }
@@ -244,19 +244,24 @@
       align-items: center;
       justify-content: center;
       z-index: 9999;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.2s ease;
     }
     .loading-screen.hidden {
       opacity: 0;
       pointer-events: none;
+      display: none;
     }
     
-    /* Mobile Optimization */
+    /* Mobile Optimization - بهینه شده برای لود سریع */
     @media (max-width: 768px) {
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
       body { 
         overflow-x: hidden; 
         -webkit-overflow-scrolling: touch;
         position: relative;
+        touch-action: pan-y;
       }
       .container { 
         padding: 0 16px; 
@@ -264,7 +269,7 @@
         max-width: 100%;
       }
       header { 
-        padding: 16px 0; 
+        padding: 12px 0; 
         position: sticky;
         top: 0;
         background: var(--gray-900);
@@ -275,8 +280,8 @@
         font-size: 14px; 
       }
       .main-content { 
-        padding: 20px 0 60px; 
-        min-height: calc(100vh - 80px);
+        padding: 16px 0 50px; 
+        min-height: calc(100vh - 70px);
       }
       .nft-card, .mint-section { 
         max-width: 100%; 
@@ -293,6 +298,10 @@
       .nft-overlay {
         padding: 16px;
       }
+      .nft-video {
+        max-width: 100%;
+        height: auto;
+      }
       .mint-btn {
         padding: 14px;
         font-size: 15px;
@@ -304,6 +313,13 @@
       .particles {
         position: fixed;
         overflow: hidden;
+        display: none; /* غیرفعال کردن particles در موبایل برای عملکرد بهتر */
+      }
+      .loading-screen {
+        display: none; /* حذف loading screen در موبایل */
+      }
+      body.loading {
+        overflow: auto;
       }
     }
   </style>
@@ -327,15 +343,15 @@
           src="https://highlight-creator-assets.highlight.xyz/main/image/60646a7e-c08a-4aa1-9747-36f2cfb34e50.mp4" 
           class="nft-video" 
           autoplay 
-          loop 
           muted 
           playsinline
           preload="auto"
+          id="nftVideo"
         ></video>
         <div class="nft-overlay">
           <h1 class="nft-title" id="nftTitle">Christmas Alpha #1</h1>
           <p class="nft-description">
-            A unique piece of digital art, crafted with cosmic energy and rare stardust. Own a fragment of the universe.
+            Alpha, the first Winterborn reindeer, embodies hope and pure winter magic, a symbol of kindness returning each winter.
           </p>
         </div>
       </div>
@@ -357,7 +373,8 @@
   <script type="module">
     let userFid = null;
 
-    window.addEventListener('DOMContentLoaded', async () => {
+    // بهینه‌سازی برای موبایل - لود غیرهمزمان SDK
+    async function initSDK() {
       try {
         const sdkModule = await import('https://esm.sh/@farcaster/frame-sdk');
         window.sdk = sdkModule.default || sdkModule;
@@ -375,16 +392,39 @@
         }
       } catch (err) {
         console.error("Farcaster SDK error:", err);
-      } finally {
-        const loadingScreen = document.querySelector('.loading-screen');
-        if (loadingScreen) {
-          setTimeout(() => {
-            loadingScreen.classList.add('hidden');
-            document.body.classList.remove('loading');
-          }, 300);
-        }
       }
-    });
+    }
+
+    // شروع لود SDK بلافاصله بدون blocking
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        initSDK();
+      });
+    } else {
+      initSDK();
+    }
+
+    // حذف سریع loading screen برای موبایل
+    const loadingScreen = document.querySelector('.loading-screen');
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+      // در موبایل loading screen رو سریع حذف کن
+      setTimeout(() => {
+        if (loadingScreen) {
+          loadingScreen.classList.add('hidden');
+          document.body.classList.remove('loading');
+        }
+      }, 100);
+    } else {
+      // در دسکتاپ کمی بیشتر صبر کن
+      setTimeout(() => {
+        if (loadingScreen) {
+          loadingScreen.classList.add('hidden');
+          document.body.classList.remove('loading');
+        }
+      }, 500);
+    }
 
     window.getUserFid = () => userFid;
   </script>
@@ -447,6 +487,13 @@
           if (progressBar) {
             progressBar.style.width = `${percentage}%`;
           }
+          
+          // به‌روزرسانی شماره NFT به تعداد NFTهای مینت شده + 1 (NFT بعدی)
+          const nftTitle = document.getElementById('nftTitle');
+          if (nftTitle) {
+            const nextNFTNumber = minted + 1;
+            nftTitle.textContent = `Christmas Alpha #${nextNFTNumber}`;
+          }
         }
       } catch (error) {
         console.error('Error updating mint stats:', error);
@@ -460,12 +507,23 @@
       }
     }
 
-    // به‌روزرسانی عنوان NFT
-    function updateNFTTitle() {
-      const nftTitle = document.getElementById('nftTitle');
-      if (nftTitle) {
-        const nftNumber = Math.floor(Math.random() * 1000) + 1;
-        nftTitle.textContent = `Christmas Alpha #${nftNumber}`;
+    // تنظیم ویدیو برای یک بار پلی
+    function setupVideo() {
+      const video = document.getElementById('nftVideo');
+      if (video) {
+        video.addEventListener('ended', function() {
+          this.currentTime = 0;
+          this.pause();
+        });
+        
+        // در موبایل، ویدیو رو بعد از لود کامل پلی کن
+        if (window.innerWidth <= 768) {
+          video.addEventListener('loadeddata', function() {
+            this.play().catch(err => {
+              console.log('Video autoplay prevented:', err);
+            });
+          }, { once: true });
+        }
       }
     }
 
@@ -546,19 +604,18 @@
 
     // اجرا بعد از لود شدن صفحه
     window.addEventListener('load', () => {
-      updateNFTTitle();
-      updateMintStats();
+      updateMintStats(); // این خودش عنوان NFT رو هم به‌روز می‌کنه
+      setupVideo();
       
+      // به‌روزرسانی آمار هر 30 ثانیه
       setInterval(updateMintStats, 30000);
-      
-      const loadingScreen = document.querySelector('.loading-screen');
-      if (loadingScreen) {
-        setTimeout(() => {
-          loadingScreen.classList.add('hidden');
-          document.body.classList.remove('loading');
-        }, 500);
-      }
     });
+    
+    // اجرای سریع برای موبایل
+    if (document.readyState === 'complete') {
+      updateMintStats();
+      setupVideo();
+    }
 
     // ایجاد particles
     const isMobile = window.innerWidth <= 768;
