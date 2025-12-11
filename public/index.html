@@ -477,10 +477,6 @@
         width: 0 !important;
         height: 0 !important;
       }
-      /* در موبایل، loading screen را به صورت پیش‌فرض مخفی کن */
-      .loading-screen {
-        display: none !important;
-      }
       body.loading {
         overflow: auto !important;
       }
@@ -618,6 +614,9 @@
       try {
         debugLog('INFO', 'Starting SDK initialization...');
         
+        // Wait for SDK to be fully injected
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
         // دریافت context (اختیاری)
         try {
           const context = await sdk.context;
@@ -634,11 +633,12 @@
         }
         
         // مهم: صدا زدن ready() - طبق داکیومنت
+        // فقط بعد از ready() موفق، loading screen را حذف می‌کنیم
         debugLog('INFO', 'Calling sdk.actions.ready()...');
         await sdk.actions.ready();
         debugLog('SUCCESS', 'SDK ready() called successfully');
         
-        // حذف loading screen
+        // حذف loading screen فقط بعد از ready() موفق
         hideLoadingScreen();
         
       } catch (err) {
@@ -646,6 +646,7 @@
           error: err?.message,
           stack: err?.stack
         });
+        // فقط در صورت خطا، loading screen را حذف می‌کنیم
         hideLoadingScreen();
       }
     }
@@ -683,23 +684,21 @@
       }
     }
 
-    // شروع SDK بلافاصله
+    // شروع SDK فقط بعد از window.load
     debugLog('INFO', 'Page script started', {
       readyState: document.readyState,
       url: window.location.href
     });
     
     // طبق داکیومنت: "After your app is fully loaded and ready to display"
-    initSDK().catch(err => {
-      debugLog('ERROR', 'SDK init error', { error: err?.message });
-      hideLoadingScreen();
+    // فقط بعد از window.load صدا می‌زنیم
+    window.addEventListener('load', () => {
+      debugLog('INFO', 'Window loaded - starting SDK initialization');
+      initSDK().catch(err => {
+        debugLog('ERROR', 'SDK init error', { error: err?.message });
+        hideLoadingScreen();
+      });
     });
-    
-    // Fallback: حذف loading screen بعد از 2 ثانیه
-    setTimeout(() => {
-      debugLog('INFO', 'Fallback: Hiding loading screen after timeout');
-      hideLoadingScreen();
-    }, 2000);
 
     window.getUserFid = () => userFid;
     window.hideLoadingScreen = hideLoadingScreen;
@@ -926,30 +925,19 @@
           }, { once: true });
         });
       }
-      // اگر موزیک پخش شد، یعنی صفحه لود شده - loading screen را حذف کن
-      hideLoadingScreen();
+      // موزیک پخش می‌شود اما loading screen را حذف نمی‌کنیم
+      // loading screen فقط بعد از ready() موفق حذف می‌شود
     }
 
     // اجرا بعد از لود شدن صفحه
-    // حذف اجباری loading screen بلافاصله بعد از لود DOM
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      debugLog('INFO', 'Document already loaded, hiding loading screen immediately', {
-        readyState: document.readyState
-      });
-      hideLoadingScreen();
-    } else {
-      document.addEventListener('DOMContentLoaded', () => {
-        debugLog('INFO', 'DOMContentLoaded: hiding loading screen immediately');
-        hideLoadingScreen();
-      });
-    }
-    
-    // اجرا بعد از لود شدن صفحه
+    // فقط بعد از window.load و بعد از ready() موفق
     window.addEventListener('load', () => {
       debugLog('INFO', 'Window loaded', {
         sdkAvailable: !!window.sdk
       });
-      hideLoadingScreen();
+      
+      // این توابع را اجرا می‌کنیم اما loading screen را حذف نمی‌کنیم
+      // loading screen فقط بعد از ready() موفق حذف می‌شود
       sendDebugLogs();
       
       updateMintStats();
