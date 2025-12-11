@@ -469,9 +469,22 @@
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
-        z-index: -1 !important;
+        z-index: -9999 !important;
+        pointer-events: none !important;
+        position: fixed !important;
+        top: -9999px !important;
+        left: -9999px !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+      /* در موبایل، loading screen را به صورت پیش‌فرض مخفی کن */
+      .loading-screen {
+        display: none !important;
       }
       body.loading {
+        overflow: auto !important;
+      }
+      body {
         overflow: auto !important;
       }
     }
@@ -547,8 +560,13 @@
       try {
         console.log("Starting SDK initialization...");
         
-        // Import SDK
-        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk');
+        // Import SDK با timeout کوتاه‌تر برای موبایل
+        const sdkPromise = import('https://esm.sh/@farcaster/miniapp-sdk');
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('SDK import timeout')), 2000)
+        );
+        
+        const { sdk } = await Promise.race([sdkPromise, timeoutPromise]);
         window.sdk = sdk;
         console.log("SDK imported successfully");
         
@@ -557,7 +575,12 @@
         // این باید بلافاصله بعد از import صدا زده شود
         try {
           console.log("Calling sdk.actions.ready()...");
-          await sdk.actions.ready();
+          // با timeout کوتاه برای موبایل
+          const readyPromise = sdk.actions.ready();
+          const readyTimeout = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Ready timeout')), 1000)
+          );
+          await Promise.race([readyPromise, readyTimeout]);
           isReadyCalled = true;
           console.log("SDK ready() called successfully");
         } catch (readyErr) {
@@ -566,21 +589,24 @@
           isReadyCalled = true;
         }
         
-        // دریافت context (اختیاری - برای گرفتن FID) - بعد از ready()
-        try {
-          const context = await sdk.context;
-          console.log("Farcaster context:", context);
-          
-          if (context?.user?.fid) {
-            userFid = context.user.fid;
-            console.log("User FID:", userFid);
-          }
-        } catch (ctxErr) {
-          console.warn("Context fetch error:", ctxErr);
-        }
-        
-        // حذف loading screen بعد از ready()
+        // حذف loading screen بلافاصله بعد از ready() (یا خطا)
         hideLoadingScreen();
+        
+        // دریافت context (اختیاری - برای گرفتن FID) - بعد از ready()
+        // این را به صورت async انجام می‌دهیم تا blocking نکند
+        setTimeout(async () => {
+          try {
+            const context = await sdk.context;
+            console.log("Farcaster context:", context);
+            
+            if (context?.user?.fid) {
+              userFid = context.user.fid;
+              console.log("User FID:", userFid);
+            }
+          } catch (ctxErr) {
+            console.warn("Context fetch error:", ctxErr);
+          }
+        }, 100);
         
       } catch (err) {
         console.error("Farcaster SDK error:", err);
@@ -609,36 +635,58 @@
     // شروع لود SDK بلافاصله
     initSDK();
 
-    // Fallback فوری: حذف loading screen بعد از 500ms (برای موبایل)
+    // Fallback فوری برای موبایل: حذف loading screen بعد از 300ms
     setTimeout(() => {
-      console.log("Fast fallback: hiding loading screen");
+      console.log("Fast fallback (300ms): hiding loading screen");
       hideLoadingScreen();
-    }, 500);
+    }, 300);
+    
+    // Fallback سریع: حذف loading screen بعد از 800ms
+    setTimeout(() => {
+      console.log("Quick fallback (800ms): hiding loading screen");
+      hideLoadingScreen();
+    }, 800);
     
     // Fallback متوسط: حذف loading screen بعد از 1.5 ثانیه
     setTimeout(() => {
-      console.log("Medium fallback: hiding loading screen, isReadyCalled:", isReadyCalled);
+      console.log("Medium fallback (1.5s): hiding loading screen, isReadyCalled:", isReadyCalled);
       hideLoadingScreen();
     }, 1500);
     
-    // Fallback نهایی: حذف loading screen بعد از 3 ثانیه
+    // Fallback نهایی: حذف loading screen بعد از 2.5 ثانیه
     setTimeout(() => {
-      console.log("Final fallback: hiding loading screen");
+      console.log("Final fallback (2.5s): hiding loading screen");
       hideLoadingScreen();
-    }, 3000);
+    }, 2500);
     
     // Fallback اضافی: حذف loading screen بعد از DOMContentLoaded
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
+          console.log("DOMContentLoaded fallback: hiding loading screen");
           hideLoadingScreen();
-        }, 200);
+        }, 100);
       });
     } else {
       setTimeout(() => {
+        console.log("Document ready fallback: hiding loading screen");
         hideLoadingScreen();
-      }, 200);
+      }, 100);
     }
+    
+    // Fallback برای موبایل: حذف loading screen بعد از اولین touch
+    let touchHandled = false;
+    const handleTouch = () => {
+      if (!touchHandled) {
+        touchHandled = true;
+        console.log("Touch fallback: hiding loading screen");
+        hideLoadingScreen();
+        document.removeEventListener('touchstart', handleTouch);
+        document.removeEventListener('click', handleTouch);
+      }
+    };
+    document.addEventListener('touchstart', handleTouch, { once: true });
+    document.addEventListener('click', handleTouch, { once: true });
 
     window.getUserFid = () => userFid;
   </script>
@@ -863,6 +911,8 @@
           }, { once: true });
         });
       }
+      // اگر موزیک پخش شد، یعنی صفحه لود شده - loading screen را حذف کن
+      hideLoadingScreen();
     }
 
     // اجرا بعد از لود شدن صفحه
