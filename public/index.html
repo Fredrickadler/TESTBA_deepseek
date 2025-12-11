@@ -554,42 +554,43 @@
     let userFid = null;
     let isReadyCalled = false;
 
+    // تابع ساده و مطمئن برای صدا زدن ready()
+    // این باید حتماً اجرا شود - حتی اگر SDK لود نشود
+    async function callReady() {
+      try {
+        console.log("READY CALLED - Attempting to call sdk.actions.ready()");
+        
+        if (window.sdk?.actions?.ready) {
+          await window.sdk.actions.ready();
+          console.log("SDK ready() called successfully");
+          isReadyCalled = true;
+        } else {
+          console.warn("SDK not available yet, will retry...");
+          // اگر SDK هنوز لود نشده، دوباره تلاش کن
+          setTimeout(callReady, 100);
+        }
+      } catch (err) {
+        console.warn("Ready call error:", err);
+        isReadyCalled = true; // Mark as called even on error
+      }
+    }
+
     // بهینه‌سازی SDK طبق داکیومنت Farcaster
     // مهم: باید sdk.actions.ready() را صدا بزنیم تا splash screen مخفی شود
     async function initSDK() {
       try {
         console.log("Starting SDK initialization...");
         
-        // Import SDK با timeout کوتاه‌تر برای موبایل
-        const sdkPromise = import('https://esm.sh/@farcaster/miniapp-sdk');
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('SDK import timeout')), 2000)
-        );
-        
-        const { sdk } = await Promise.race([sdkPromise, timeoutPromise]);
+        // Import SDK
+        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk');
         window.sdk = sdk;
         console.log("SDK imported successfully");
         
-        // مهم: همیشه ready() را صدا بزنیم تا splash screen مخفی شود
+        // مهم: همیشه ready() را صدا بزنیم - بدون timeout
         // طبق داکیومنت: "If you don't call ready(), users will see an infinite loading screen"
-        // این باید بلافاصله بعد از import صدا زده شود
-        try {
-          console.log("Calling sdk.actions.ready()...");
-          // با timeout کوتاه برای موبایل
-          const readyPromise = sdk.actions.ready();
-          const readyTimeout = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Ready timeout')), 1000)
-          );
-          await Promise.race([readyPromise, readyTimeout]);
-          isReadyCalled = true;
-          console.log("SDK ready() called successfully");
-        } catch (readyErr) {
-          console.warn("Ready call error:", readyErr);
-          // حتی اگر خطا داد، loading screen را حذف کنیم
-          isReadyCalled = true;
-        }
+        await callReady();
         
-        // حذف loading screen بلافاصله بعد از ready() (یا خطا)
+        // حذف loading screen بعد از ready()
         hideLoadingScreen();
         
         // دریافت context (اختیاری - برای گرفتن FID) - بعد از ready()
@@ -639,19 +640,28 @@
       }
     }
 
+    // شروع لود SDK بلافاصله
+    initSDK().catch(err => {
+      console.error("SDK init error:", err);
+      // حتی اگر SDK خطا داد، loading screen را حذف کن
+      hideLoadingScreen();
+    });
+    
+    // Fallback: اگر SDK لود نشد، ready() را با retry صدا بزن
+    setTimeout(async () => {
+      if (!isReadyCalled && window.sdk?.actions?.ready) {
+        console.log("Fallback: Calling ready() after timeout");
+        await callReady();
+        hideLoadingScreen();
+      }
+    }, 500);
+    
     // حذف اجباری loading screen - بدون شرط و فوری
     // این باید بلافاصله اجرا شود تا مینی‌اپ حتماً نمایش داده شود
     setTimeout(() => {
       console.log("FORCE HIDE: Hiding loading screen immediately (100ms)");
       hideLoadingScreen();
     }, 100);
-    
-    // شروع لود SDK (به صورت async - blocking نمی‌کند)
-    initSDK().catch(err => {
-      console.error("SDK init error:", err);
-      // حتی اگر SDK خطا داد، loading screen را حذف کن
-      hideLoadingScreen();
-    });
 
     // Fallback فوری: حذف loading screen بعد از 200ms
     setTimeout(() => {

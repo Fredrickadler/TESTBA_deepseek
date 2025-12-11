@@ -1,0 +1,4 @@
+/*
+  X-Frame-Options: ALLOWALL
+  Content-Security-Policy: frame-ancestors https://*.warpcast.com https://warpcast.com https://*.farcaster.xyz https://farcaster.xyz https://*.base.org https://base.org;
+
