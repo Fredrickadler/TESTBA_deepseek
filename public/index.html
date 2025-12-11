@@ -323,9 +323,19 @@
     }
     .mint-btn:disabled .mint-btn-snow,
     .mint-btn:disabled .mint-btn-snow-2 {
-      opacity: 1;
-      display: block;
-      visibility: visible;
+      opacity: 1 !important;
+      display: block !important;
+      visibility: visible !important;
+      position: absolute !important;
+      z-index: 3 !important;
+      pointer-events: none !important;
+      transform: translateX(-50%) !important;
+      top: -45px !important;
+      left: 66% !important;
+      width: 160% !important;
+      max-width: 360px !important;
+      min-width: 300px !important;
+      height: auto !important;
     }
     .mint-price { 
       margin-top: 12px; 
@@ -458,6 +468,22 @@
         top: -41px;
         width: 150%;
         left: 66%;
+      }
+      .mint-btn:disabled .mint-btn-snow,
+      .mint-btn:disabled .mint-btn-snow-2 {
+        opacity: 1 !important;
+        display: block !important;
+        visibility: visible !important;
+        position: absolute !important;
+        z-index: 3 !important;
+        pointer-events: none !important;
+        transform: translateX(-50%) !important;
+        top: -41px !important;
+        left: 66% !important;
+        width: 150% !important;
+        max-width: 320px !important;
+        min-width: 260px !important;
+        height: auto !important;
       }
       .mint-price {
         font-size: 13px;
