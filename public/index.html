@@ -1,15 +1,21 @@
+﻿<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Test</title>
-  
+  <title>Christmas Alpha NFT Mint</title>
+
+  <link rel="preconnect" href="https://esm.sh">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
   <meta name="fc:frame" content='{
     "version":"1",
     "imageUrl":"https://i.imgur.com/EfP517b.jpeg",
     "button":{
-      "title":"Christmas Alpha🎅",
+      "title":"Christmas Alpha≡ƒÄà",
       "action":{
         "type":"launch_miniapp",
         "url":"https://testba-deepseek.vercel.app",
@@ -23,7 +29,7 @@
     "version":"1",
     "imageUrl":"https://i.imgur.com/EfP517b.jpeg",
     "button":{
-      "title":"Christmas Alpha🎅",
+      "title":"Christmas Alpha≡ƒÄà",
       "action":{
         "type":"launch_miniapp",
         "url":"https://testba-deepseek.vercel.app",
@@ -35,17 +41,334 @@
   }' />
 
   <style>
-    body {
-      margin: 0;
-      padding: 0;
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    :root {
+      --primary: #8A5AFF;
+      --primary-dark: #6E3AFF;
+      --gray-900: #0F0F0F;
+      --gray-800: #1A1A1A;
+      --gray-700: #2E2E2E;
+      --gray-400: #A0A0A0;
+      --gray-200: #E5E5E5;
+    }
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      font-family: 'Space Grotesk', sans-serif; 
+    }
+    body { 
+      background-color: var(--gray-900); 
+      color: white; 
+      min-height: 100vh; 
+      overflow-x: hidden; 
+    }
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 0 24px; 
+    }
+    header { 
+      display: flex; 
+      justify-content: flex-end; 
+      padding: 24px 0; 
+    }
+    .wallet-btn {
+      background: var(--primary); 
+      color: white; 
+      border: none; 
+      padding: 12px 24px;
+      border-radius: 12px; 
+      cursor: pointer; 
+      font-weight: 600; 
+      font-size: 15px;
+      transition: all 0.3s ease; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
+    }
+    .wallet-btn:hover { 
+      background: var(--primary-dark); 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 25px rgba(138, 90, 255, 0.4); 
+    }
+    .wallet-btn i { 
+      font-size: 16px; 
+    }
+    .wallet-address {
+      background: var(--gray-800); 
+      padding: 10px 20px; 
+      border-radius: 12px;
+      font-size: 14px; 
+      font-weight: 500; 
+      display: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
+      cursor: pointer;
+    }
+    .main-content {
+      display: flex; 
+      flex-direction: column; 
+      align-items: center;
+      padding: 40px 0 80px;
+    }
+    .nft-card {
+      width: 100%; 
+      max-width: 420px; 
+      margin-bottom: 40px; 
+      position: relative;
+      overflow: hidden; 
+      border-radius: 16px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+    .nft-video {
+      width: 100%; 
+      aspect-ratio: 1/1; 
+      object-fit: cover;
+      display: block; 
+      transition: transform 0.5s ease;
+      background: #000;
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      pointer-events: none;
+      -webkit-touch-callout: none;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+    }
+    .nft-card {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .nft-card:hover .nft-video { 
+      transform: scale(1.03); 
+    }
+    .nft-overlay {
+      position: absolute; 
+      bottom: 0; 
+      left: 0; 
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+      padding: 24px; 
+      color: white;
+    }
+    .nft-title { 
+      font-size: 24px; 
+      font-weight: 700; 
+      margin-bottom: 8px; 
+    }
+    .nft-description {
+      font-size: 15px; 
+      color: var(--gray-200); 
+      opacity: 0.9; 
+      line-height: 1.5;
+    }
+    .mint-section {
+      width: 100%; 
+      max-width: 420px; 
+      text-align: center;
+    }
+    .mint-stats {
+      display: flex; 
+      justify-content: space-between;
+      color: var(--gray-400); 
+      font-size: 14px; 
+      margin-bottom: 12px;
+    }
+    .progress-container {
+      height: 6px; 
+      width: 100%; 
+      background: var(--gray-700);
+      border-radius: 3px; 
+      margin-bottom: 24px; 
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; 
+      width: 100%; 
+      background: linear-gradient(
+        45deg,
+        #FFFFFF 0%,
+        #FFFFFF 12.5%,
+        #DC2626 12.5%,
+        #DC2626 25%,
+        #FFFFFF 25%,
+        #FFFFFF 37.5%,
+        #DC2626 37.5%,
+        #DC2626 50%,
+        #FFFFFF 50%,
+        #FFFFFF 62.5%,
+        #DC2626 62.5%,
+        #DC2626 75%,
+        #FFFFFF 75%,
+        #FFFFFF 87.5%,
+        #DC2626 87.5%,
+        #DC2626 100%
+      );
+      background-size: 20px 20px;
+      border-radius: 3px; 
+      transition: width 0.5s ease;
+      animation: candyCaneMove 1s linear infinite;
+    }
+    @keyframes candyCaneMove {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 20px 20px;
+      }
+    }
+    .mint-btn-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+    .mint-btn {
+      position: relative;
+      background: var(--primary); 
+      color: white; 
+      border: none;
+      padding: 16px; 
+      border-radius: 12px; 
+      cursor: pointer;
+      font-weight: 600; 
+      font-size: 16px; 
+      transition: all 0.3s ease;
+      width: 100%; 
+      box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
+      z-index: 2;
+      overflow: visible;
+    }
+    .mint-btn-text-base {
+      position: relative;
+      z-index: 5;
+      color: white;
+    }
+    .mint-btn-text-green {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      font-size: 48px;
+      color: #22c55e;
+      z-index: 2;
+      pointer-events: none;
+      -webkit-mask-image: url('/PNG/snow.PNG'), url('/PNG/snow.PNG');
+      -webkit-mask-size: 175% auto, 175% auto;
+      -webkit-mask-position: 64.5% -50px, 64.5% -50px;
+      -webkit-mask-repeat: no-repeat, no-repeat;
+      -webkit-mask-composite: add;
+      mask-image: url('/PNG/snow.PNG'), url('/PNG/snow.PNG');
+      mask-size: 175% auto, 175% auto;
+      mask-position: 64.5% -50px, 64.5% -50px;
+      mask-repeat: no-repeat, no-repeat;
+      mask-composite: add;
+    }
+    .mint-btn-snow {
+      position: absolute;
+      top: -45px;
+      left: 66%;
+      transform: translateX(-50%);
+      width: 160%;
+      height: auto;
+      max-width: 360px;
+      min-width: 300px;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 1;
+    }
+    .mint-btn-snow-2 {
+      position: absolute;
+      top: -45px;
+      left: 66%;
+      transform: translateX(-50%);
+      width: 160%;
+      height: auto;
+      max-width: 360px;
+      min-width: 300px;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 1;
+    }
+    .mint-btn:hover {
+      background: var(--primary-dark); 
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(138, 90, 255, 0.5);
+    }
+    .mint-btn:hover .mint-btn-snow,
+    .mint-btn:hover .mint-btn-snow-2 {
+      animation: snowShake 0.5s ease;
+    }
+    @keyframes snowShake {
+      0%, 100% { transform: translateX(-50%) rotate(0deg); }
+      25% { transform: translateX(-50%) rotate(-2deg) translateY(-2px); }
+      75% { transform: translateX(-50%) rotate(2deg) translateY(-2px); }
+    }
+    .mint-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .mint-btn:disabled .mint-btn-snow,
+    .mint-btn:disabled .mint-btn-snow-2 {
+      opacity: 1;
+      display: block;
+      visibility: visible;
+    }
+    .mint-price { 
+      margin-top: 12px; 
+      font-size: 14px; 
+      color: var(--gray-400); 
+    }
+    .particles {
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%;
+      pointer-events: none; 
+      z-index: -1;
+    }
+    .particle {
+      position: absolute; 
+      width: 2px; 
+      height: 2px;
+      background: rgba(255, 255, 255, 0.8); 
+      border-radius: 50%;
+      animation: floatDown 15s infinite linear;
+    }
+    @keyframes floatDown {
+      0% { 
+        transform: translateY(-10px) rotate(0deg); 
+        opacity: 0; 
+      }
+      5% { 
+        opacity: 1; 
+      }
+      95% { 
+        opacity: 1; 
+      }
+      100% { 
+        transform: translateY(100vh) rotate(360deg); 
+        opacity: 0; 
+      }
+    }
+    
+    /* Loading Screen - ╪¿┘ç█î┘å┘ç ╪┤╪»┘ç ╪¿╪▒╪º█î ┘à┘ê╪¿╪º█î┘ä */
+    body.loading {
+      overflow: hidden;
     }
     .loading-screen {
       position: fixed;
@@ -53,62 +376,620 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: #000;
+      background: var(--gray-900);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 9999;
+      transition: opacity 0.2s ease;
     }
     .loading-screen.hidden {
+      opacity: 0 !important;
+      pointer-events: none !important;
       display: none !important;
+      visibility: hidden !important;
+      z-index: -1 !important;
+    }
+    
+    /* Mobile Optimization - ╪¿┘ç█î┘å┘ç ╪┤╪»┘ç ╪¿╪▒╪º█î ┘ä┘ê╪» ╪│╪▒█î╪╣ */
+    @media (max-width: 768px) {
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+      body { 
+        overflow-x: hidden; 
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+        touch-action: pan-y;
+      }
+      .container { 
+        padding: 0 16px; 
+        width: 100%;
+        max-width: 100%;
+      }
+      header { 
+        padding: 12px 0; 
+        position: sticky;
+        top: 0;
+        background: var(--gray-900);
+        z-index: 10;
+      }
+      .wallet-btn { 
+        padding: 10px 16px; 
+        font-size: 14px; 
+      }
+      .main-content { 
+        padding: 16px 0 50px; 
+        min-height: calc(100vh - 70px);
+      }
+      .nft-card, .mint-section { 
+        max-width: 100%; 
+        width: 100%;
+      }
+      .nft-title { 
+        font-size: 18px; 
+        margin-bottom: 6px;
+      }
+      .nft-description { 
+        font-size: 13px; 
+        line-height: 1.4;
+      }
+      .nft-overlay {
+        padding: 16px;
+      }
+      .nft-video {
+        max-width: 100%;
+        height: auto;
+      }
+      .mint-btn {
+        padding: 14px;
+        font-size: 15px;
+      }
+      .mint-btn-snow {
+        max-width: 320px;
+        min-width: 260px;
+        top: -41px;
+        width: 150%;
+        left: 66%;
+      }
+      .mint-btn-snow-2 {
+        max-width: 320px;
+        min-width: 260px;
+        top: -41px;
+        width: 150%;
+        left: 66%;
+      }
+      .mint-price {
+        font-size: 13px;
+        margin-top: 10px;
+      }
+      .particles {
+        position: fixed;
+        overflow: hidden;
+      }
+      body.loading {
+        overflow: auto !important;
+      }
+      body {
+        overflow: auto !important;
+      }
     }
   </style>
 </head>
-<body>
+<body class="loading">
+  <audio id="backgroundMusic" loop preload="auto">
+    <source src="/MUSIC/CHRISTMAS.mp3" type="audio/mpeg">
+  </audio>
   <div class="loading-screen">
-    <div>Loading...</div>
+    <div style="color: var(--primary); font-size: 18px; font-weight: 600;">Loading...</div>
   </div>
-  
-  <div>سلام</div>
+  <div class="particles" id="particles"></div>
+  <div class="container">
+    <header>
+      <button class="wallet-btn" id="connectWallet">
+        <i class="fas fa-wallet"></i> Connect Wallet
+      </button>
+      <div class="wallet-address" id="walletAddress"></div>
+    </header>
+
+    <main class="main-content">
+      <div class="nft-card">
+        <video 
+          src="https://highlight-creator-assets.highlight.xyz/main/image/60646a7e-c08a-4aa1-9747-36f2cfb34e50.mp4" 
+          class="nft-video" 
+          autoplay 
+          muted 
+          playsinline
+          preload="auto"
+          id="nftVideo"
+          draggable="false"
+          oncontextmenu="return false;"
+          controlslist="nodownload nofullscreen noremoteplayback"
+        ></video>
+        <div class="nft-overlay">
+          <h1 class="nft-title" id="nftTitle">Christmas Alpha #1</h1>
+          <p class="nft-description">
+            Alpha, the first Winterborn reindeer, embodies hope and pure winter magic, a symbol of kindness returning each winter.
+          </p>
+        </div>
+      </div>
+
+      <div class="mint-section">
+        <div class="mint-stats">
+          <span id="mintPercentage">0% Minted</span>
+          <span id="mintCount">0/1000</span>
+        </div>
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="mint-btn-wrapper">
+          <button class="mint-btn" id="mintButton">
+            <span class="mint-btn-text-base">MINT NOW</span>
+            <span class="mint-btn-text-green">MINT NOW</span>
+            <img src="/PNG/snow.PNG" alt="Snow" class="mint-btn-snow" />
+            <img src="/PNG/snow.PNG" alt="Snow" class="mint-btn-snow-2" />
+          </button>
+        </div>
+        <div class="mint-price">Price: 0.00149 ETH</div>
+      </div>
+    </main>
+  </div>
 
   <script type="module">
+    // index.html
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
     
+    let userFid = null;
+    const debugLogs = [];
+    let debugLogTimer = null;
+
+    // ╪│█î╪│╪¬┘à ╪»█î╪¿╪º┌» ╪¿╪▒╪º█î ╪º╪▒╪│╪º┘ä ┘ä╪º┌»ΓÇî┘ç╪º
+    function debugLog(level, message, data) {
+      try {
+        const logEntry = {
+          level,
+          message,
+          data: data ? JSON.stringify(data) : null,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          url: window.location.href,
+          readyState: document.readyState,
+          sdkAvailable: !!window.sdk
+        };
+        
+        debugLogs.push(logEntry);
+        console.log(`[${level}]`, message, data || '');
+        
+        if (debugLogs.length >= 10) {
+          sendDebugLogs();
+        } else if (!debugLogTimer) {
+          debugLogTimer = setTimeout(sendDebugLogs, 2000);
+        }
+      } catch (e) {
+        console.log(`[${level}]`, message, data || '');
+      }
+    }
+
+    async function sendDebugLogs() {
+      if (debugLogs.length === 0) return;
+      const logsToSend = [...debugLogs];
+      debugLogs.length = 0;
+      debugLogTimer = null;
+      
+      try {
+        await fetch('/api/debug-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            logs: logsToSend,
+            userAgent: navigator.userAgent,
+            url: window.location.href,
+            timestamp: new Date().toISOString()
+          })
+        });
+      } catch (err) {
+        console.error('Failed to send debug logs:', err);
+      }
+    }
+
+    window.addEventListener('beforeunload', () => {
+      sendDebugLogs();
+    });
+
+    // ╪░╪«█î╪▒┘ç SDK ╪»╪▒ window
     window.sdk = sdk;
 
+    // ╪╖╪¿┘é ╪»╪º┌⌐█î┘ê┘à┘å╪¬ Farcaster: "After your app loads, you must call sdk.actions.ready()"
     async function initSDK() {
       try {
-        console.log('Starting SDK initialization...');
+        debugLog('INFO', 'Starting SDK initialization...');
         
         // Wait for SDK to be fully injected
         await new Promise(resolve => setTimeout(resolve, 50));
         
-        // Call ready()
-        console.log('Calling sdk.actions.ready()...');
-        await sdk.actions.ready();
-        console.log('SDK ready() called successfully');
-        
-        // Hide loading screen
-        const loadingScreen = document.querySelector('.loading-screen');
-        if (loadingScreen) {
-          loadingScreen.classList.add('hidden');
+        // ╪»╪▒█î╪º┘ü╪¬ context (╪º╪«╪¬█î╪º╪▒█î)
+        try {
+          const context = await sdk.context;
+          debugLog('SUCCESS', 'Context fetched', {
+            hasUser: !!context?.user,
+            fid: context?.user?.fid
+          });
+          
+          if (context?.user?.fid) {
+            userFid = context.user.fid;
+          }
+        } catch (ctxErr) {
+          debugLog('WARN', 'Context fetch error', { error: ctxErr?.message });
         }
         
+        // ┘à┘ç┘à: ╪╡╪»╪º ╪▓╪»┘å ready() - ╪╖╪¿┘é ╪»╪º┌⌐█î┘ê┘à┘å╪¬
+        // ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é╪î loading screen ╪▒╪º ╪¡╪░┘ü ┘à█îΓÇî┌⌐┘å█î┘à
+        debugLog('INFO', 'Calling sdk.actions.ready()...');
+        await sdk.actions.ready();
+        debugLog('SUCCESS', 'SDK ready() called successfully');
+        
+        // ╪¡╪░┘ü loading screen ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é
+        hideLoadingScreen();
+        
+        // ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é╪î ╪│╪º█î╪▒ ╪¬┘ê╪º╪¿╪╣ ╪▒╪º ╪º╪¼╪▒╪º ┘à█îΓÇî┌⌐┘å█î┘à
+        // ╪º█î┘å ╪¬┘ê╪º╪¿╪╣ ╪»╪▒ script ╪¿╪╣╪»█î ╪¬╪╣╪▒█î┘ü ╪┤╪»┘çΓÇî╪º┘å╪»
+        setTimeout(() => {
+          debugLog('INFO', 'Initializing app features after SDK ready');
+          
+          if (typeof window.updateMintStats === 'function') {
+            window.updateMintStats();
+            // ╪¿┘çΓÇî╪▒┘ê╪▓╪▒╪│╪º┘å█î ╪ó┘à╪º╪▒ ┘ç╪▒ 30 ╪½╪º┘å█î┘ç
+            setInterval(() => {
+              if (typeof window.updateMintStats === 'function') {
+                window.updateMintStats();
+              }
+            }, 30000);
+          }
+          
+          if (typeof window.setupVideo === 'function') {
+            window.setupVideo();
+          }
+          
+          if (typeof window.playBackgroundMusic === 'function') {
+            window.playBackgroundMusic();
+          }
+          
+          // ╪º╪▒╪│╪º┘ä ┘ä╪º┌»ΓÇî┘ç╪º
+          if (typeof sendDebugLogs === 'function') {
+            sendDebugLogs();
+          }
+        }, 100);
+        
       } catch (err) {
-        console.error('SDK initialization error:', err);
-        // Hide loading screen even on error
-        const loadingScreen = document.querySelector('.loading-screen');
-        if (loadingScreen) {
-          loadingScreen.classList.add('hidden');
+        debugLog('ERROR', 'SDK initialization error', {
+          error: err?.message,
+          stack: err?.stack
+        });
+        // ┘ü┘é╪╖ ╪»╪▒ ╪╡┘ê╪▒╪¬ ╪«╪╖╪º╪î loading screen ╪▒╪º ╪¡╪░┘ü ┘à█îΓÇî┌⌐┘å█î┘à
+        hideLoadingScreen();
+      }
+    }
+
+    function hideLoadingScreen() {
+      const loadingScreen = document.querySelector('.loading-screen');
+      if (loadingScreen) {
+        debugLog('INFO', 'Hiding loading screen...', {
+          hasClass: loadingScreen.classList.contains('hidden'),
+          display: window.getComputedStyle(loadingScreen).display,
+          visibility: window.getComputedStyle(loadingScreen).visibility
+        });
+        
+        // ╪¡╪░┘ü ┌⌐╪º┘à┘ä ┘ê ╪º╪¼╪¿╪º╪▒█î loading screen
+        loadingScreen.classList.add('hidden');
+        loadingScreen.style.display = 'none';
+        loadingScreen.style.opacity = '0';
+        loadingScreen.style.visibility = 'hidden';
+        loadingScreen.style.zIndex = '-9999';
+        loadingScreen.style.pointerEvents = 'none';
+        loadingScreen.style.position = 'fixed';
+        loadingScreen.style.top = '-9999px';
+        loadingScreen.style.left = '-9999px';
+        loadingScreen.style.width = '0';
+        loadingScreen.style.height = '0';
+        document.body.classList.remove('loading');
+        document.body.style.overflow = 'auto';
+        
+        debugLog('SUCCESS', 'Loading screen hidden', {
+          finalDisplay: window.getComputedStyle(loadingScreen).display,
+          finalVisibility: window.getComputedStyle(loadingScreen).visibility
+        });
+      } else {
+        debugLog('WARN', 'Loading screen element not found');
+      }
+    }
+
+    // ╪┤╪▒┘ê╪╣ SDK ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ window.load
+    debugLog('INFO', 'Page script started', {
+      readyState: document.readyState,
+      url: window.location.href
+    });
+    
+    // ╪╖╪¿┘é ╪»╪º┌⌐█î┘ê┘à┘å╪¬: "After your app is fully loaded and ready to display"
+    // ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ window.load ╪╡╪»╪º ┘à█îΓÇî╪▓┘å█î┘à
+    window.addEventListener('load', async () => {
+      debugLog('INFO', 'Window loaded - starting SDK initialization');
+      
+      // ╪┤╪▒┘ê╪╣ SDK - ╪º█î┘å ╪«┘ê╪»╪┤ ╪¿╪╣╪» ╪º╪▓ ready() ╪¬┘ê╪º╪¿╪╣ ╪▒╪º ╪╡╪»╪º ┘à█îΓÇî╪▓┘å╪»
+      await initSDK();
+    });
+
+    window.getUserFid = () => userFid;
+    window.hideLoadingScreen = hideLoadingScreen;
+    window.debugLog = debugLog;
+    
+    // ╪º█î┘å ╪¬┘ê╪º╪¿╪╣ ╪¿╪º█î╪» ╪»╪▒ window ┘é╪▒╪º╪▒ ╪¿┌»█î╪▒┘å╪» ╪¬╪º ╪»╪▒ script ╪¿╪╣╪»█î ┘é╪º╪¿┘ä ╪º╪│╪¬┘ü╪º╪»┘ç ╪¿╪º╪┤┘å╪»
+    window.initAppFeatures = function() {
+      debugLog('INFO', 'Initializing app features after SDK ready');
+      
+      // ╪º╪▒╪│╪º┘ä ┘ä╪º┌»ΓÇî┘ç╪º
+      if (typeof sendDebugLogs === 'function') {
+        sendDebugLogs();
+      }
+      
+      // ╪¿┘çΓÇî╪▒┘ê╪▓╪▒╪│╪º┘å█î ╪ó┘à╪º╪▒
+      if (typeof updateMintStats === 'function') {
+        updateMintStats();
+        setInterval(updateMintStats, 30000);
+      }
+      
+      // ╪¬┘å╪╕█î┘à ┘ê█î╪»█î┘ê
+      if (typeof setupVideo === 'function') {
+        setupVideo();
+      }
+      
+      // ┘╛╪«╪┤ ┘à┘ê╪▓█î┌⌐
+      if (typeof playBackgroundMusic === 'function') {
+        playBackgroundMusic();
+      }
+    };
+  </script>
+
+  <script>
+    let provider, signer, address;
+
+    const connectWallet = document.getElementById('connectWallet');
+    const walletAddress = document.getElementById('walletAddress');
+    const mintButton = document.getElementById('mintButton');
+
+    connectWallet.addEventListener('click', async () => {
+      try {
+        if (window.sdk?.wallet?.getEthereumProvider) {
+          const ethProvider = window.sdk.wallet.getEthereumProvider();
+          provider = new ethers.BrowserProvider(ethProvider);
+          await provider.send("eth_requestAccounts", []);
+          signer = await provider.getSigner();
+          address = await signer.getAddress();
+
+          connectWallet.style.display = 'none';
+          walletAddress.style.display = 'block';
+          walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
+        } else {
+          alert('Please open this app inside Warpcast to connect your wallet.');
+        }
+      } catch (error) {
+        console.error("Wallet connection failed:", error);
+      }
+    });
+
+    walletAddress.addEventListener('click', () => {
+      connectWallet.style.display = 'inline-block';
+      walletAddress.style.display = 'none';
+      signer = null;
+      address = null;
+    });
+
+    // ╪»╪▒█î╪º┘ü╪¬ ┘ê ╪¿┘çΓÇî╪▒┘ê╪▓╪▒╪│╪º┘å█î ╪ó┘à╪º╪▒ ┘à█î┘å╪¬
+    window.updateMintStats = async function updateMintStats() {
+      try {
+        const response = await fetch('/api/nft-stats');
+        const data = await response.json();
+        
+        if (data.success) {
+          const minted = data.minted || 0;
+          const totalSupply = data.totalSupply || 1000;
+          
+          // ┘à╪¡╪º╪│╪¿┘ç ╪»╪▒╪╡╪» ╪¿╪º┘é█îΓÇî┘à╪º┘å╪»┘ç (╪º╪▓ 100% ╪┤╪▒┘ê╪╣ ┘à█îΓÇî╪┤┘ç ┘ê ┌⌐┘à ┘à█îΓÇî╪┤┘ç)
+          const remaining = totalSupply - minted;
+          const remainingPercentage = totalSupply > 0 
+            ? Math.round((remaining / totalSupply) * 100) 
+            : 100;
+          const mintedPercentage = totalSupply > 0 
+            ? Math.round((minted / totalSupply) * 100) 
+            : 0;
+          
+          const mintPercentageEl = document.getElementById('mintPercentage');
+          if (mintPercentageEl) {
+            mintPercentageEl.textContent = `${mintedPercentage}% Minted`;
+          }
+          
+          const mintCountEl = document.getElementById('mintCount');
+          if (mintCountEl) {
+            mintCountEl.textContent = `${minted}/${totalSupply}`;
+          }
+          
+          // ┘å┘ê╪º╪▒ progress ╪¿╪▒ ╪º╪│╪º╪│ ╪¬╪╣╪»╪º╪» ╪¿╪º┘é█îΓÇî┘à╪º┘å╪»┘ç (╪º╪▓ 100% ╪┤╪▒┘ê╪╣ ┘à█îΓÇî╪┤┘ç)
+          const progressBar = document.getElementById('progressBar');
+          if (progressBar) {
+            // ┘à╪¡╪»┘ê╪» ┌⌐╪▒╪»┘å ╪¿█î┘å 0 ╪¬╪º 100
+            const width = Math.max(0, Math.min(100, remainingPercentage));
+            progressBar.style.width = `${width}%`;
+            
+            // ╪º┌»╪▒ ┘ç┘à┘ç NFT ┘ç╪º ┘à█î┘å╪¬ ╪┤╪»┘å╪î ┘å┘ê╪º╪▒ ╪▒┘ê 0 ┌⌐┘å
+            if (minted >= totalSupply) {
+              progressBar.style.width = '0%';
+            }
+          }
+          
+          // ╪¿┘çΓÇî╪▒┘ê╪▓╪▒╪│╪º┘å█î ╪┤┘à╪º╪▒┘ç NFT ╪¿┘ç ╪¬╪╣╪»╪º╪» NFT┘ç╪º█î ┘à█î┘å╪¬ ╪┤╪»┘ç + 1 (NFT ╪¿╪╣╪»█î)
+          const nftTitle = document.getElementById('nftTitle');
+          if (nftTitle) {
+            const nextNFTNumber = minted + 1;
+            if (nextNFTNumber <= totalSupply) {
+              nftTitle.textContent = `Christmas Alpha #${nextNFTNumber}`;
+            } else {
+              nftTitle.textContent = `Christmas Alpha #${totalSupply}`;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error updating mint stats:', error);
+        const mintPercentageEl = document.getElementById('mintPercentage');
+        const mintCountEl = document.getElementById('mintCount');
+        const progressBar = document.getElementById('progressBar');
+        
+        if (mintPercentageEl) mintPercentageEl.textContent = '0% Minted';
+        if (mintCountEl) mintCountEl.textContent = '0/1000';
+        // ┘å┘ê╪º╪▒ ╪º╪▓ 100% ╪┤╪▒┘ê╪╣ ┘à█îΓÇî╪┤┘ç
+        if (progressBar) progressBar.style.width = '100%';
+      }
+    }
+
+    // ╪¬┘å╪╕█î┘à ┘ê█î╪»█î┘ê ╪¿╪▒╪º█î █î┌⌐ ╪¿╪º╪▒ ┘╛┘ä█î ┘ê ╪¼┘ä┘ê┌»█î╪▒█î ╪º╪▓ ╪»╪º┘å┘ä┘ê╪»
+    window.setupVideo = function setupVideo() {
+      const video = document.getElementById('nftVideo');
+      if (video) {
+        // ╪¼┘ä┘ê┌»█î╪▒█î ╪º╪▓ ╪▒╪º╪│╪¬ ┌⌐┘ä█î┌⌐ ┘ê ╪»╪º┘å┘ä┘ê╪»
+        video.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+          return false;
+        });
+        
+        // ╪¼┘ä┘ê┌»█î╪▒█î ╪º╪▓ drag
+        video.addEventListener('dragstart', function(e) {
+          e.preventDefault();
+          return false;
+        });
+        
+        video.addEventListener('ended', function() {
+          this.currentTime = 0;
+          this.pause();
+        });
+        
+        // ╪»╪▒ ┘à┘ê╪¿╪º█î┘ä╪î ┘ê█î╪»█î┘ê ╪▒┘ê ╪¿╪╣╪» ╪º╪▓ ┘ä┘ê╪» ┌⌐╪º┘à┘ä ┘╛┘ä█î ┌⌐┘å
+        if (window.innerWidth <= 768) {
+          video.addEventListener('loadeddata', function() {
+            this.play().catch(err => {
+              console.log('Video autoplay prevented:', err);
+            });
+          }, { once: true });
         }
       }
     }
 
-    // Start SDK after window loads
-    window.addEventListener('load', async () => {
-      console.log('Window loaded - starting SDK');
-      await initSDK();
+    // ╪º█î╪¼╪º╪» particle
+    function createParticle() {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      document.getElementById('particles').appendChild(particle);
+      particle.style.left = `${Math.random() * window.innerWidth}px`;
+      particle.style.top = `-10px`;
+      const size = Math.random() * 3 + 2;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      
+      setTimeout(() => {
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      }, 15000);
+    }
+
+    // ┘à█î┘å╪¬ NFT
+    mintButton.addEventListener('click', async () => {
+      if (!window.sdk) {
+        alert('Please open this app inside Warpcast to mint NFT.');
+        return;
+      }
+
+      const fid = window.getUserFid?.();
+      if (!fid) {
+        alert('Unable to get your Farcaster ID. Please refresh the page.');
+        return;
+      }
+
+      mintButton.disabled = true;
+      mintButton.textContent = 'Minting...';
+
+      try {
+        const response = await fetch('/api/mint-nft', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fid: fid,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to mint NFT');
+        }
+
+        if (data.success) {
+          const txHash = data.transactionHash;
+          const explorerUrl = `https://basescan.org/tx/${txHash}`;
+          
+          alert(`Γ£à NFT minted successfully!\n\nTransaction: ${txHash}\n\nView on BaseScan: ${explorerUrl}`);
+          
+          console.log('Mint successful:', data);
+          
+          setTimeout(() => {
+            updateMintStats();
+          }, 2000);
+        } else {
+          throw new Error(data.error || 'Minting failed');
+        }
+
+      } catch (err) {
+        console.error('Minting failed:', err);
+        alert('Γ¥î Minting failed:\n' + (err?.message || JSON.stringify(err)));
+      } finally {
+        mintButton.disabled = false;
+        mintButton.textContent = 'MINT NOW';
+      }
     });
+
+    // ┘╛╪«╪┤ ╪ó┘ç┘å┌» ┘╛╪│ΓÇî╪▓┘à█î┘å┘ç ╪¿╪º ╪╡╪»╪º█î ┌⌐┘à ┘ê ┘à┘ä╪º█î┘à
+    window.playBackgroundMusic = function playBackgroundMusic() {
+      const music = document.getElementById('backgroundMusic');
+      if (music) {
+        music.volume = 0.2; // ╪╡╪»╪º█î ┌⌐┘à ┘ê ┘à┘ä╪º█î┘à (20%)
+        music.play().catch(err => {
+          console.log('Auto-play prevented, user interaction required:', err);
+          // ╪º┌»╪▒ autoplay ╪¼┘ä┘ê┌»█î╪▒█î ╪┤╪»╪î ┘à┘å╪¬╪╕╪▒ ╪¬╪╣╪º┘à┘ä ┌⌐╪º╪▒╪¿╪▒ ┘à█îΓÇî┘à┘ê┘å█î┘à
+          document.addEventListener('click', () => {
+            music.play().catch(e => console.log('Music play error:', e));
+          }, { once: true });
+        });
+      }
+      // ┘à┘ê╪▓█î┌⌐ ┘╛╪«╪┤ ┘à█îΓÇî╪┤┘ê╪» ╪º┘à╪º loading screen ╪▒╪º ╪¡╪░┘ü ┘å┘à█îΓÇî┌⌐┘å█î┘à
+      // loading screen ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é ╪¡╪░┘ü ┘à█îΓÇî╪┤┘ê╪»
+    }
+
+    
+    // ╪º╪▒╪│╪º┘ä ┘ä╪º┌»ΓÇî┘ç╪º ┘ç╪▒ 5 ╪½╪º┘å█î┘ç
+    setInterval(() => {
+      if (debugLogs.length > 0) {
+        sendDebugLogs();
+      }
+    }, 5000);
+    
+    // ╪º╪¼╪▒╪º█î ╪│╪▒█î╪╣ ╪¿╪▒╪º█î ┘à┘ê╪¿╪º█î┘ä
+    if (document.readyState === 'complete') {
+      updateMintStats();
+      setupVideo();
+    }
+
+    // ╪º█î╪¼╪º╪» particles
+    const isMobile = window.innerWidth <= 768;
+    setInterval(createParticle, isMobile ? 200 : 100);
   </script>
 </body>
 </html>
