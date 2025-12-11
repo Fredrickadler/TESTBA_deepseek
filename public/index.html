@@ -650,9 +650,12 @@
             window.setupVideo();
           }
           
-          if (typeof window.playBackgroundMusic === 'function') {
-            window.playBackgroundMusic();
-          }
+          // پخش موزیک با تاخیر بیشتر برای اطمینان از لود شدن
+          setTimeout(() => {
+            if (typeof window.playBackgroundMusic === 'function') {
+              window.playBackgroundMusic();
+            }
+          }, 500);
           
           // ╪º╪▒╪│╪º┘ä ┘ä╪º┌»ΓÇî┘ç╪º
           if (typeof sendDebugLogs === 'function') {
@@ -958,19 +961,49 @@
 
     // ┘╛╪«╪┤ ╪ó┘ç┘å┌» ┘╛╪│ΓÇî╪▓┘à█î┘å┘ç ╪¿╪º ╪╡╪»╪º█î ┌⌐┘à ┘ê ┘à┘ä╪º█î┘à
     window.playBackgroundMusic = function playBackgroundMusic() {
-      const music = document.getElementById('backgroundMusic');
-      if (music) {
-        music.volume = 0.2; // ╪╡╪»╪º█î ┌⌐┘à ┘ê ┘à┘ä╪º█î┘à (20%)
-        music.play().catch(err => {
-          console.log('Auto-play prevented, user interaction required:', err);
-          // ╪º┌»╪▒ autoplay ╪¼┘ä┘ê┌»█î╪▒█î ╪┤╪»╪î ┘à┘å╪¬╪╕╪▒ ╪¬╪╣╪º┘à┘ä ┌⌐╪º╪▒╪¿╪▒ ┘à█îΓÇî┘à┘ê┘å█î┘à
-          document.addEventListener('click', () => {
-            music.play().catch(e => console.log('Music play error:', e));
-          }, { once: true });
-        });
+      try {
+        const music = document.getElementById('backgroundMusic');
+        if (music) {
+          music.volume = 0.2; // صدای کم و ملایم (20%)
+          console.log('Attempting to play background music...');
+          
+          const playPromise = music.play();
+          
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                console.log('Background music started playing successfully');
+              })
+              .catch(err => {
+                console.log('Auto-play prevented, waiting for user interaction:', err);
+                // اگر autoplay جلوگیری شد، منتظر تعامل کاربر می‌مونیم
+                const playOnInteraction = () => {
+                  music.play()
+                    .then(() => {
+                      console.log('Background music started after user interaction');
+                    })
+                    .catch(e => {
+                      console.error('Music play error after interaction:', e);
+                    });
+                };
+                
+                // چندین event listener برای اطمینان از پخش
+                document.addEventListener('click', playOnInteraction, { once: true });
+                document.addEventListener('touchstart', playOnInteraction, { once: true });
+                document.addEventListener('keydown', playOnInteraction, { once: true });
+                
+                // همچنین بعد از یک تاخیر کوتاه دوباره تلاش می‌کنیم
+                setTimeout(() => {
+                  music.play().catch(e => console.log('Delayed play attempt failed:', e));
+                }, 1000);
+              });
+          }
+        } else {
+          console.warn('Background music element not found');
+        }
+      } catch (err) {
+        console.error('Error in playBackgroundMusic:', err);
       }
-      // ┘à┘ê╪▓█î┌⌐ ┘╛╪«╪┤ ┘à█îΓÇî╪┤┘ê╪» ╪º┘à╪º loading screen ╪▒╪º ╪¡╪░┘ü ┘å┘à█îΓÇî┌⌐┘å█î┘à
-      // loading screen ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é ╪¡╪░┘ü ┘à█îΓÇî╪┤┘ê╪»
     }
 
     
