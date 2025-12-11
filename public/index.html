@@ -616,6 +616,27 @@
       const loadingScreens = document.querySelectorAll('.loading-screen');
       debugLog('INFO', 'Loading screens found', { count: loadingScreens.length });
       
+      // Timeout fallback - after 3 seconds hide loading screen
+      const FALLBACK_TIMEOUT = 3000; // 3 seconds
+      let loadingScreenHidden = false;
+      
+      const hideLoadingScreenOnce = () => {
+        if (!loadingScreenHidden) {
+          loadingScreenHidden = true;
+          debugLog('INFO', 'Hiding loading screen (timeout or success)');
+          hideLoadingScreen();
+        }
+      };
+      
+      // Create timeout promise
+      const timeoutPromise = new Promise(resolve => {
+        setTimeout(() => {
+          debugLog('WARN', 'SDK initialization timeout - forcing hide loading screen');
+          hideLoadingScreenOnce();
+          resolve('timeout');
+        }, FALLBACK_TIMEOUT);
+      });
+      
       try {
         debugLog('INFO', 'Starting SDK initialization...');
         
@@ -637,15 +658,24 @@
           debugLog('WARN', 'Context fetch error', { error: ctxErr?.message });
         }
         
-        // Important: Call ready() - according to documentation
-        // After ready() completes, hide loading screen
-        debugLog('INFO', 'Calling sdk.actions.ready()...');
-        await sdk.actions.ready();
-        debugLog('SUCCESS', 'SDK ready() called successfully');
+        // Important: Call ready() with timeout race
+        debugLog('INFO', 'Calling sdk.actions.ready() with timeout race...');
         
-        // Hide loading screen after ready() completes
-        debugLog('INFO', 'About to hide loading screen after successful ready()');
-        hideLoadingScreen();
+        const readyPromise = sdk.actions.ready().then(() => {
+          debugLog('SUCCESS', 'SDK ready() called successfully');
+          return 'ready';
+        }).catch(err => {
+          debugLog('ERROR', 'SDK ready() failed', { error: err?.message });
+          return 'error';
+        });
+        
+        // Race between ready() and timeout
+        const result = await Promise.race([readyPromise, timeoutPromise]);
+        
+        debugLog('INFO', 'SDK initialization result', { result });
+        
+        // Hide loading screen after ready() completes or timeout
+        hideLoadingScreenOnce();
         
         // After ready() completes, initialize app features
         // These functions are defined in the script below
@@ -685,8 +715,7 @@
           stack: err?.stack
         });
         // Even if error occurs, hide loading screen
-        debugLog('INFO', 'About to hide loading screen after error');
-        hideLoadingScreen();
+        hideLoadingScreenOnce();
       }
       
       // Ensure loading screen is definitely removed
@@ -743,25 +772,63 @@
       url: window.location.href
     });
     
-    // According to documentation: "After your app is fully loaded and ready to display"
-    // Using DOMContentLoaded is better for mobile
-    window.addEventListener('DOMContentLoaded', async () => {
-      debugLog('INFO', 'DOM loaded - starting SDK initialization');
-      
-      // Start SDK - this will call functions after ready()
-      await initSDK();
-    });
+    // Flag to prevent multiple initSDK calls
+    window.sdkInitialized = false;
     
-    // Backup: If DOMContentLoaded doesn't fire, use window.load
-    window.addEventListener('load', async () => {
-      debugLog('INFO', 'Window loaded (backup) - starting SDK initialization');
-      
-      // Only if initSDK hasn't been called yet
+    const startSDKInit = async () => {
       if (!window.sdkInitialized) {
         window.sdkInitialized = true;
         await initSDK();
       }
+    };
+    
+    // According to documentation: "After your app is fully loaded and ready to display"
+    // Using DOMContentLoaded is better for mobile
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', async () => {
+        debugLog('INFO', 'DOM loaded - starting SDK initialization');
+        await startSDKInit();
+      });
+    } else {
+      // DOM already loaded
+      debugLog('INFO', 'DOM already loaded - starting SDK initialization immediately');
+      startSDKInit();
+    }
+    
+    // Backup: If DOMContentLoaded doesn't fire, use window.load
+    window.addEventListener('load', async () => {
+      debugLog('INFO', 'Window loaded (backup) - starting SDK initialization');
+      await startSDKInit();
     });
+    
+    // Final fallback: If nothing works, force init after 2 seconds
+    setTimeout(async () => {
+      if (!window.sdkInitialized) {
+        debugLog('WARN', 'Force starting SDK initialization after timeout');
+        await startSDKInit();
+      }
+    }, 2000);
+    
+    // Ultimate fallback: Force hide loading screen after 5 seconds no matter what
+    setTimeout(() => {
+      const loadingScreen = document.querySelector('.loading-screen');
+      if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+        debugLog('WARN', 'Ultimate fallback - forcing hide loading screen after 5 seconds');
+        if (typeof hideLoadingScreen === 'function') {
+          hideLoadingScreen();
+        } else {
+          // Direct removal if function not available
+          loadingScreen.classList.add('hidden');
+          loadingScreen.style.display = 'none';
+          loadingScreen.style.opacity = '0';
+          loadingScreen.style.visibility = 'hidden';
+          loadingScreen.style.zIndex = '-9999';
+          loadingScreen.style.pointerEvents = 'none';
+          document.body.classList.remove('loading');
+          document.body.style.overflow = 'auto';
+        }
+      }
+    }, 5000);
 
     window.getUserFid = () => userFid;
     window.hideLoadingScreen = hideLoadingScreen;
