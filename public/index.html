@@ -6,17 +6,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Christmas Alpha NFT Mint</title>
 
+  <link rel="preconnect" href="https://esm.sh">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <meta name="fc:frame" content='{
-    "version":"next",
+    "version":"1",
     "imageUrl":"https://i.imgur.com/EfP517b.jpeg",
     "button":{
       "title":"Christmas Alpha🎅",
       "action":{
-        "type":"launch_frame",
+        "type":"launch_miniapp",
+        "url":"https://testba-deepseek.vercel.app",
+        "name":"Christmas Alpha",
+        "splashImageUrl":"https://i.imgur.com/oxfooj0_d.webp?maxwidth=760&fidelity=grand",
+        "splashBackgroundColor":"#8A5AFF"
+      }
+    }
+  }' />
+  <meta name="fc:miniapp" content='{
+    "version":"1",
+    "imageUrl":"https://i.imgur.com/EfP517b.jpeg",
+    "button":{
+      "title":"Christmas Alpha🎅",
+      "action":{
+        "type":"launch_miniapp",
         "url":"https://testba-deepseek.vercel.app",
         "name":"Christmas Alpha",
         "splashImageUrl":"https://i.imgur.com/oxfooj0_d.webp?maxwidth=760&fidelity=grand",
@@ -412,62 +427,94 @@
   </div>
 
   <script type="module">
-    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-    
     let userFid = null;
     let isReadyCalled = false;
+    let sdkLoaded = false;
 
-    // بهینه‌سازی SDK طبق داکیومنت - صدا زدن ready() به محض آماده بودن
+    // بهینه‌سازی SDK طبق داکیومنت - با error handling بهتر
     async function initSDK() {
       try {
+        // Dynamic import با timeout
+        const sdkImport = import('https://esm.sh/@farcaster/miniapp-sdk');
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('SDK import timeout')), 5000)
+        );
+        
+        const { sdk, isInMiniApp } = await Promise.race([sdkImport, timeoutPromise]);
         window.sdk = sdk;
+        sdkLoaded = true;
         
-        // صدا زدن ready() به محض آماده بودن برای مخفی کردن splash screen
-        await sdk.actions.ready();
-        isReadyCalled = true;
-        
-        // حذف loading screen
-        const loadingScreen = document.querySelector('.loading-screen');
-        if (loadingScreen) {
-          loadingScreen.classList.add('hidden');
-          document.body.classList.remove('loading');
-        }
-        
-        // دریافت context
-        const context = await sdk.context;
-        console.log("Farcaster context:", context);
-        
-        if (context?.user?.fid) {
-          userFid = context.user.fid;
-          console.log("User FID:", userFid);
-        } else if (context?.fid) {
-          userFid = context.fid;
-          console.log("User FID:", userFid);
+        // بررسی اینکه آیا در مینی اپ هستیم یا نه
+        try {
+          const inMiniApp = await Promise.race([
+            isInMiniApp(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000))
+          ]);
+          
+          if (inMiniApp) {
+            // صدا زدن ready() برای مخفی کردن splash screen
+            await Promise.race([
+              sdk.actions.ready(),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('Ready timeout')), 2000))
+            ]);
+            isReadyCalled = true;
+            
+            // دریافت context
+            try {
+              const context = await Promise.race([
+                sdk.context,
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Context timeout')), 2000))
+              ]);
+              console.log("Farcaster context:", context);
+              
+              if (context?.user?.fid) {
+                userFid = context.user.fid;
+                console.log("User FID:", userFid);
+              } else if (context?.fid) {
+                userFid = context.fid;
+                console.log("User FID:", userFid);
+              }
+            } catch (ctxErr) {
+              console.warn("Context fetch error:", ctxErr);
+            }
+          } else {
+            console.log("Not in Mini App environment");
+            isReadyCalled = true; // Mark as ready even if not in miniapp
+          }
+        } catch (checkErr) {
+          console.warn("MiniApp check error:", checkErr);
+          // Try to call ready anyway
+          try {
+            await sdk.actions.ready();
+            isReadyCalled = true;
+          } catch (readyErr) {
+            console.warn("Ready call error:", readyErr);
+          }
         }
       } catch (err) {
-        console.error("Farcaster SDK error:", err);
-        // حتی اگر SDK خطا داد، loading screen رو حذف کن
-        const loadingScreen = document.querySelector('.loading-screen');
-        if (loadingScreen) {
-          loadingScreen.classList.add('hidden');
-          document.body.classList.remove('loading');
-        }
+        console.error("Farcaster SDK import error:", err);
+        // Continue anyway - app should work without SDK
+      } finally {
+        // حذف loading screen در هر صورت
+        hideLoadingScreen();
+      }
+    }
+
+    function hideLoadingScreen() {
+      const loadingScreen = document.querySelector('.loading-screen');
+      if (loadingScreen) {
+        loadingScreen.classList.add('hidden');
+        document.body.classList.remove('loading');
       }
     }
 
     // شروع لود SDK بلافاصله
     initSDK();
 
-    // Fallback: اگر ready() صدا زده نشد، بعد از 1 ثانیه loading screen رو حذف کن
+    // Fallback: حذف loading screen بعد از 300ms در هر صورت
     setTimeout(() => {
-      if (!isReadyCalled) {
-        const loadingScreen = document.querySelector('.loading-screen');
-        if (loadingScreen) {
-          loadingScreen.classList.add('hidden');
-          document.body.classList.remove('loading');
-        }
-      }
-    }, 1000);
+      hideLoadingScreen();
+    }, 300);
 
     window.getUserFid = () => userFid;
   </script>
