@@ -366,7 +366,7 @@
       }
     }
     
-    /* Loading Screen - ╪¿┘ç█î┘å┘ç ╪┤╪»┘ç ╪¿╪▒╪º█î ┘à┘ê╪¿╪º█î┘ä */
+    /* Loading Screen */
     body.loading {
       overflow: hidden;
     }
@@ -391,7 +391,7 @@
       z-index: -1 !important;
     }
     
-    /* Mobile Optimization - ╪¿┘ç█î┘å┘ç ╪┤╪»┘ç ╪¿╪▒╪º█î ┘ä┘ê╪» ╪│╪▒█î╪╣ */
+    /* Mobile Optimization */
     @media (max-width: 768px) {
       * {
         -webkit-tap-highlight-color: transparent;
@@ -484,7 +484,7 @@
     <div style="color: var(--primary); font-size: 18px; font-weight: 600;">Loading...</div>
   </div>
   
-  <!-- دکمه تست برای دیباگ (موقت) -->
+  <!-- Debug test button (temporary) -->
   <button 
     id="forceHideLoading" 
     style="position:fixed;top:10px;right:10px;z-index:99999;background:#8A5AFF;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:12px;display:none;"
@@ -552,7 +552,7 @@
     const debugLogs = [];
     let debugLogTimer = null;
 
-    // ╪│█î╪│╪¬┘à ╪»█î╪¿╪º┌» ╪¿╪▒╪º█î ╪º╪▒╪│╪º┘ä ┘ä╪º┌»ΓÇî┘ç╪º
+    // Debug system for sending logs
     function debugLog(level, message, data) {
       try {
         const logEntry = {
@@ -605,14 +605,14 @@
       sendDebugLogs();
     });
 
-    // ╪░╪«█î╪▒┘ç SDK ╪»╪▒ window
+    // Attach SDK to window
     window.sdk = sdk;
 
-    // ╪╖╪¿┘é ╪»╪º┌⌐█î┘ê┘à┘å╪¬ Farcaster: "After your app loads, you must call sdk.actions.ready()"
+    // According to Farcaster documentation: "After your app loads, you must call sdk.actions.ready()"
     async function initSDK() {
       debugLog('INFO', 'initSDK started');
       
-      // چک کردن تعداد loading-screen elements
+      // Check number of loading-screen elements
       const loadingScreens = document.querySelectorAll('.loading-screen');
       debugLog('INFO', 'Loading screens found', { count: loadingScreens.length });
       
@@ -622,7 +622,7 @@
         // Wait for SDK to be fully injected
         await new Promise(resolve => setTimeout(resolve, 50));
         
-        // ╪»╪▒█î╪º┘ü╪¬ context (╪º╪«╪¬█î╪º╪▒█î)
+        // Fetch context (optional)
         try {
           const context = await sdk.context;
           debugLog('SUCCESS', 'Context fetched', {
@@ -637,24 +637,24 @@
           debugLog('WARN', 'Context fetch error', { error: ctxErr?.message });
         }
         
-        // ┘à┘ç┘à: ╪╡╪»╪º ╪▓╪»┘å ready() - ╪╖╪¿┘é ╪»╪º┌⌐█î┘ê┘à┘å╪¬
-        // ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é╪î loading screen ╪▒╪º ╪¡╪░┘ü ┘à█îΓÇî┌⌐┘å█î┘à
+        // Important: Call ready() - according to documentation
+        // After ready() completes, hide loading screen
         debugLog('INFO', 'Calling sdk.actions.ready()...');
         await sdk.actions.ready();
         debugLog('SUCCESS', 'SDK ready() called successfully');
         
-        // ╪¡╪░┘ü loading screen ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é
+        // Hide loading screen after ready() completes
         debugLog('INFO', 'About to hide loading screen after successful ready()');
         hideLoadingScreen();
         
-        // ╪¿╪╣╪» ╪º╪▓ ready() ┘à┘ê┘ü┘é╪î ╪│╪º█î╪▒ ╪¬┘ê╪º╪¿╪╣ ╪▒╪º ╪º╪¼╪▒╪º ┘à█îΓÇî┌⌐┘å█î┘à
-        // ╪º█î┘å ╪¬┘ê╪º╪¿╪╣ ╪»╪▒ script ╪¿╪╣╪»█î ╪¬╪╣╪▒█î┘ü ╪┤╪»┘çΓÇî╪º┘å╪»
+        // After ready() completes, initialize app features
+        // These functions are defined in the script below
         setTimeout(() => {
           debugLog('INFO', 'Initializing app features after SDK ready');
           
           if (typeof window.updateMintStats === 'function') {
             window.updateMintStats();
-            // ╪¿┘çΓÇî╪▒┘ê╪▓╪▒╪│╪º┘å█î ╪ó┘à╪º╪▒ ┘ç╪▒ 30 ╪½╪º┘å█î┘ç
+            // Update stats every 30 seconds
             setInterval(() => {
               if (typeof window.updateMintStats === 'function') {
                 window.updateMintStats();
@@ -666,14 +666,14 @@
             window.setupVideo();
           }
           
-          // پخش موزیک با تاخیر بیشتر برای اطمینان از لود شدن
+          // Play music with longer delay to ensure loading
           setTimeout(() => {
             if (typeof window.playBackgroundMusic === 'function') {
               window.playBackgroundMusic();
             }
           }, 500);
           
-          // ╪º╪▒╪│╪º┘ä ┘ä╪º┌»ΓÇî┘ç╪º
+          // Send logs
           if (typeof sendDebugLogs === 'function') {
             sendDebugLogs();
           }
@@ -684,12 +684,12 @@
           error: err?.message,
           stack: err?.stack
         });
-        // ┘ü┘é╪╖ ╪»╪▒ ╪╡┘ê╪▒╪¬ ╪«╪╖╪º╪î loading screen ╪▒╪º ╪¡╪░┘ü ┘à█îΓÇî┌⌐┘å█î┘à
+        // Even if error occurs, hide loading screen
         debugLog('INFO', 'About to hide loading screen after error');
         hideLoadingScreen();
       }
       
-      // اطمینان از اینکه loading screen حتماً حذف شده است
+      // Ensure loading screen is definitely removed
       debugLog('INFO', 'initSDK completed');
     }
 
@@ -707,7 +707,7 @@
           visibility: window.getComputedStyle(loadingScreen).visibility
         });
         
-        // ╪¡╪░┘ü ┌⌐╪º┘à┘ä ┘ê ╪º╪¼╪¿╪º╪▒█î loading screen
+        // Hide and remove loading screen
         loadingScreen.classList.add('hidden');
         loadingScreen.style.display = 'none';
         loadingScreen.style.opacity = '0';
@@ -727,7 +727,7 @@
           finalVisibility: window.getComputedStyle(loadingScreen).visibility
         });
         
-        // مخفی کردن دکمه تست
+        // Hide test button
         const forceHideBtn = document.getElementById('forceHideLoading');
         if (forceHideBtn) {
           forceHideBtn.style.display = 'none';
@@ -737,26 +737,26 @@
       }
     }
 
-    // ╪┤╪▒┘ê╪╣ SDK ┘ü┘é╪╖ ╪¿╪╣╪» ╪º╪▓ DOMContentLoaded (╪¿╪▒╪º█î ╪┤╪▒╪╣ ╪¿╪▒╪º█î ┘à┘ê╪¿╪º█î┘ä)
+    // Initialize SDK after DOMContentLoaded (better for mobile)
     debugLog('INFO', 'Page script started', {
       readyState: document.readyState,
       url: window.location.href
     });
     
-    // طبق داکیومنت: "After your app is fully loaded and ready to display"
-    // استفاده از DOMContentLoaded برای موبایل بهتر است
+    // According to documentation: "After your app is fully loaded and ready to display"
+    // Using DOMContentLoaded is better for mobile
     window.addEventListener('DOMContentLoaded', async () => {
       debugLog('INFO', 'DOM loaded - starting SDK initialization');
       
-      // شروع SDK - این خودش بعد از ready() توابع را صدا می‌زند
+      // Start SDK - this will call functions after ready()
       await initSDK();
     });
     
-    // Backup: اگر DOMContentLoaded اجرا نشد، از window.load استفاده می‌کنیم
+    // Backup: If DOMContentLoaded doesn't fire, use window.load
     window.addEventListener('load', async () => {
       debugLog('INFO', 'Window loaded (backup) - starting SDK initialization');
       
-      // فقط اگر initSDK هنوز اجرا نشده باشد
+      // Only if initSDK hasn't been called yet
       if (!window.sdkInitialized) {
         window.sdkInitialized = true;
         await initSDK();
@@ -767,27 +767,27 @@
     window.hideLoadingScreen = hideLoadingScreen;
     window.debugLog = debugLog;
     
-    // ╪º█î┘å ╪¬┘ê╪º╪¿╪╣ ╪¿╪º█î╪» ╪»╪▒ window ┘é╪▒╪º╪▒ ╪¿┌»█î╪▒┘å╪» ╪¬╪º ╪»╪▒ script ╪¿╪╣╪»█î ┘é╪º╪¿┘ä ╪º╪│╪¬┘ü╪º╪»┘ç ╪¿╪º╪┤┘å╪»
+    // Initialize app features on window - these are called after script loads
     window.initAppFeatures = function() {
       debugLog('INFO', 'Initializing app features after SDK ready');
       
-      // ╪º╪▒╪│╪º┘ä ┘ä╪º┌»ΓÇî┘ç╪º
+      // Send logs
       if (typeof sendDebugLogs === 'function') {
         sendDebugLogs();
       }
       
-      // ╪¿┘çΓÇî╪▒┘ê╪▓╪▒╪│╪º┘å█î ╪ó┘à╪º╪▒
+      // Update stats
       if (typeof updateMintStats === 'function') {
         updateMintStats();
         setInterval(updateMintStats, 30000);
       }
       
-      // ╪¬┘å╪╕█î┘à ┘ê█î╪»█î┘ê
+      // Setup video
       if (typeof setupVideo === 'function') {
         setupVideo();
       }
       
-      // ┘╛╪«╪┤ ┘à┘ê╪▓█î┌⌐
+      // Play music
       if (typeof playBackgroundMusic === 'function') {
         playBackgroundMusic();
       }
@@ -828,7 +828,7 @@
       address = null;
     });
 
-    // ╪»╪▒█î╪º┘ü╪¬ ┘ê ╪¿┘çΓÇî╪▒┘ê╪▓╪▒╪│╪º┘å█î ╪ó┘à╪º╪▒ ┘à█î┘å╪¬
+    // Fetch and update mint stats
     window.updateMintStats = async function updateMintStats() {
       try {
         const response = await fetch('/api/nft-stats');
@@ -838,7 +838,7 @@
           const minted = data.minted || 0;
           const totalSupply = data.totalSupply || 1000;
           
-          // ┘à╪¡╪º╪│╪¿┘ç ╪»╪▒╪╡╪» ╪¿╪º┘é█îΓÇî┘à╪º┘å╪»┘ç (╪º╪▓ 100% ╪┤╪▒┘ê╪╣ ┘à█îΓÇî╪┤┘ç ┘ê ┌⌐┘à ┘à█îΓÇî╪┤┘ç)
+          // Calculate remaining percentage (from 100% down to 0%)
           const remaining = totalSupply - minted;
           const remainingPercentage = totalSupply > 0 
             ? Math.round((remaining / totalSupply) * 100) 
@@ -857,20 +857,20 @@
             mintCountEl.textContent = `${minted}/${totalSupply}`;
           }
           
-          // ┘å┘ê╪º╪▒ progress ╪¿╪▒ ╪º╪│╪º╪│ ╪¬╪╣╪»╪º╪» ╪¿╪º┘é█îΓÇî┘à╪º┘å╪»┘ç (╪º╪▓ 100% ╪┤╪▒┘ê╪╣ ┘à█îΓÇî╪┤┘ç)
+          // Update progress bar based on remaining percentage (from 100% down)
           const progressBar = document.getElementById('progressBar');
           if (progressBar) {
-            // ┘à╪¡╪»┘ê╪» ┌⌐╪▒╪»┘å ╪¿█î┘å 0 ╪¬╪º 100
+            // Clamp width between 0 and 100
             const width = Math.max(0, Math.min(100, remainingPercentage));
             progressBar.style.width = `${width}%`;
             
-            // ╪º┌»╪▒ ┘ç┘à┘ç NFT ┘ç╪º ┘à█î┘å╪¬ ╪┤╪»┘å╪î ┘å┘ê╪º╪▒ ╪▒┘ê 0 ┌⌐┘å
+            // If all NFTs are minted, set width to 0
             if (minted >= totalSupply) {
               progressBar.style.width = '0%';
             }
           }
           
-          // ╪¿┘çΓÇî╪▒┘ê╪▓╪▒╪│╪º┘å█î ╪┤┘à╪º╪▒┘ç NFT ╪¿┘ç ╪¬╪╣╪»╪º╪» NFT┘ç╪º█î ┘à█î┘å╪¬ ╪┤╪»┘ç + 1 (NFT ╪¿╪╣╪»█î)
+          // Update NFT title based on next NFT number (minted + 1)
           const nftTitle = document.getElementById('nftTitle');
           if (nftTitle) {
             const nextNFTNumber = minted + 1;
@@ -889,22 +889,22 @@
         
         if (mintPercentageEl) mintPercentageEl.textContent = '0% Minted';
         if (mintCountEl) mintCountEl.textContent = '0/1000';
-        // ┘å┘ê╪º╪▒ ╪º╪▓ 100% ╪┤╪▒┘ê╪╣ ┘à█îΓÇî╪┤┘ç
+        // Set to 100% remaining
         if (progressBar) progressBar.style.width = '100%';
       }
     }
 
-    // ╪¬┘å╪╕█î┘à ┘ê█î╪»█î┘ê ╪¿╪▒╪º█î █î┌⌐ ╪¿╪º╪▒ ┘╛┘ä█î ┘ê ╪¼┘ä┘ê┌»█î╪▒█î ╪º╪▓ ╪»╪º┘å┘ä┘ê╪»
+    // Setup video to prevent right-click and download
     window.setupVideo = function setupVideo() {
       const video = document.getElementById('nftVideo');
       if (video) {
-        // ╪¼┘ä┘ê┌»█î╪▒█î ╪º╪▓ ╪▒╪º╪│╪¬ ┌⌐┘ä█î┌⌐ ┘ê ╪»╪º┘å┘ä┘ê╪»
+        // Prevent right-click and download
         video.addEventListener('contextmenu', function(e) {
           e.preventDefault();
           return false;
         });
         
-        // ╪¼┘ä┘ê┌»█î╪▒█î ╪º╪▓ drag
+        // Prevent drag
         video.addEventListener('dragstart', function(e) {
           e.preventDefault();
           return false;
@@ -915,7 +915,7 @@
           this.pause();
         });
         
-        // ╪»╪▒ ┘à┘ê╪¿╪º█î┘ä╪î ┘ê█î╪»█î┘ê ╪▒┘ê ╪¿╪╣╪» ╪º╪▓ ┘ä┘ê╪» ┌⌐╪º┘à┘ä ┘╛┘ä█î ┌⌐┘å
+        // On mobile, play video after loading
         if (window.innerWidth <= 768) {
           video.addEventListener('loadeddata', function() {
             this.play().catch(err => {
@@ -944,7 +944,7 @@
       }, 15000);
     }
 
-    // ┘à█î┘å╪¬ NFT
+    // Mint NFT
     mintButton.addEventListener('click', async () => {
       if (!window.sdk) {
         alert('Please open this app inside Warpcast to mint NFT.');
@@ -1001,12 +1001,12 @@
       }
     });
 
-    // ┘╛╪«╪┤ ╪ó┘ç┘å┌» ┘╛╪│ΓÇî╪▓┘à█î┘å┘ç ╪¿╪º ╪╡╪»╪º█î ┌⌐┘à ┘ê ┘à┘ä╪º█î┘à
+    // Play background music with autoplay and fallback
     window.playBackgroundMusic = function playBackgroundMusic() {
       try {
         const music = document.getElementById('backgroundMusic');
         if (music) {
-          music.volume = 0.2; // صدای کم و ملایم (20%)
+          music.volume = 0.2; // Low and gentle volume (20%)
           console.log('Attempting to play background music...');
           
           const playPromise = music.play();
@@ -1018,7 +1018,7 @@
               })
               .catch(err => {
                 console.log('Auto-play prevented, waiting for user interaction:', err);
-                // اگر autoplay جلوگیری شد، منتظر تعامل کاربر می‌مونیم
+                // If autoplay is prevented, wait for user interaction
                 const playOnInteraction = () => {
                   music.play()
                     .then(() => {
@@ -1029,12 +1029,12 @@
                     });
                 };
                 
-                // چندین event listener برای اطمینان از پخش
+                // Multiple event listeners to ensure playback
                 document.addEventListener('click', playOnInteraction, { once: true });
                 document.addEventListener('touchstart', playOnInteraction, { once: true });
                 document.addEventListener('keydown', playOnInteraction, { once: true });
                 
-                // همچنین بعد از یک تاخیر کوتاه دوباره تلاش می‌کنیم
+                // Also retry after a short delay
                 setTimeout(() => {
                   music.play().catch(e => console.log('Delayed play attempt failed:', e));
                 }, 1000);
@@ -1049,20 +1049,20 @@
     }
 
     
-    // ╪º╪▒╪│╪º┘ä ┘ä╪º┌»ΓÇî┘ç╪º ┘ç╪▒ 5 ╪½╪º┘å█î┘ç
+    // Send logs every 5 seconds
     setInterval(() => {
       if (debugLogs.length > 0) {
         sendDebugLogs();
       }
     }, 5000);
     
-    // ╪º╪¼╪▒╪º█î ╪│╪▒█î╪╣ ╪¿╪▒╪º█î ┘à┘ê╪¿╪º█î┘ä
+    // Initialize features on mobile
     if (document.readyState === 'complete') {
       updateMintStats();
       setupVideo();
     }
 
-    // ╪º█î╪¼╪º╪» particles
+    // Create particles
     const isMobile = window.innerWidth <= 768;
     setInterval(createParticle, isMobile ? 200 : 100);
   </script>
