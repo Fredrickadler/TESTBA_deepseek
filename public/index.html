@@ -179,10 +179,38 @@
     }
     .progress-bar {
       height: 100%; 
-      width: 0%; 
-      background: var(--primary);
+      width: 100%; 
+      background: linear-gradient(
+        45deg,
+        #FFFFFF 0%,
+        #FFFFFF 12.5%,
+        #DC2626 12.5%,
+        #DC2626 25%,
+        #FFFFFF 25%,
+        #FFFFFF 37.5%,
+        #DC2626 37.5%,
+        #DC2626 50%,
+        #FFFFFF 50%,
+        #FFFFFF 62.5%,
+        #DC2626 62.5%,
+        #DC2626 75%,
+        #FFFFFF 75%,
+        #FFFFFF 87.5%,
+        #DC2626 87.5%,
+        #DC2626 100%
+      );
+      background-size: 20px 20px;
       border-radius: 3px; 
       transition: width 0.5s ease;
+      animation: candyCaneMove 1s linear infinite;
+    }
+    @keyframes candyCaneMove {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 20px 20px;
+      }
     }
     .mint-btn {
       background: var(--primary); 
@@ -487,11 +515,19 @@
         if (data.success) {
           const minted = data.minted || 0;
           const totalSupply = data.totalSupply || 1000;
-          const percentage = data.percentage || 0;
+          
+          // محاسبه درصد باقی‌مانده (از 100% شروع می‌شه و کم می‌شه)
+          const remaining = totalSupply - minted;
+          const remainingPercentage = totalSupply > 0 
+            ? Math.round((remaining / totalSupply) * 100) 
+            : 100;
+          const mintedPercentage = totalSupply > 0 
+            ? Math.round((minted / totalSupply) * 100) 
+            : 0;
           
           const mintPercentageEl = document.getElementById('mintPercentage');
           if (mintPercentageEl) {
-            mintPercentageEl.textContent = `${percentage}% Minted`;
+            mintPercentageEl.textContent = `${mintedPercentage}% Minted`;
           }
           
           const mintCountEl = document.getElementById('mintCount');
@@ -499,16 +535,28 @@
             mintCountEl.textContent = `${minted}/${totalSupply}`;
           }
           
+          // نوار progress بر اساس تعداد باقی‌مانده (از 100% شروع می‌شه)
           const progressBar = document.getElementById('progressBar');
           if (progressBar) {
-            progressBar.style.width = `${percentage}%`;
+            // محدود کردن بین 0 تا 100
+            const width = Math.max(0, Math.min(100, remainingPercentage));
+            progressBar.style.width = `${width}%`;
+            
+            // اگر همه NFT ها مینت شدن، نوار رو 0 کن
+            if (minted >= totalSupply) {
+              progressBar.style.width = '0%';
+            }
           }
           
           // به‌روزرسانی شماره NFT به تعداد NFTهای مینت شده + 1 (NFT بعدی)
           const nftTitle = document.getElementById('nftTitle');
           if (nftTitle) {
             const nextNFTNumber = minted + 1;
-            nftTitle.textContent = `Christmas Alpha #${nextNFTNumber}`;
+            if (nextNFTNumber <= totalSupply) {
+              nftTitle.textContent = `Christmas Alpha #${nextNFTNumber}`;
+            } else {
+              nftTitle.textContent = `Christmas Alpha #${totalSupply}`;
+            }
           }
         }
       } catch (error) {
@@ -519,7 +567,8 @@
         
         if (mintPercentageEl) mintPercentageEl.textContent = '0% Minted';
         if (mintCountEl) mintCountEl.textContent = '0/1000';
-        if (progressBar) progressBar.style.width = '0%';
+        // نوار از 100% شروع می‌شه
+        if (progressBar) progressBar.style.width = '100%';
       }
     }
 
