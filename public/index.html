@@ -537,75 +537,50 @@
   </div>
 
   <script type="module">
+    // index.html
     let userFid = null;
     let isReadyCalled = false;
-    let sdkLoaded = false;
 
-    // بهینه‌سازی SDK طبق داکیومنت - با error handling بهتر
+    // بهینه‌سازی SDK طبق داکیومنت Farcaster
+    // مهم: باید sdk.actions.ready() را صدا بزنیم تا splash screen مخفی شود
     async function initSDK() {
       try {
-        // Dynamic import با timeout
-        const sdkImport = import('https://esm.sh/@farcaster/miniapp-sdk');
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('SDK import timeout')), 5000)
-        );
-        
-        const { sdk, isInMiniApp } = await Promise.race([sdkImport, timeoutPromise]);
+        // Import SDK
+        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk');
         window.sdk = sdk;
-        sdkLoaded = true;
         
-        // بررسی اینکه آیا در مینی اپ هستیم یا نه
+        // دریافت context (اختیاری - برای گرفتن FID)
         try {
-          const inMiniApp = await Promise.race([
-            isInMiniApp(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000))
-          ]);
+          const context = await sdk.context;
+          console.log("Farcaster context:", context);
           
-          if (inMiniApp) {
-            // صدا زدن ready() برای مخفی کردن splash screen
-            await Promise.race([
-              sdk.actions.ready(),
-              new Promise((_, reject) => setTimeout(() => reject(new Error('Ready timeout')), 2000))
-            ]);
-            isReadyCalled = true;
-            
-            // دریافت context
-            try {
-              const context = await Promise.race([
-                sdk.context,
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Context timeout')), 2000))
-              ]);
-              console.log("Farcaster context:", context);
-              
-              if (context?.user?.fid) {
-                userFid = context.user.fid;
-                console.log("User FID:", userFid);
-              } else if (context?.fid) {
-                userFid = context.fid;
-                console.log("User FID:", userFid);
-              }
-            } catch (ctxErr) {
-              console.warn("Context fetch error:", ctxErr);
-            }
-          } else {
-            console.log("Not in Mini App environment");
-            isReadyCalled = true; // Mark as ready even if not in miniapp
+          if (context?.user?.fid) {
+            userFid = context.user.fid;
+            console.log("User FID:", userFid);
           }
-        } catch (checkErr) {
-          console.warn("MiniApp check error:", checkErr);
-          // Try to call ready anyway
-          try {
-            await sdk.actions.ready();
-            isReadyCalled = true;
-          } catch (readyErr) {
-            console.warn("Ready call error:", readyErr);
-          }
+        } catch (ctxErr) {
+          console.warn("Context fetch error:", ctxErr);
         }
+        
+        // مهم: همیشه ready() را صدا بزنیم تا splash screen مخفی شود
+        // طبق داکیومنت: "If you don't call ready(), users will see an infinite loading screen"
+        // این باید قبل از hideLoadingScreen() صدا زده شود
+        try {
+          await sdk.actions.ready();
+          isReadyCalled = true;
+          console.log("SDK ready() called successfully");
+          // بعد از ready()، loading screen را حذف کنیم
+          hideLoadingScreen();
+        } catch (readyErr) {
+          console.warn("Ready call error:", readyErr);
+          // حتی اگر خطا داد، loading screen را حذف کنیم
+          isReadyCalled = true;
+          hideLoadingScreen();
+        }
+        
       } catch (err) {
-        console.error("Farcaster SDK import error:", err);
-        // Continue anyway - app should work without SDK
-      } finally {
-        // حذف loading screen در هر صورت
+        console.error("Farcaster SDK error:", err);
+        // اگر SDK لود نشد، باز هم loading screen را حذف کنیم
         hideLoadingScreen();
       }
     }
@@ -622,28 +597,17 @@
       }
     }
 
-    // تشخیص موبایل
-    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
     // شروع لود SDK بلافاصله
     initSDK();
 
-    // Fallback قوی‌تر برای موبایل: حذف loading screen بعد از 200ms در موبایل و 500ms در دسکتاپ
-    const fallbackTimeout = isMobile ? 200 : 500;
+    // Fallback: حذف loading screen بعد از 3 ثانیه در هر صورت
+    // این فقط یک fallback است - SDK باید ready() را صدا بزند
     setTimeout(() => {
-      hideLoadingScreen();
-    }, fallbackTimeout);
-
-    // Fallback اضافی برای موبایل: بعد از اولین تعامل کاربر
-    if (isMobile) {
-      const hideOnInteraction = () => {
+      if (!isReadyCalled) {
+        console.warn("SDK ready() not called, hiding loading screen anyway");
         hideLoadingScreen();
-        document.removeEventListener('touchstart', hideOnInteraction);
-        document.removeEventListener('click', hideOnInteraction);
-      };
-      document.addEventListener('touchstart', hideOnInteraction, { once: true });
-      document.addEventListener('click', hideOnInteraction, { once: true });
-    }
+      }
+    }, 3000);
 
     window.getUserFid = () => userFid;
   </script>
