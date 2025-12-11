@@ -619,11 +619,18 @@
       const loadingScreen = document.querySelector('.loading-screen');
       if (loadingScreen) {
         console.log("Hiding loading screen...");
+        // حذف کامل و اجباری loading screen
         loadingScreen.classList.add('hidden');
         loadingScreen.style.display = 'none';
         loadingScreen.style.opacity = '0';
         loadingScreen.style.visibility = 'hidden';
-        loadingScreen.style.zIndex = '-1';
+        loadingScreen.style.zIndex = '-9999';
+        loadingScreen.style.pointerEvents = 'none';
+        loadingScreen.style.position = 'fixed';
+        loadingScreen.style.top = '-9999px';
+        loadingScreen.style.left = '-9999px';
+        loadingScreen.style.width = '0';
+        loadingScreen.style.height = '0';
         document.body.classList.remove('loading');
         document.body.style.overflow = 'auto';
         console.log("Loading screen hidden");
@@ -632,32 +639,43 @@
       }
     }
 
-    // شروع لود SDK بلافاصله
-    initSDK();
+    // حذف اجباری loading screen - بدون شرط و فوری
+    // این باید بلافاصله اجرا شود تا مینی‌اپ حتماً نمایش داده شود
+    setTimeout(() => {
+      console.log("FORCE HIDE: Hiding loading screen immediately (100ms)");
+      hideLoadingScreen();
+    }, 100);
+    
+    // شروع لود SDK (به صورت async - blocking نمی‌کند)
+    initSDK().catch(err => {
+      console.error("SDK init error:", err);
+      // حتی اگر SDK خطا داد، loading screen را حذف کن
+      hideLoadingScreen();
+    });
 
-    // Fallback فوری برای موبایل: حذف loading screen بعد از 300ms
+    // Fallback فوری: حذف loading screen بعد از 200ms
     setTimeout(() => {
-      console.log("Fast fallback (300ms): hiding loading screen");
+      console.log("Fast fallback (200ms): hiding loading screen");
       hideLoadingScreen();
-    }, 300);
+    }, 200);
     
-    // Fallback سریع: حذف loading screen بعد از 800ms
+    // Fallback سریع: حذف loading screen بعد از 500ms
     setTimeout(() => {
-      console.log("Quick fallback (800ms): hiding loading screen");
+      console.log("Quick fallback (500ms): hiding loading screen");
       hideLoadingScreen();
-    }, 800);
+    }, 500);
     
-    // Fallback متوسط: حذف loading screen بعد از 1.5 ثانیه
+    // Fallback متوسط: حذف loading screen بعد از 1 ثانیه
     setTimeout(() => {
-      console.log("Medium fallback (1.5s): hiding loading screen, isReadyCalled:", isReadyCalled);
+      console.log("Medium fallback (1s): hiding loading screen");
       hideLoadingScreen();
-    }, 1500);
+    }, 1000);
     
-    // Fallback نهایی: حذف loading screen بعد از 2.5 ثانیه
+    // Fallback نهایی: حذف loading screen بعد از 2 ثانیه
     setTimeout(() => {
-      console.log("Final fallback (2.5s): hiding loading screen");
+      console.log("Final fallback (2s): hiding loading screen");
       hideLoadingScreen();
-    }, 2500);
+    }, 2000);
     
     // Fallback اضافی: حذف loading screen بعد از DOMContentLoaded
     if (document.readyState === 'loading') {
@@ -665,13 +683,13 @@
         setTimeout(() => {
           console.log("DOMContentLoaded fallback: hiding loading screen");
           hideLoadingScreen();
-        }, 100);
+        }, 50);
       });
     } else {
       setTimeout(() => {
         console.log("Document ready fallback: hiding loading screen");
         hideLoadingScreen();
-      }, 100);
+      }, 50);
     }
     
     // Fallback برای موبایل: حذف loading screen بعد از اولین touch
@@ -921,20 +939,23 @@
       setupVideo();
       playBackgroundMusic(); // پخش آهنگ پس‌زمینه
       
-      // حذف loading screen بعد از لود کامل (fallback اضافی)
-      setTimeout(() => {
-        hideLoadingScreen();
-      }, 100);
+      // حذف اجباری loading screen
+      console.log("Window loaded: hiding loading screen immediately");
+      hideLoadingScreen();
       
       // به‌روزرسانی آمار هر 30 ثانیه
       setInterval(updateMintStats, 30000);
     });
     
-    // Fallback اضافی: حذف loading screen بلافاصله بعد از لود DOM
+    // حذف اجباری loading screen بلافاصله بعد از لود DOM
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      setTimeout(() => {
+      console.log("Document already loaded, hiding loading screen immediately");
+      hideLoadingScreen();
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log("DOMContentLoaded: hiding loading screen immediately");
         hideLoadingScreen();
-      }, 200);
+      });
     }
     
     // اجرای سریع برای موبایل
