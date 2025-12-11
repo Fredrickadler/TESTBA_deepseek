@@ -553,24 +553,93 @@
     // index.html
     let userFid = null;
     let isReadyCalled = false;
+    const debugLogs: any[] = [];
+    let debugLogTimer: any = null;
+
+    // سیستم دیباگ برای ارسال لاگ‌ها
+    function debugLog(level: string, message: string, data?: any) {
+      const logEntry = {
+        level,
+        message,
+        data: data ? JSON.stringify(data) : null,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        url: window.location.href,
+        readyState: document.readyState,
+        sdkAvailable: !!window.sdk,
+        isReadyCalled
+      };
+      
+      debugLogs.push(logEntry);
+      console.log(`[${level}]`, message, data || '');
+      
+      // ارسال لاگ‌ها هر 2 ثانیه یا وقتی 10 لاگ جمع شد
+      if (debugLogs.length >= 10) {
+        sendDebugLogs();
+      } else if (!debugLogTimer) {
+        debugLogTimer = setTimeout(sendDebugLogs, 2000);
+      }
+    }
+
+    async function sendDebugLogs() {
+      if (debugLogs.length === 0) return;
+      
+      const logsToSend = [...debugLogs];
+      debugLogs.length = 0; // Clear array
+      debugLogTimer = null;
+      
+      try {
+        await fetch('/api/debug-log', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            logs: logsToSend,
+            userAgent: navigator.userAgent,
+            url: window.location.href,
+            timestamp: new Date().toISOString()
+          })
+        });
+      } catch (err) {
+        console.error('Failed to send debug logs:', err);
+      }
+    }
+
+    // ارسال لاگ‌های باقی‌مانده قبل از unload
+    window.addEventListener('beforeunload', () => {
+      sendDebugLogs();
+    });
 
     // تابع ساده و مطمئن برای صدا زدن ready()
     // این باید حتماً اجرا شود - حتی اگر SDK لود نشود
     async function callReady() {
       try {
-        console.log("READY CALLED - Attempting to call sdk.actions.ready()");
+        debugLog('INFO', 'READY CALLED - Attempting to call sdk.actions.ready()', {
+          sdkExists: !!window.sdk,
+          actionsExists: !!window.sdk?.actions,
+          readyExists: !!window.sdk?.actions?.ready
+        });
         
         if (window.sdk?.actions?.ready) {
           await window.sdk.actions.ready();
-          console.log("SDK ready() called successfully");
+          debugLog('SUCCESS', 'SDK ready() called successfully');
           isReadyCalled = true;
         } else {
-          console.warn("SDK not available yet, will retry...");
+          debugLog('WARN', 'SDK not available yet, will retry...', {
+            sdk: !!window.sdk,
+            actions: !!window.sdk?.actions,
+            ready: !!window.sdk?.actions?.ready
+          });
           // اگر SDK هنوز لود نشده، دوباره تلاش کن
           setTimeout(callReady, 100);
         }
-      } catch (err) {
-        console.warn("Ready call error:", err);
+      } catch (err: any) {
+        debugLog('ERROR', 'Ready call error', {
+          error: err?.message,
+          stack: err?.stack,
+          name: err?.name
+        });
         isReadyCalled = true; // Mark as called even on error
       }
     }
@@ -578,17 +647,38 @@
     // بهینه‌سازی SDK طبق داکیومنت Farcaster
     // مهم: باید sdk.actions.ready() را صدا بزنیم تا splash screen مخفی شود
     async function initSDK() {
+      const startTime = Date.now();
+      debugLog('INFO', 'Starting SDK initialization...', {
+        readyState: document.readyState,
+        location: window.location.href
+      });
+      
       try {
-        console.log("Starting SDK initialization...");
+        const importStart = Date.now();
+        debugLog('INFO', 'Importing SDK from esm.sh...');
         
         // Import SDK
         const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk');
+        const importTime = Date.now() - importStart;
+        
         window.sdk = sdk;
-        console.log("SDK imported successfully");
+        debugLog('SUCCESS', 'SDK imported successfully', {
+          importTime: `${importTime}ms`,
+          sdkType: typeof sdk,
+          hasActions: !!sdk?.actions,
+          hasReady: !!sdk?.actions?.ready
+        });
         
         // مهم: همیشه ready() را صدا بزنیم - بدون timeout
         // طبق داکیومنت: "If you don't call ready(), users will see an infinite loading screen"
+        const readyStart = Date.now();
         await callReady();
+        const readyTime = Date.now() - readyStart;
+        
+        debugLog('INFO', 'Ready() completed', {
+          readyTime: `${readyTime}ms`,
+          isReadyCalled
+        });
         
         // حذف loading screen بعد از ready()
         hideLoadingScreen();
@@ -597,20 +687,38 @@
         // این را به صورت async انجام می‌دهیم تا blocking نکند
         setTimeout(async () => {
           try {
+            debugLog('INFO', 'Fetching SDK context...');
             const context = await sdk.context;
-            console.log("Farcaster context:", context);
+            debugLog('SUCCESS', 'Context fetched', {
+              hasUser: !!context?.user,
+              hasFid: !!context?.user?.fid,
+              fid: context?.user?.fid
+            });
             
             if (context?.user?.fid) {
               userFid = context.user.fid;
-              console.log("User FID:", userFid);
             }
-          } catch (ctxErr) {
-            console.warn("Context fetch error:", ctxErr);
+          } catch (ctxErr: any) {
+            debugLog('ERROR', 'Context fetch error', {
+              error: ctxErr?.message,
+              stack: ctxErr?.stack
+            });
           }
         }, 100);
         
-      } catch (err) {
-        console.error("Farcaster SDK error:", err);
+        const totalTime = Date.now() - startTime;
+        debugLog('SUCCESS', 'SDK initialization completed', {
+          totalTime: `${totalTime}ms`
+        });
+        
+      } catch (err: any) {
+        const totalTime = Date.now() - startTime;
+        debugLog('ERROR', 'Farcaster SDK error', {
+          error: err?.message,
+          stack: err?.stack,
+          name: err?.name,
+          totalTime: `${totalTime}ms`
+        });
         // اگر SDK لود نشد، باز هم loading screen را حذف کنیم
         hideLoadingScreen();
       }
@@ -619,7 +727,12 @@
     function hideLoadingScreen() {
       const loadingScreen = document.querySelector('.loading-screen');
       if (loadingScreen) {
-        console.log("Hiding loading screen...");
+        debugLog('INFO', 'Hiding loading screen...', {
+          hasClass: loadingScreen.classList.contains('hidden'),
+          display: window.getComputedStyle(loadingScreen).display,
+          visibility: window.getComputedStyle(loadingScreen).visibility
+        });
+        
         // حذف کامل و اجباری loading screen
         loadingScreen.classList.add('hidden');
         loadingScreen.style.display = 'none';
@@ -634,15 +747,30 @@
         loadingScreen.style.height = '0';
         document.body.classList.remove('loading');
         document.body.style.overflow = 'auto';
-        console.log("Loading screen hidden");
+        
+        debugLog('SUCCESS', 'Loading screen hidden', {
+          finalDisplay: window.getComputedStyle(loadingScreen).display,
+          finalVisibility: window.getComputedStyle(loadingScreen).visibility
+        });
       } else {
-        console.warn("Loading screen element not found");
+        debugLog('WARN', 'Loading screen element not found');
       }
     }
 
+    // شروع دیباگ
+    debugLog('INFO', 'Page script started', {
+      readyState: document.readyState,
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+      isInIframe: window.self !== window.top
+    });
+    
     // شروع لود SDK بلافاصله
     initSDK().catch(err => {
-      console.error("SDK init error:", err);
+      debugLog('ERROR', 'SDK init error in catch', {
+        error: err?.message,
+        stack: err?.stack
+      });
       // حتی اگر SDK خطا داد، loading screen را حذف کن
       hideLoadingScreen();
     });
@@ -944,29 +1072,45 @@
     }
 
     // اجرا بعد از لود شدن صفحه
+    // حذف اجباری loading screen بلافاصله بعد از لود DOM
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      debugLog('INFO', 'Document already loaded, hiding loading screen immediately', {
+        readyState: document.readyState
+      });
+      hideLoadingScreen();
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        debugLog('INFO', 'DOMContentLoaded: hiding loading screen immediately');
+        hideLoadingScreen();
+      });
+    }
+    
+    // اجرا بعد از لود شدن صفحه
     window.addEventListener('load', () => {
+      // حذف اجباری loading screen
+      debugLog('INFO', 'Window loaded: hiding loading screen immediately', {
+        isReadyCalled,
+        sdkAvailable: !!window.sdk
+      });
+      hideLoadingScreen();
+      
+      // ارسال همه لاگ‌های باقی‌مانده
+      sendDebugLogs();
+      
       updateMintStats(); // این خودش عنوان NFT رو هم به‌روز می‌کنه
       setupVideo();
       playBackgroundMusic(); // پخش آهنگ پس‌زمینه
-      
-      // حذف اجباری loading screen
-      console.log("Window loaded: hiding loading screen immediately");
-      hideLoadingScreen();
       
       // به‌روزرسانی آمار هر 30 ثانیه
       setInterval(updateMintStats, 30000);
     });
     
-    // حذف اجباری loading screen بلافاصله بعد از لود DOM
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      console.log("Document already loaded, hiding loading screen immediately");
-      hideLoadingScreen();
-    } else {
-      document.addEventListener('DOMContentLoaded', () => {
-        console.log("DOMContentLoaded: hiding loading screen immediately");
-        hideLoadingScreen();
-      });
-    }
+    // ارسال لاگ‌ها هر 5 ثانیه به صورت دوره‌ای
+    setInterval(() => {
+      if (debugLogs.length > 0) {
+        sendDebugLogs();
+      }
+    }, 5000);
     
     // اجرای سریع برای موبایل
     if (document.readyState === 'complete') {
