@@ -227,7 +227,13 @@
         background-position: 20px 20px;
       }
     }
+    .mint-btn-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 12px;
+    }
     .mint-btn {
+      position: relative;
       background: var(--primary); 
       color: white; 
       border: none;
@@ -239,16 +245,42 @@
       transition: all 0.3s ease;
       width: 100%; 
       box-shadow: 0 4px 20px rgba(138, 90, 255, 0.3);
+      z-index: 2;
+      overflow: hidden;
+    }
+    .mint-btn-snow {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110%;
+      height: auto;
+      max-width: 180px;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0.85;
+      filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3));
     }
     .mint-btn:hover {
       background: var(--primary-dark); 
       transform: translateY(-3px);
       box-shadow: 0 8px 30px rgba(138, 90, 255, 0.5);
     }
+    .mint-btn:hover .mint-btn-snow {
+      animation: snowShake 0.5s ease;
+    }
+    @keyframes snowShake {
+      0%, 100% { transform: translateX(-50%) rotate(0deg); }
+      25% { transform: translateX(-50%) rotate(-2deg) translateY(-2px); }
+      75% { transform: translateX(-50%) rotate(2deg) translateY(-2px); }
+    }
     .mint-btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       transform: none;
+    }
+    .mint-btn:disabled .mint-btn-snow {
+      opacity: 0.5;
     }
     .mint-price { 
       margin-top: 12px; 
@@ -366,6 +398,10 @@
         padding: 14px;
         font-size: 15px;
       }
+      .mint-btn-snow {
+        max-width: 150px;
+        top: -3px;
+      }
       .mint-price {
         font-size: 13px;
         margin-top: 10px;
@@ -420,7 +456,12 @@
         <div class="progress-container">
           <div class="progress-bar" id="progressBar"></div>
         </div>
-        <button class="mint-btn" id="mintButton">MINT NOW</button>
+        <div class="mint-btn-wrapper">
+          <button class="mint-btn" id="mintButton">
+            <img src="/PNG/snow.PNG" alt="Snow" class="mint-btn-snow" />
+            MINT NOW
+          </button>
+        </div>
         <div class="mint-price">Price: 0.00149 ETH</div>
       </div>
     </main>
