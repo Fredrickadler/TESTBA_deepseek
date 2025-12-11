@@ -1,6 +1,11 @@
 // mint-nft.ts
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { saveMintTransaction, hasUserMinted } from '../../lib/db';
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -9,6 +14,14 @@ export default async function handler(req, res) {
 
   if (!fid) {
     return res.status(400).json({ error: 'FID is required' });
+  }
+
+  // بررسی اینکه کاربر قبلاً مینت کرده یا نه (اختیاری)
+  const alreadyMinted = await hasUserMinted(parseInt(fid));
+  if (alreadyMinted) {
+    return res.status(400).json({ 
+      error: 'You have already minted an NFT' 
+    });
   }
 
   const apiKey = process.env.NEYNAR_API_KEY;
@@ -55,9 +68,22 @@ export default async function handler(req, res) {
 
     if (data.transactions && data.transactions.length > 0) {
       const transaction = data.transactions[0];
+      const transactionHash = transaction.transaction_hash;
+
+      // ذخیره اطلاعات مینت در دیتابیس
+      const saved = await saveMintTransaction(
+        parseInt(fid),
+        transactionHash,
+        transaction.token_id
+      );
+
+      if (!saved) {
+        console.warn('Failed to save mint transaction to database, but mint was successful');
+      }
+
       return res.status(200).json({
         success: true,
-        transactionHash: transaction.transaction_hash,
+        transactionHash: transactionHash,
         receipt: transaction.receipt,
       });
     }
@@ -67,11 +93,11 @@ export default async function handler(req, res) {
       data,
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Mint NFT error:', error);
     return res.status(500).json({
       error: 'Internal server error',
-      message: error.message,
+      message: error?.message || 'Unknown error',
     });
   }
 }

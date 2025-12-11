@@ -278,28 +278,28 @@
     }
     .mint-btn-snow {
       position: absolute;
-      top: -45px;
-      left: 66%;
+      top: -40px;
+      left: 68%;
       transform: translateX(-50%);
       width: 160%;
       height: auto;
       max-width: 360px;
       min-width: 300px;
       pointer-events: none;
-      z-index: 3;
+      z-index: 9999 !important;
       opacity: 1;
     }
     .mint-btn-snow-2 {
       position: absolute;
-      top: -45px;
-      left: 66%;
+      top: -40px;
+      left: 68%;
       transform: translateX(-50%);
       width: 160%;
       height: auto;
       max-width: 360px;
       min-width: 300px;
       pointer-events: none;
-      z-index: 3;
+      z-index: 9999 !important;
       opacity: 1;
     }
     .mint-btn:hover {
@@ -327,11 +327,11 @@
       display: block !important;
       visibility: visible !important;
       position: absolute !important;
-      z-index: 3 !important;
+      z-index: 9999 !important;
       pointer-events: none !important;
       transform: translateX(-50%) !important;
-      top: -45px !important;
-      left: 66% !important;
+      top: -40px !important;
+      left: 68% !important;
       width: 160% !important;
       max-width: 360px !important;
       min-width: 300px !important;
@@ -458,16 +458,16 @@
       .mint-btn-snow {
         max-width: 320px;
         min-width: 260px;
-        top: -41px;
+        top: -36px;
         width: 150%;
-        left: 66%;
+        left: 68%;
       }
       .mint-btn-snow-2 {
         max-width: 320px;
         min-width: 260px;
-        top: -41px;
+        top: -36px;
         width: 150%;
-        left: 66%;
+        left: 68%;
       }
       .mint-btn:disabled .mint-btn-snow,
       .mint-btn:disabled .mint-btn-snow-2 {
@@ -475,11 +475,11 @@
         display: block !important;
         visibility: visible !important;
         position: absolute !important;
-        z-index: 3 !important;
+        z-index: 9999 !important;
         pointer-events: none !important;
         transform: translateX(-50%) !important;
-        top: -41px !important;
-        left: 66% !important;
+        top: -36px !important;
+        left: 68% !important;
         width: 150% !important;
         max-width: 320px !important;
         min-width: 260px !important;
@@ -649,12 +649,18 @@
         }
         
         // مهم: صدا زدن ready() - طبق داکیومنت
-        // فقط بعد از ready() موفق، loading screen را حذف می‌کنیم
         debugLog('INFO', 'Calling sdk.actions.ready()...');
-        await sdk.actions.ready();
-        debugLog('SUCCESS', 'SDK ready() called successfully');
+        try {
+          await sdk.actions.ready();
+          debugLog('SUCCESS', 'SDK ready() called successfully');
+        } catch (readyErr) {
+          debugLog('ERROR', 'sdk.actions.ready() failed', {
+            error: readyErr?.message
+          });
+          // حتی اگر ready() خطا داد، loading screen را حذف می‌کنیم
+        }
         
-        // حذف loading screen فقط بعد از ready() موفق
+        // حذف loading screen بعد از ready() (حتی اگر خطا داد)
         hideLoadingScreen();
         
         // بعد از ready() موفق، سایر توابع را اجرا می‌کنیم
